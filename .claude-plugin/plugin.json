@@ -1,0 +1,10 @@
+{
+  "name": "bayesian-statistician",
+  "description": "Specialized subagents and skills for Bayesian statistical modeling workflows with Stan and ArviZ",
+  "version": "0.1.0",
+  "author": {
+    "name": "Xianda Sun"
+  },
+  "repository": "https://github.com/xiandasun/bayesian-statistician-plugin",
+  "license": "MIT"
+}
