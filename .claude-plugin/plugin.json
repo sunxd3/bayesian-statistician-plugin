@@ -2,6 +2,7 @@
   "name": "bayesian-statistician",
   "description": "Specialized subagents and skills for Bayesian statistical modeling workflows with Stan and ArviZ",
   "version": "0.1.0",
+  "hooks": "./hooks/hooks.json",
   "author": {
     "name": "Xianda Sun"
   },

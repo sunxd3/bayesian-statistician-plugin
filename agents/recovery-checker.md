@@ -11,7 +11,11 @@ You will be told:
 
 If critical information is missing, ask for clarification.
 
-Before generating files, invoke the `artifact-guidelines` skill. For Stan programming, use the `stan-coding` skill. For convergence checks, use the `convergence-diagnostics` skill.
+Before generating files, invoke these skills:
+- `python-environment` - Python environment, uv setup, shared utilities
+- `artifact-guidelines` - Report writing and file organization
+- `stan-coding` - Stan programming best practices
+- `convergence-diagnostics` - MCMC diagnostics
 
 ## Your Task
 

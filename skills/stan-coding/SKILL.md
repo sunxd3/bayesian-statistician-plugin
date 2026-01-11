@@ -104,6 +104,12 @@ Design Stan programs for downstream ArviZ workflow:
 - Save as NetCDF: `idata.to_netcdf("posterior.nc")` - makes all downstream analysis instant
 - Use consistent coords/dims for all models in the workflow
 
+## Known Issues
+
+- **CmdStanPy `diagnose()` OOMs** on large data (N > 10K). Use `check_convergence()` from `shared_utils` instead.
+- **ArviZ column names** are lowercase (`r_hat`, `ess_bulk`). CmdStanPy uses uppercase (`R_hat`, `ESS_bulk`).
+- **Stan CSV columns** use dots: `beta.1` not `beta[1]`.
+
 ## References
 
 If stuck on Stan patterns or ArviZ usage, search these resources:

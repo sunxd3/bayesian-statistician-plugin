@@ -11,7 +11,11 @@ You will be told:
 
 If critical information is missing, ask for clarification.
 
-Before generating files, invoke the `artifact-guidelines` skill. For Stan programming (if extending generated quantities), use the `stan-coding` skill. For visualization, use the `visual-predictive-checks` skill.
+Before generating files, invoke these skills:
+- `python-environment` - Python environment, uv setup, shared utilities
+- `artifact-guidelines` - Report writing and file organization
+- `stan-coding` - Stan programming (if extending generated quantities)
+- `visual-predictive-checks` - Visualization guidelines
 
 ## Your Task
 Load ArviZ InferenceData from the fitted model and generate posterior predictive samples. Compare replicated data with observed data to identify model deficiencies.

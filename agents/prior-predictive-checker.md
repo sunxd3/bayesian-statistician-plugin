@@ -12,7 +12,11 @@ You will be told:
 
 If critical information is missing, ask for clarification.
 
-Before generating files, invoke the `artifact-guidelines` skill. For Stan programming, use the `stan-coding` skill. For visualization, use the `visual-predictive-checks` skill.
+Before generating files, invoke these skills:
+- `python-environment` - Python environment, uv setup, shared utilities
+- `artifact-guidelines` - Report writing and file organization
+- `stan-coding` - Stan programming best practices
+- `visual-predictive-checks` - Visualization guidelines
 
 ## Your Task
 Read the model specification and data context from the directory specified by the main agent. If a Stan model file already exists for this experiment, reuse it. Otherwise, write a Stan program that encodes the generative story, including priors and the likelihood, and add a `generated quantities` block with replicated observations (for example, `y_rep`) and any other predictive quantities you need.

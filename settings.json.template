@@ -1,0 +1,20 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash|Write|Edit",
+        "hooks": [
+          {"type": "command", "command": "$CLAUDE_PROJECT_DIR/bayesian-statistician-plugin/hooks/delegate-check.sh"}
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {"type": "command", "command": "$CLAUDE_PROJECT_DIR/bayesian-statistician-plugin/hooks/check-file-length.sh"},
+          {"type": "command", "command": "$CLAUDE_PROJECT_DIR/bayesian-statistician-plugin/hooks/check-shared-utils-import.sh"},
+          {"type": "command", "command": "$CLAUDE_PROJECT_DIR/bayesian-statistician-plugin/hooks/check-ruff.sh"}
+        ]
+      }
+    ]
+  }
+}
