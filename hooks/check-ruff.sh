@@ -9,11 +9,11 @@ file_path=$(echo "$input" | jq -r '.tool_input.file_path // empty')
 
 cd "$CLAUDE_PROJECT_DIR" 2>/dev/null || exit 0
 
-ruff_output=$(uv run --extra dev ruff check "$file_path" 2>/dev/null)
+ruff_output=$(uv run --with ruff ruff check "$file_path" 2>/dev/null)
 if [[ -n "$ruff_output" ]]; then
     issue_count=$(echo "$ruff_output" | grep -c "^" || echo "0")
     if [[ $issue_count -gt 0 ]]; then
-        echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"<system-reminder>Ruff found issues. Run: uv run --extra dev ruff check --fix $file_path</system-reminder>\"}}"
+        echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"<system-reminder>Ruff found issues. Run: uv run --with ruff ruff check --fix $file_path</system-reminder>\"}}"
     fi
 fi
 
