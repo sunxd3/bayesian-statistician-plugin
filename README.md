@@ -5,7 +5,7 @@ Claude Code plugin for Bayesian statistical modeling workflows with Stan and Arv
 ## Usage
 
 ```bash
-git clone https://github.com/xiandasun/bayesian-statistician-plugin.git
+git clone https://github.com/sunxd3/bayesian-statistician-plugin.git
 
 claude --system-prompt "$(cat ./bayesian-statistician-plugin/system_prompt.md)" --plugin-dir ./bayesian-statistician-plugin
 ```
