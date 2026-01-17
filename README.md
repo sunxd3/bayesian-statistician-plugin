@@ -18,18 +18,7 @@ Then ask Claude to do Bayesian analysis:
 > Analyze the dataset in data/sales.csv and build a Bayesian model
 ```
 
-## Hooks (Optional)
-
-To enable validation hooks, copy the template to your project settings:
-
-```bash
-mkdir -p .claude
-cp ./bayesian-statistician-plugin/settings.json.template .claude/settings.json
-```
-
-Plugin hooks are currently [broken](https://github.com/anthropics/claude-code/issues/14410), so this workaround is required.
-
-## Settings (Optional)
+## Optional Settings
 
 Add to your `.claude/settings.json`:
 
@@ -43,4 +32,4 @@ Add to your `.claude/settings.json`:
 ```
 
 - `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR`: Resets working directory to project root after each bash command
-- `CLAUDE_CODE_SUBAGENT_MODEL`: (Optional) Model for subagents (default is sonnet)
+- `CLAUDE_CODE_SUBAGENT_MODEL`: Model for subagents (default is sonnet)
