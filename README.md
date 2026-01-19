@@ -7,16 +7,17 @@ Claude Code plugin for Bayesian statistical modeling workflows with Stan and Arv
 ```bash
 git clone https://github.com/sunxd3/bayesian-statistician-plugin.git
 
-claude --system-prompt "$(cat ./bayesian-statistician-plugin/system_prompt.md)" --plugin-dir ./bayesian-statistician-plugin
+claude --plugin-dir ./bayesian-statistician-plugin
 ```
 
-Without `--system-prompt`, the skills and agents are available but Claude won't automatically orchestrate the full workflow. With the system prompt, Claude follows the structured Bayesian workflow (EDA → Model Design → Fitting → Validation → Reporting) and uses parallel subagents.
-
-Then ask Claude to do Bayesian analysis:
+Then invoke the `/bayesian-workflow` skill to start:
 
 ```
+> /bayesian-workflow
 > Analyze the dataset in data/sales.csv and build a Bayesian model
 ```
+
+The skill activates the full Bayesian workflow: EDA → Model Design → Fitting → Validation → Reporting, with parallel subagents.
 
 ## Optional Settings
 
