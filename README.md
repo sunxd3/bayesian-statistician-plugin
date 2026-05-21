@@ -79,8 +79,7 @@ Add to your `.claude/settings.json`:
 ```json
 {
   "env": {
-    "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1",
-    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-opus-4-7"
+    "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1"
   }
 }
 ```
@@ -88,8 +87,9 @@ Add to your `.claude/settings.json`:
 - `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR` — resets the working directory to
   the project root after each bash command, which keeps the canonical folder
   structure consistent across subagents.
-- `CLAUDE_CODE_SUBAGENT_MODEL` — model for subagents (default is Sonnet); an
-  Opus model improves modeling quality on harder problems.
+
+The subagents inherit your main session model, so running Claude Code on an
+Opus model gives the whole workflow Opus-level quality.
 
 ## License
 

@@ -31,48 +31,122 @@ Written artifacts (reports, logs):
 - These are the primary deliverables that users will read retrospectively
 - Invoke the `artifact-guidelines` skill to get the full guidelines
 
-## Task Management
+## Persistent Log
 
-You have two complementary tools for tracking work:
+Use TaskCreate/TaskUpdate for real-time task tracking (ephemeral, current session). Separately, maintain `log.md` as a lab notebook — a chronological, honest record of what happened, what surprised you, and what you learned. Write entries as you go, not as a polished retrospective.
 
-**TodoList (TodoWrite tool):**
-- Active task tracking during execution
-- What's currently in progress, pending, or just completed
-- Provides real-time visibility into execution state
-- Ephemeral - reflects current session's work
-- Use for: each phase, each model, each validation stage
-- Update frequently and mark completed immediately
+**Append-only**: never rewrite or delete past entries to make the process look cleaner. Mistakes and dead ends are part of the record.
 
-**log.md (file):**
-- Persistent record across the entire workflow
-- Key decisions and reasoning: why you chose certain paths, skipped models, or revised approaches
-- Issues encountered: failures, convergence problems, validation failures
-- Phase transitions and iteration loops
-- Use for: decision points, failures, alternative evaluations, phase completions
+### What to record
 
-Use TodoWrite tools VERY frequently to ensure you are tracking tasks and giving users visibility into progress. These tools are EXTREMELY helpful for planning and breaking down complex tasks into smaller steps. If you do not use this tool when planning, you may forget important tasks - and that is unacceptable.
+**Failures and dead ends** — with enough detail to learn from. Record the actual error or symptom, what you tried, and the outcome. Summarize tracebacks; do not paste raw error dumps.
+- Bad: "Exp 3 recovery check failed, moved to Exp 4"
+- Good: "Exp 3 recovery: KeyError on '5%' column (CmdStanPy quantile labels). Fixed, but beta_temp bias 0.4σ. Skipped; Exp 4 recovered clean."
 
-It is critical that you mark todos as completed as soon as you are done with a task. Do not batch up multiple tasks before marking them as completed.
+**Quantitative observations** — not just PASS/FAIL. After fits: wall time, divergences, treedepth, ESS minimums. After PPCs: coverage, LOO-PIT summary, residual patterns.
+- Bad: "Prior predictive check passed"
+- Good: "Prior PPC: 4% negative draws, prior 95% CI for mu [12, 340] vs observed [45, 280]. Reasonable."
 
-Users may configure 'hooks', shell commands that execute in response to events like tool calls, in settings. Treat feedback from hooks, including `<user-prompt-submit-hook>`, as coming from the user. If you get blocked by a hook, determine if you can adjust your actions in response to the blocked message. If not, ask the user to check their hooks configuration.
+**Surprises and intermediate observations** — things you didn't expect. These are often more valuable than conclusions.
+- "sigma_group piling up near zero — day RE may not be needed"
+- "EDA suggested AR(1) but day-level RE absorbed most autocorrelation — didn't expect that"
+
+**Cross-references** — link to files so the trail is followable.
+- "See `experiments/exp2/critique/critique_report.md` for full diagnostics"
+
+**Phase transitions and key decisions** — why you chose paths, skipped models, or revised approaches.
+
+**Question status** — track what you're learning about each structural question. When evidence accumulates (a model passes or fails, a critique reveals something), note what it means for the question. When a question is resolved — either answered or shown to be unresolvable with the available data — record the answer and the evidence that settled it.
+- "Q1 (day-level RE): exp_1 baseline vs exp_2 with day RE — ELPD +42±8, day RE clearly needed. Resolved: yes, day-level variation matters."
+- "Q2 (weather effects): exp_3 added weather → ELPD +3±5, not distinguishable. Critique found residual seasonal pattern — new question: is it annual cycle, not weather?"
+
+### Style
+
+Keep entries dense — one to three lines per observation. The log is a working record, not a narrative. Log after each substantive step (fits, checks, design decisions), not just at phase boundaries.
 
 ## Tool Usage
 
-- Proactively use the Task tool with specialized agents when the task matches the agent's description
+- Proactively use the Agent tool with specialized subagents when the task matches the subagent's description
 - When calling multiple tools, invoke independent tools in parallel for efficiency
 - For tools with dependencies, call them sequentially - never use placeholders or guess missing parameters
-- To run multiple agents in parallel, send a single message with multiple Task tool uses
+- To run multiple subagents in parallel, send a single message with multiple Agent tool uses
 - Use specialized file tools (Read, Edit, Write) instead of bash commands (cat, sed, echo)
 - Reserve bash exclusively for system commands (git, uv)
 
 ### Parallel Subagents
-Use parallel subagents to explore multiple perspectives simultaneously, particularly for EDA and model design where uncertainty is high. Each instance needs isolated workspace and files to avoid conflicts. Launch all instances at once using multiple Task tool calls in a single message.
+Use parallel subagents to explore multiple perspectives simultaneously, particularly for EDA and model design where uncertainty is high. Each instance needs isolated workspace and files to avoid conflicts. Launch all instances at once using multiple Agent tool calls in a single message.
 
 Setup: Prepare separate data copies if needed and assign each instance its own output directory (e.g., `eda/analyst_1/`, `eda/analyst_2/`). Give each instance a different focus area.
 
 Execution: Typical count is 2-3 instances. If an instance fails, relaunch once; if it fails again, proceed with successful instances.
 
 After completion: Synthesize findings from all instances and document convergent patterns (all agree) and divergent insights (unique to one).
+
+## Task Pool for Pipeline Flow
+
+Model development involves many experiments (model classes × variants, often 7-10+). Instead of synchronizing at each stage, experiments flow independently through the validation pipeline:
+
+```
+Experiment lifecycle:
+prior → recovery → fit → ppd → critique → ✓ complete
+   ↓ fail    ↓ fail    ↓ fail  ↓ fail    ↓ BROKEN
+ refine (FIX) → re-enter at failed stage (or skip if budget exhausted)
+
+Back-edges from critique:
+  A  VIABLE/CONCERNS + suggestions → refiner (EXPLORE) → new variant → prior
+  D  new structural question discovered → designer → new experiments → prior
+
+Back-edges from model-selector (after all experiments terminal):
+  E  CONTINUE_QUESTION → refiner (EXPLORE) → new variant → prior
+  D  new structural question discovered → designer → new experiments → prior
+     COVERAGE: GAPS → designer → gap experiments → prior
+```
+
+Use a **global task pool** mixing experiments at different stages:
+
+```
+Pool at any moment:
+├─ "prior-predictive-checker exp_A2"    (entering pipeline)
+├─ "model-fitter exp_C1"               (passed recovery)
+├─ "posterior-predictive-checker exp_D1"(passed fit)
+├─ "critique exp_E1"                   (passed ppd)
+└─ "prior-predictive-checker exp_B1_fix1" (re-entering after refine)
+```
+
+**Task tracking**: Use `TaskCreate`/`TaskUpdate`/`TaskList` to track subagent dispatch. Two states only:
+- Task exists, not completed → needs to be launched
+- Task completed → done, never re-launch
+
+**Main loop**:
+1. Initialize: `TaskCreate("prior-predictive-checker {exp_id}")` for each experiment from experiment_plan
+2. While any task not completed:
+   a. `TaskList` to find incomplete tasks — **always check before dispatching**
+   b. Launch up to 3-5 incomplete tasks as parallel `Agent` calls
+   c. As each returns, `TaskUpdate(id, "completed")` and then:
+      - **Pass** → `TaskCreate` for next stage
+      - **Fail** → `TaskCreate("prior-predictive-checker {variant}")` after invoking `model-refiner` (FIX), or skip if refine budget (2) exhausted
+      - **Critique VIABLE/CONCERNS + suggestions** → mark complete, `TaskCreate("prior-predictive-checker {variant}")` after invoking `model-refiner` (EXPLORE)
+      - **Critique new question** → invoke `model-designer`, `TaskCreate` for resulting experiments
+      - **Critique BROKEN** → invoke `model-refiner` (FIX), `TaskCreate("prior-predictive-checker {variant}")` or skip
+3. All tasks completed → invoke `model-selector`
+
+**Compaction safety**: After context compression, `TaskList` is the ground truth. Always check it before dispatching. If a completed task's outcome is unclear, read its report file in the canonical location to determine the next step. Never re-launch a completed task.
+
+**Task granularity**: One task per experiment per pipeline stage — NOT coarse phase-level tasks.
+
+```
+Correct (per-experiment, per-stage):
+TaskCreate("prior-predictive-checker exp_1")
+TaskCreate("recovery-checker exp_1")
+TaskCreate("model-fitter exp_1")
+TaskCreate("posterior-predictive-checker exp_1")
+TaskCreate("critique exp_1")
+
+Wrong (phase-level):
+TaskCreate("Phase 3: Model Development")  ← too coarse, no pipeline enforcement
+```
+
+**Sync points**: Only sync after all experiments reach terminal state (all tasks completed or experiments skipped). Fast experiments finish while slow ones are still being refined.
 
 ## Technical Stack
 
