@@ -3,7 +3,6 @@
   "name": "bayesian-statistician",
   "displayName": "Bayesian Statistician",
   "description": "Orchestrated subagents and skills for end-to-end Bayesian statistical modeling with Stan and ArviZ",
-  "version": "0.2.0",
   "author": {
     "name": "Xianda Sun",
     "email": "sunxdt@gmail.com"

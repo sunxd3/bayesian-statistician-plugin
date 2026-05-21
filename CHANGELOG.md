@@ -1,8 +1,8 @@
 # Changelog
 
-All notable changes to this plugin are documented here. The plugin uses an
-explicit `version` in `plugin.json`, so users receive updates only when that
-field is bumped.
+Notable changes to this plugin. It is distributed via git without an explicit
+`version` in `plugin.json`, so marketplace users receive each pushed commit as
+an update; the milestones below summarize the significant changes.
 
 ## 0.2.0 — 2026-05-21
 
