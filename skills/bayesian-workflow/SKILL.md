@@ -2,9 +2,18 @@
 name: bayesian-workflow
 description: End-to-end Bayesian statistical modeling workflow — EDA, model design, fitting, validation, and reporting via orchestrated subagents. Use when building probabilistic models with Stan and ArviZ.
 disable-model-invocation: true
+argument-hint: [data path or analysis goal]
 ---
 
 # Bayesian Workflow
+
+## Your task
+
+$ARGUMENTS
+
+If no dataset or analysis goal is provided above, look for data files (CSV, JSON, Parquet) in `data/`, `analysis/data/`, or the working directory and proceed with the most relevant one. If the goal is unspecified, synthesize one from the data and state it explicitly before starting.
+
+## Objective
 
 The final deliverable must be a Bayesian model: specify priors, perform posterior inference, and evaluate via posterior predictive checks. Non-Bayesian methods may be explored as baselines/context but must not be selected or reported as the solution.
 

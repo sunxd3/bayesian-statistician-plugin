@@ -32,11 +32,10 @@ Run `/reload-plugins` after editing a locally loaded plugin.
 
 ## Usage
 
-Start the workflow by invoking the orchestrator skill and describing the task:
+Invoke the orchestrator skill with your data path or analysis goal:
 
 ```
-> /bayesian-statistician:bayesian-workflow
-> Analyze the dataset in data/sales.csv and build a Bayesian model
+> /bayesian-statistician:bayesian-workflow Analyze data/sales.csv and build a Bayesian model
 ```
 
 The orchestrator sets up the Python environment, then drives the workflow
