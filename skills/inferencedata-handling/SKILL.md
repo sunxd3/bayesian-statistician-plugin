@@ -1,6 +1,7 @@
 ---
 name: inferencedata-handling
 description: Proper ArviZ InferenceData creation and validation from CmdStanPy
+user-invocable: false
 ---
 
 # InferenceData Handling

@@ -1,6 +1,7 @@
 ---
 name: horseshoe-prior
 description: Stable horseshoe prior implementation patterns for sparse regression
+user-invocable: false
 ---
 
 # Horseshoe Prior for Sparse Bayesian Regression

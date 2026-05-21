@@ -1,6 +1,7 @@
 ---
 name: statistical-diagnostics
 description: Library of diagnostic tests for EDA and data quality assessment
+user-invocable: false
 ---
 
 # Statistical Diagnostics Reference

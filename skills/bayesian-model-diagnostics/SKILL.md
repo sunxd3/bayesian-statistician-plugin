@@ -1,6 +1,7 @@
 ---
 name: bayesian-model-diagnostics
 description: Interpreting LOO diagnostics, PIT calibration, and Pareto k for single-model evaluation
+user-invocable: false
 ---
 
 # Bayesian Model Diagnostics

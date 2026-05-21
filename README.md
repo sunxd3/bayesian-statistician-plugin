@@ -14,15 +14,21 @@ library of modeling skills that together run a full Bayesian workflow:
 
 ## Install
 
-Clone the repository and load it with `--plugin-dir`:
+**From the marketplace** (the repository is also its own marketplace):
+
+```
+/plugin marketplace add sunxd3/bayesian-statistician-plugin
+/plugin install bayesian-statistician@sunxd3-plugins
+```
+
+**For local development**, clone the repository and load it with `--plugin-dir`:
 
 ```bash
 git clone https://github.com/sunxd3/bayesian-statistician-plugin.git
 claude --plugin-dir ./bayesian-statistician-plugin
 ```
 
-Run `/reload-plugins` after pulling updates. Once the plugin is published to a
-marketplace, it can also be installed with `/plugin`.
+Run `/reload-plugins` after editing a locally loaded plugin.
 
 ## Usage
 

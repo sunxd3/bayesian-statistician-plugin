@@ -1,6 +1,7 @@
 ---
 name: python-environment
 description: Python environment setup with uv, the bundled shared_utils library, and script structure guidelines.
+user-invocable: false
 ---
 
 # Python Environment

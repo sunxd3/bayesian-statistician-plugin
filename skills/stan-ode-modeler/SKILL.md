@@ -1,6 +1,7 @@
 ---
 name: stan-ode-modeler
 description: Guidelines for Stan models with ODE-based dynamics using modern interfaces
+user-invocable: false
 ---
 
 # Stan ODE Modeler

@@ -1,6 +1,7 @@
 ---
 name: bayesian-model-selection
 description: Comparing model populations via ELPD, decision rules for selection vs stacking, and metric validity
+user-invocable: false
 ---
 
 # Bayesian Model Selection

@@ -1,6 +1,7 @@
 ---
 name: convergence-diagnostics
 description: MCMC convergence diagnostics using CmdStanPy and ArviZ
+user-invocable: false
 ---
 
 # Convergence Diagnostics

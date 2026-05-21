@@ -1,6 +1,7 @@
 ---
 name: generative-model-design
 description: Required design decisions for complete generative model specifications
+user-invocable: false
 ---
 
 # Generative Model Design

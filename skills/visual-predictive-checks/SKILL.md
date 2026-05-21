@@ -1,6 +1,7 @@
 ---
 name: visual-predictive-checks
 description: Guidelines for visual predictive checks following Säilynoja et al. recommendations using ArviZ
+user-invocable: false
 ---
 
 # Visual Predictive Checks

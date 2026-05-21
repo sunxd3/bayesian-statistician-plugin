@@ -1,0 +1,18 @@
+{
+  "name": "sunxd3-plugins",
+  "description": "Plugins for Bayesian statistical modeling with Claude Code",
+  "owner": {
+    "name": "Xianda Sun",
+    "email": "sunxdt@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "bayesian-statistician",
+      "source": {
+        "source": "github",
+        "repo": "sunxd3/bayesian-statistician-plugin"
+      },
+      "description": "Orchestrated subagents and skills for end-to-end Bayesian statistical modeling with Stan and ArviZ"
+    }
+  ]
+}

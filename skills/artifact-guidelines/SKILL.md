@@ -1,6 +1,7 @@
 ---
 name: artifact-guidelines
 description: Guidelines for writing reports, organizing files, and generating code artifacts
+user-invocable: false
 ---
 
 # Report Writing and File Organization

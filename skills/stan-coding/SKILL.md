@@ -1,6 +1,7 @@
 ---
 name: stan-coding
 description: Best practices for writing efficient, clean Stan programs
+user-invocable: false
 ---
 
 # Stan Coding Guidelines
