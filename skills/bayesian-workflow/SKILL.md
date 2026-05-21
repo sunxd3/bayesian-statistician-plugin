@@ -1,7 +1,7 @@
 ---
 name: bayesian-workflow
-description: Use when performing Bayesian statistical analysis, building probabilistic models, or when the task involves prior specification, posterior inference, or predictive checks.
-invocation: user
+description: End-to-end Bayesian statistical modeling workflow — EDA, model design, fitting, validation, and reporting via orchestrated subagents. Use when building probabilistic models with Stan and ArviZ.
+disable-model-invocation: true
 ---
 
 # Bayesian Workflow
@@ -74,29 +74,18 @@ Execution: Typical count is 2-3 instances. If an instance fails, relaunch once; 
 
 After completion: Synthesize findings from all instances and document convergent patterns (all agree) and divergent insights (unique to one).
 
-## Technical Stack and Requirements
+## Technical Stack
 
-### Core Stack
 - Bayesian inference: Stan via CmdStanPy, ArviZ for diagnostics
-- Package management: `uv` exclusively (never pip)
+- Package management: `uv` exclusively (never bare `python` or `pip`)
+- First run: set up the Python environment (dependencies + bundled `shared_utils`) following the `python-environment` skill
 - Scripts should be self-contained and run with `uv run`
 
-### Bayesian Model Requirements
-Every accepted Bayesian model must:
-- Use Stan via CmdStanPy for posterior inference with NUTS
-- Do not substitute MLE/MAP for full Bayesian inference
-- Do not use non-PPL implementations as final models
-- Do not label bootstrap-based checks as posterior predictive checks
+Every accepted Bayesian model must use Stan via CmdStanPy for posterior inference with NUTS. Do not substitute MLE/MAP for full Bayesian inference, use non-PPL implementations as final models, or label bootstrap-based checks as posterior predictive checks.
 
 ## File-Based Communication and Folder Structure
 
-### Core Principles
-Subagents are ephemeral - they finish their task and disappear forever. Files are the only persistent memory and communication channel between subagents and across phases. This means:
-
-- Each subagent reads inputs from files (data, previous reports, experiment plans)
-- Each subagent writes outputs to files (reports, models, diagnostics)
-- The main agent orchestrates by directing subagents to read/write specific locations
-- Users navigate results through a predictable folder structure
+Files are the only persistent communication channel between subagents and across phases. Always specify exact paths when invoking subagents: where to read inputs and where to write outputs.
 
 ### Canonical Structure
 Use this structure unless the task requires deviation:
@@ -104,77 +93,132 @@ Use this structure unless the task requires deviation:
 ```
 data/                           # source data and copies
 eda/                            # Phase 1: Data Understanding
-  eda_report.md                 # final synthesis (if solo) or consolidated report
+  eda_report.md                 # final synthesis (required)
+  quality_summary.csv           # data quality table (required)
+  univariate_summary.csv        # per-variable summary stats (required)
   analyst_1/                    # if parallel: each instance gets own folder
   analyst_2/
-experiments/                    # Phases 2-3: Model Design & Development
-  experiment_plan.md            # Phase 2 output: proposed models
+design/                         # Phase 2: Model Design
+  designer_1/
+    designer_proposal.md        # (required)
+  designer_2/
+    designer_proposal.md        # (required)
+  experiment_plan.md            # synthesized plan (required)
+experiments/                    # Phase 3: Model Development
   experiment_1/                 # one folder per model attempt
+    model.stan                  # main inference model
     prior_predictive/
+      prior_model.stan          # GQ-only: mirrors priors, generates y_rep
+      prior_predictive_report.md  # (required)
+      prior_predictive.nc       # ArviZ InferenceData (prior + prior_predictive)
+      *.png, *.py
     simulation/
+      simulator.stan            # GQ-only: true params as data, generates y_rep
+      recovery_report.md        # (required)
+      *.png, *.py
     fit/
+      fit_report.md             # convergence diagnostics, assessment (required)
+      posterior.nc              # ArviZ InferenceData (needed through reporting)
+      thinned_draws.npz         # parameter draws only (lightweight)
+      loo.json                  # LOO results: ELPD, Pareto k (needed by selector)
+      *.png, *.py
     posterior_predictive/
+      posterior_predictive_report.md  # (required)
+      *.png, *.py
     critique/
+      critique_report.md        # statistical + domain + framework (required)
+      *.png, *.py
   experiment_2/
-  model_assessment/             # Phase 4: quality metrics and comparison
-    assessment_report.md
-final_report.md                 # Phase 6 output
-log.md                          # running log of decisions and issues
+  population_assessment.md      # model-selector output (required)
+final_report.md                 # Phase 4 output (required)
+log.md                          # append-only workflow log
 ```
 
-### Guidelines
-- Phase outputs should be in predictable locations so subsequent phases know where to read
-- Each experiment gets its own numbered folder for isolation
-- Parallel subagent outputs go in separate folders (analyst_1, analyst_2, designer_1, etc.)
-- Always specify exact paths when invoking subagents: where to read inputs and where to write outputs (e.g., "Read data from `data/data.json` and write outputs to `eda/analyst_1/`")
-- Keep log.md updated with key decisions, failures, and reasoning
-
 ### Subagent Communication
-Point subagents to files produced by previous subagents rather than summarizing content yourself. Ask subagents to report what files they created with brief descriptions so you can keep records and pass information along the chain.
-
-Example: Tell model-designer to "Read the EDA report at `eda/eda_report.md`" rather than summarizing the EDA findings yourself.
+Point subagents to files produced by previous subagents rather than summarizing content yourself (e.g., tell model-designer to "Read the EDA report at `eda/eda_report.md`" rather than summarizing EDA findings). Ask subagents to report what files they created so you can pass information along the chain.
 
 ## Modeling Workflow
 
 ### Phase 1: Data Understanding → `eda/`
 Invoke `eda-analyst` to explore the data. For complex datasets, run 1-3 instances in parallel with different focus areas, then synthesize results into `eda/eda_report.md`.
 
-### Phase 2: Model Design → `experiments/experiment_plan.md`
-Invoke `model-designer` to propose models. Run 2-3 instances in parallel. Assign each a distinct structural hypothesis (e.g., direct effects vs. hierarchical grouping vs. latent dynamics) rather than arbitrary model families. Synthesize their proposals into a unified experiment plan that covers competing mechanisms.
+### Phase 2: Model Design → `design/`
+
+**Step 1: Define analysis purpose, domain context, and structural questions.** Read the EDA report's Competing Structural Hypotheses, Variance Decomposition, Residual Analysis, and Scientific Domain sections.
+
+**1a. Analysis purpose.** Determine the goal type based on the user's prompt and the data's nature:
+- **Descriptive** (default for minimal prompts): characterize the data-generating process with honest uncertainty.
+- **Inferential**: estimate a specific causal or conditional effect. Prioritize unconfounded estimation of target parameters; do not add flexible structures that absorb the estimand's signal.
+- **Predictive**: maximize out-of-sample performance; parameter interpretability is secondary.
+
+If the user prompt lacks a specific question, **assume loudly**: synthesize a purpose based on the dataset's nature and state it explicitly. A sharp answer to an assumed question is better than a generic answer to no question.
+
+Define 1-3 **key quantities of interest** and state what **adequate** means — when is the model good enough to stop?
+
+**1b. Validation strategy.** Define how models will be evaluated, accounting for the data's dependence structure. Standard observation-level LOO is only appropriate for i.i.d. data — for grouped data it interpolates within known groups, and for temporal data it overstates future predictive performance. State the appropriate hold-out scheme.
+
+**1c. Domain context.** Identify the scientific domain and its canonical modeling frameworks. Do not default to generic GLMs when the domain has mechanistic structure — use the domain's standard response model, parameterization, and baseline components.
+
+If the domain is not recognizable, state "No strong domain conventions identified" and proceed with empirical-first design.
+
+**1d. Structural questions.** Extract 2-3 contrastive structural questions — each should pit two explanations of the data-generating process against each other, framed in terms of the key quantities of interest and domain theory where possible.
+
+Write steps 1a-1d as the opening sections of `design/experiment_plan.md`. All downstream agents read this.
+
+**Step 2: Define a domain-aware shared baseline.** Construct a baseline that implements the domain's canonical theory, reconciled with EDA findings. If no domain conventions were identified, fall back to the simplest model that captures the dominant EDA structure. All designers extend from this baseline.
+
+**Step 3: Assign questions to designers.** Run 2-3 `model-designer` instances in parallel. Give each their assigned question, the shared baseline, the other designers' questions, and their output directory. Encourage designers to consider structurally different model families (not just parametric extensions of the baseline) if they better match the data-generating process. Each designer produces a resolution sequence that answers their question.
+
+**Step 4: Synthesize.** Read all designer proposals and produce the final `design/experiment_plan.md`. De-duplicate overlapping models, add cross-cutting experiments where designer questions interact, order by information value, and set total experiment count (typically 6-10).
 
 ### Phase 3: Model Development and Selection → `experiments/`
-Build a population of validated models and iteratively improve until finding the best variant for each model class.
 
-**For each model class from the experiment plan:**
+Use the task pool (see "Task Pool for Pipeline Flow") to validate all experiments from the experiment plan. Each experiment flows through 5 stages: `prior-predictive-checker` → `recovery-checker` → `model-fitter` → `posterior-predictive-checker` → `critique`.
 
-1. **Initial variants**: Start with variants proposed by model-designer (baseline, scientific, extensions)
+The `critique` agent performs statistical assessment, domain assessment, and framework questioning in a single pass.
 
-2. **Validate each variant** by running stages sequentially:
-   - `prior-predictive-checker` - fail → skip variant
-   - `recovery-checker` - fail → skip variant
-   - `model-fitter` - fail → try fix once with model-refiner, then skip
-   - `posterior-predictive-checker` - always run
-   - `model-critique` - assess and suggest improvements
+**Failure handling**:
+- Any stage fails → invoke `model-refiner` once, re-enter at failed stage
+- Refine fails → skip experiment
+- Special case: If a structural question's baseline variant fails pre-fit (prior or recovery), skip all experiments for that question after one refine attempt
+- **Global budget**: Each experiment has a maximum of TWO `model-refiner` invocations across its entire lifecycle (all stages combined). If it fails a third time at any stage, mark it skipped.
 
-   **Special case**: If baseline variant fails pre-fit validation (prior or recovery check), try fix once with model-refiner. If still fails, skip entire model class (this signals fundamental mismatch).
+**Critique-driven iteration (REQUIRED)**:
+When `critique` returns VIABLE or CONCERNS with improvement suggestions, you MUST:
+1. Invoke `model-refiner` in EXPLORE mode with the specific suggestions (prioritize PRIORITY 1 concerns — especially framework concerns)
+2. Create a modified variant (e.g., `exp_1_v2`, `exp_1_robust`)
+3. Add the new variant to the task pool for validation
+4. Compare the modified variant against its parent via LOO/ELPD
+5. If the modification improved the model, critique it again and repeat
+6. Stop iterating when: modifications no longer improve ELPD, or suggestions become unreasonable/impractical
 
-3. **Assess population**: If at least one variant validated successfully, invoke `model-selector`
-   - Tell it which experiments completed validation (have fit results and LOO)
-   - Model-selector compares via LOO/WAIC and determines strategy
-   - Keep log.md updated with which models passed/failed each stage
+The goal is to **iterate until reasonable modifications stop helping**, not just validate pre-designed experiments. Each structural question should have multiple iterations showing progressive refinement or evidence that simpler versions suffice.
 
-4. **Follow model-selector strategy**:
-   - **CONTINUE_CLASS**: Invoke `model-refiner` with critique suggestions to generate new variants, return to step 2
-   - **SWITCH_CLASS**: Move to next model class
-   - **ADEQUATE**: Invoke `decision-auditor` to verify EDA coverage before accepting
-   - **EXHAUSTED**: Invoke `decision-auditor` to verify EDA coverage before accepting
+Do NOT skip directly to model selection after initial experiments. Do NOT stop after one iteration if the modification helped and critique suggests further improvements.
 
-5. **Audit terminal decisions**: When `model-selector` returns ADEQUATE or EXHAUSTED:
-   - Invoke `decision-auditor` with: the selector's decision, path to EDA report, path to experiment plan, and list of validated experiments
-   - If auditor returns CHALLENGE: review identified gaps, then either explore missing approaches or document why they are not worth pursuing
-   - If auditor returns ACCEPT: proceed to reporting
+**Discovery-driven questions**:
+Critique and selection are not just quality gates — they are sources of new hypotheses. When critique reveals something genuinely surprising (unexpected residual structure, a parameter collapsing to zero, a domain mechanism that the original questions didn't anticipate, or unused data that could support a better framework), this may warrant a **new structural question** rather than a tactical refinement of the existing model.
 
-Invoke model-selector after completing initial variants and after each refinement round.
+Distinguish between:
+- **Refinement suggestion** → model-refiner creates a variant within the current question
+- **New structural question** → model-designer designs new experiments with the current best model as baseline
+
+When you identify a new question from critique or selection insights:
+1. Invoke `model-designer` with the new question and the **current best model** as `baseline_spec` (not the original Phase 2 baseline — build on what you've learned)
+2. Add the resulting experiments to the task pool
+3. The new experiments flow through the same validation pipeline as the original ones
+
+This is the scientific process: hypothesize → test → observe → generate new hypotheses. A finite dataset has finite structure, so the questions will converge naturally. Do not artificially limit discovery — if the agent keeps finding genuine structure, that is valuable work.
+
+**When all experiments terminal** → invoke `model-selector` with experiments that completed critique with VIABLE or CONCERNS verdict (exclude BROKEN — they were sent to refinement or skipped):
+- Compares validated experiments using the comparison method appropriate to the data structure
+- **CONTINUE_QUESTION**: `model-refiner` generates new variants → add to task pool
+- **SWITCH_QUESTION**: This question is resolved; move focus to next question
+- **ADEQUATE/EXHAUSTED**: The selector's assessment includes a **Coverage Audit** section
+
+The selector may also report **new structural questions** discovered from model comparison (unexpected patterns, discriminating features) alongside any of the above decisions. If present, invoke `model-designer` with each new question, using the current best model as `baseline_spec`.
+
+**Coverage audit**: When the `model-selector` subagent returns ADEQUATE or EXHAUSTED, read its `COVERAGE:` section from `experiments/population_assessment.md`. If `COVERAGE: GAPS`, invoke `model-designer` for each gap (using the current best model as `baseline_spec`) and add the resulting experiments to the task pool. If `COVERAGE: COMPLETE`, proceed to reporting.
 
 ### Phase 4: Reporting → `final_report.md`
-Invoke `report-writer` to generate the final report.
+Invoke `report-writer` with the selected model's experiment directory (`selected_model_dir`). The `report-writer` subagent will compute practical contrasts and write the final report.

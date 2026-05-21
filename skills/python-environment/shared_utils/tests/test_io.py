@@ -1,137 +1,301 @@
+"""Tests for shared_utils.io module."""
+
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import arviz as az
+import numpy as np
+import pytest
 
 from shared_utils.io import (
-    _coerce_payload,
+    NumpyEncoder,
     _filter_present,
+    _sanitize_coords_dims,
     _stan_var_names,
-    read_json,
     to_arviz,
+    to_arviz_prior,
     write_json,
 )
 
 
-@dataclass
-class Payload:
-    name: str
-    value: int
+# ---------------------------------------------------------------------------
+# Helper: create a mock fit that passes isinstance(fit, CmdStanMCMC)
+# ---------------------------------------------------------------------------
+
+class _MockCmdStanMCMC:
+    """Lightweight stand-in for CmdStanMCMC that passes isinstance checks
+    when we patch shared_utils.io.CmdStanMCMC with this class."""
+
+    def __init__(self, stan_vars_cols: dict | None = None):
+        self.stan_vars_cols = stan_vars_cols or {}
 
 
-class ObjWithAttrs:
-    def __init__(self) -> None:
-        self.visible = 1
-        self._hidden = 2
+def _make_mock_fit(stan_vars_cols: dict | None = None) -> _MockCmdStanMCMC:
+    return _MockCmdStanMCMC(stan_vars_cols)
 
 
-def test_coerce_payload_dataclass() -> None:
-    payload = Payload(name="alpha", value=3)
+# ---------------------------------------------------------------------------
+# NumpyEncoder / write_json
+# ---------------------------------------------------------------------------
 
-    coerced = _coerce_payload(payload)
+class TestNumpyEncoder:
+    """Tests for NumpyEncoder."""
 
-    assert coerced == {"name": "alpha", "value": 3}
+    def test_numpy_bool(self):
+        result = json.dumps({"v": np.bool_(True)}, cls=NumpyEncoder)
+        assert json.loads(result) == {"v": True}
 
+    def test_numpy_int(self):
+        result = json.dumps({"v": np.int64(42)}, cls=NumpyEncoder)
+        assert json.loads(result) == {"v": 42}
 
-def test_coerce_payload_object_filters_private() -> None:
-    payload = ObjWithAttrs()
+    def test_numpy_float(self):
+        result = json.dumps({"v": np.float64(3.14)}, cls=NumpyEncoder)
+        parsed = json.loads(result)
+        assert abs(parsed["v"] - 3.14) < 1e-10
 
-    coerced = _coerce_payload(payload)
+    def test_numpy_array(self):
+        arr = np.array([1, 2, 3])
+        result = json.dumps({"v": arr}, cls=NumpyEncoder)
+        assert json.loads(result) == {"v": [1, 2, 3]}
 
-    assert coerced == {"visible": 1}
-
-
-def test_filter_present() -> None:
-    names = ["a", "b", "c"]
-    available = {"b", "d"}
-
-    filtered = _filter_present(names, available=available)
-
-    assert filtered == ["b"]
-
-
-def test_read_write_json(tmp_path: Path) -> None:
-    payload = {"a": 1, "b": [1, 2, 3]}
-    path = tmp_path / "out" / "data.json"
-
-    write_json(path, payload, indent=2)
-    loaded = read_json(path)
-
-    assert loaded == payload
-
-    raw = json.loads(path.read_text())
-    assert raw == payload
+    def test_non_numpy_falls_through(self):
+        with pytest.raises(TypeError):
+            json.dumps({"v": object()}, cls=NumpyEncoder)
 
 
-class FitWithVars:
-    def __init__(self, keys: list[str]) -> None:
-        self.stan_vars_cols = {key: None for key in keys}
+class TestWriteJson:
+    """Tests for write_json."""
+
+    def test_writes_and_reads_back(self, tmp_path: Path):
+        path = tmp_path / "test.json"
+        payload = {"a": 1, "b": [2, 3]}
+        write_json(path, payload)
+        with open(path) as f:
+            assert json.load(f) == payload
+
+    def test_handles_numpy_types(self, tmp_path: Path):
+        path = tmp_path / "numpy.json"
+        payload = {
+            "bool": np.bool_(False),
+            "int": np.int64(99),
+            "float": np.float64(2.718),
+            "array": np.array([10, 20, 30]),
+        }
+        write_json(path, payload)
+        with open(path) as f:
+            result = json.load(f)
+        assert result["bool"] is False
+        assert result["int"] == 99
+        assert abs(result["float"] - 2.718) < 1e-10
+        assert result["array"] == [10, 20, 30]
+
+    def test_creates_parent_dirs(self, tmp_path: Path):
+        path = tmp_path / "a" / "b" / "c" / "data.json"
+        write_json(path, {"x": 1})
+        assert path.exists()
 
 
-class FitWithMetadata:
-    def __init__(self, keys: list[str]) -> None:
-        class Metadata:
-            def __init__(self, keys: list[str]) -> None:
-                self.stan_vars_cols = {key: None for key in keys}
+# ---------------------------------------------------------------------------
+# _stan_var_names helper
+# ---------------------------------------------------------------------------
 
-        self.metadata = Metadata(keys)
+class TestStanVarNames:
+    """Tests for _stan_var_names."""
 
+    def test_from_direct_attr(self):
+        fit = MagicMock()
+        fit.stan_vars_cols = {"mu": [0], "tau": [1]}
+        assert _stan_var_names(fit) == {"mu", "tau"}
 
-def test_stan_var_names_primary() -> None:
-    fit = FitWithVars(["alpha", "beta"])
+    def test_from_metadata(self):
+        fit = MagicMock(spec=[])  # no stan_vars_cols directly
+        fit.metadata = MagicMock()
+        fit.metadata.stan_vars_cols = {"alpha": [0], "beta": [1]}
+        assert _stan_var_names(fit) == {"alpha", "beta"}
 
-    names = _stan_var_names(fit)
-
-    assert names == {"alpha", "beta"}
-
-
-def test_stan_var_names_metadata_fallback() -> None:
-    fit = FitWithMetadata(["theta"])
-
-    names = _stan_var_names(fit)
-
-    assert names == {"theta"}
-
-
-def test_to_arviz_uses_defaults(monkeypatch) -> None:
-    fit = FitWithVars(["log_lik", "y_rep"])
-    called: dict[str, object] = {}
-
-    def fake_from_cmdstanpy(*args, **kwargs):
-        called["args"] = args
-        called["kwargs"] = kwargs
-        return az.InferenceData()
-
-    monkeypatch.setattr(az, "from_cmdstanpy", fake_from_cmdstanpy)
-
-    idata = to_arviz(fit, y_obs=None)
-
-    assert isinstance(idata, az.InferenceData)
-    assert called["args"][0] is fit
-    assert called["kwargs"]["log_likelihood"] == "log_lik"
-    assert called["kwargs"]["posterior_predictive"] == ["y_rep"]
-    assert called["kwargs"]["observed_data"] is None
+    def test_empty_when_nothing(self):
+        fit = MagicMock(spec=[])
+        fit.metadata = None
+        assert _stan_var_names(fit) == set()
 
 
-def test_to_arviz_filters_missing(monkeypatch) -> None:
-    fit = FitWithVars(["log_lik"])
-    called: dict[str, object] = {}
+# ---------------------------------------------------------------------------
+# _sanitize_coords_dims
+# ---------------------------------------------------------------------------
 
-    def fake_from_cmdstanpy(*args, **kwargs):
-        called["kwargs"] = kwargs
-        return az.InferenceData()
+class TestSanitizeCoordsDims:
+    """Tests for _sanitize_coords_dims."""
 
-    monkeypatch.setattr(az, "from_cmdstanpy", fake_from_cmdstanpy)
+    def test_none_returns_none(self):
+        assert _sanitize_coords_dims(None) is None
 
-    to_arviz(
-        fit,
-        posterior_predictive=["y_rep"],
-        log_likelihood="missing",
-        y_obs=None,
-    )
+    def test_numpy_array_to_list(self):
+        result = _sanitize_coords_dims({"school": np.array([0, 1, 2])})
+        assert result == {"school": [0, 1, 2]}
+        assert isinstance(result["school"], list)
 
-    assert called["kwargs"]["posterior_predictive"] is None
-    assert called["kwargs"]["log_likelihood"] is None
+    def test_nested_dict(self):
+        result = _sanitize_coords_dims({"inner": {"arr": np.array([5, 6])}})
+        assert result == {"inner": {"arr": [5, 6]}}
+
+    def test_list_with_arrays(self):
+        result = _sanitize_coords_dims({"dims": [np.array([1, 2]), "x"]})
+        assert result == {"dims": [[1, 2], "x"]}
+
+    def test_plain_values_unchanged(self):
+        result = _sanitize_coords_dims({"a": "hello", "b": 42})
+        assert result == {"a": "hello", "b": 42}
+
+
+# ---------------------------------------------------------------------------
+# _filter_present
+# ---------------------------------------------------------------------------
+
+class TestFilterPresent:
+    """Tests for _filter_present."""
+
+    def test_filters_to_available(self):
+        result = _filter_present(["y_rep", "log_lik", "missing"], available={"y_rep", "log_lik", "mu"})
+        assert result == ["y_rep", "log_lik"]
+
+    def test_empty_available_returns_all(self):
+        result = _filter_present(["y_rep", "missing"], available=set())
+        assert result == ["y_rep", "missing"]
+
+
+# ---------------------------------------------------------------------------
+# to_arviz
+# ---------------------------------------------------------------------------
+
+class TestToArviz:
+    """Tests for to_arviz()."""
+
+    def test_raises_for_non_cmdstan(self):
+        """to_arviz() raises ValueError for non-CmdStanMCMC fit."""
+        with pytest.raises(ValueError, match="fit must be CmdStanMCMC"):
+            to_arviz("not a fit")
+
+    @patch("shared_utils.io.az.from_cmdstanpy")
+    @patch("shared_utils.io.CmdStanMCMC", _MockCmdStanMCMC)
+    def test_filters_posterior_predictive(self, mock_from):
+        """to_arviz() filters posterior_predictive vars against available."""
+        mock_from.return_value = MagicMock(spec=az.InferenceData)
+        fit = _make_mock_fit({"mu": [0], "tau": [1], "y_rep": [2]})
+
+        to_arviz(fit, posterior_predictive=["y_rep", "nonexistent"])
+
+        call_kwargs = mock_from.call_args[1]
+        assert call_kwargs["posterior_predictive"] == ["y_rep"]
+
+    @patch("shared_utils.io.az.from_cmdstanpy")
+    @patch("shared_utils.io.CmdStanMCMC", _MockCmdStanMCMC)
+    def test_defaults_to_y_rep_when_available(self, mock_from):
+        """to_arviz() defaults to ['y_rep'] when available."""
+        mock_from.return_value = MagicMock(spec=az.InferenceData)
+        fit = _make_mock_fit({"mu": [0], "y_rep": [1]})
+
+        to_arviz(fit)
+
+        call_kwargs = mock_from.call_args[1]
+        assert call_kwargs["posterior_predictive"] == ["y_rep"]
+
+    @patch("shared_utils.io.az.from_cmdstanpy")
+    @patch("shared_utils.io.CmdStanMCMC", _MockCmdStanMCMC)
+    def test_sanitizes_coords_dims(self, mock_from):
+        """to_arviz() sanitizes numpy arrays in coords/dims to lists."""
+        mock_from.return_value = MagicMock(spec=az.InferenceData)
+        fit = _make_mock_fit({"mu": [0]})
+
+        to_arviz(
+            fit,
+            coords={"school": np.array([0, 1, 2])},
+            dims={"mu": np.array(["school"])},
+        )
+
+        call_kwargs = mock_from.call_args[1]
+        assert isinstance(call_kwargs["coords"]["school"], list)
+        assert isinstance(call_kwargs["dims"]["mu"], list)
+
+    @patch("shared_utils.io.az.from_cmdstanpy")
+    @patch("shared_utils.io.CmdStanMCMC", _MockCmdStanMCMC)
+    def test_no_y_rep_in_available(self, mock_from):
+        """to_arviz() sets posterior_predictive=None when y_rep is not available."""
+        mock_from.return_value = MagicMock(spec=az.InferenceData)
+        fit = _make_mock_fit({"mu": [0], "tau": [1]})
+
+        to_arviz(fit)
+
+        call_kwargs = mock_from.call_args[1]
+        assert call_kwargs["posterior_predictive"] is None
+
+
+# ---------------------------------------------------------------------------
+# to_arviz_prior
+# ---------------------------------------------------------------------------
+
+class TestToArvizPrior:
+    """Tests for to_arviz_prior()."""
+
+    def test_raises_for_non_cmdstan(self):
+        """to_arviz_prior() raises ValueError for non-CmdStanMCMC fit."""
+        with pytest.raises(ValueError, match="fit must be CmdStanMCMC"):
+            to_arviz_prior("not a fit")
+
+    @patch("shared_utils.io.az.from_cmdstanpy")
+    @patch("shared_utils.io.CmdStanMCMC", _MockCmdStanMCMC)
+    def test_calls_with_prior_kwarg(self, mock_from):
+        """to_arviz_prior() calls az.from_cmdstanpy with prior=fit kwarg."""
+        mock_from.return_value = MagicMock(spec=az.InferenceData)
+        fit = _make_mock_fit({"mu": [0]})
+
+        to_arviz_prior(fit)
+
+        call_kwargs = mock_from.call_args[1]
+        assert call_kwargs["prior"] is fit
+
+    @patch("shared_utils.io.az.from_cmdstanpy")
+    @patch("shared_utils.io.CmdStanMCMC", _MockCmdStanMCMC)
+    def test_filters_prior_predictive(self, mock_from):
+        """to_arviz_prior() filters prior_predictive vars."""
+        mock_from.return_value = MagicMock(spec=az.InferenceData)
+        fit = _make_mock_fit({"mu": [0], "y_rep": [1]})
+
+        to_arviz_prior(fit, prior_predictive=["y_rep", "nonexistent"])
+
+        call_kwargs = mock_from.call_args[1]
+        assert call_kwargs["prior_predictive"] == ["y_rep"]
+
+    @patch("shared_utils.io.az.from_cmdstanpy")
+    @patch("shared_utils.io.CmdStanMCMC", _MockCmdStanMCMC)
+    def test_defaults_to_y_rep_when_available(self, mock_from):
+        """to_arviz_prior() defaults to ['y_rep'] when available."""
+        mock_from.return_value = MagicMock(spec=az.InferenceData)
+        fit = _make_mock_fit({"mu": [0], "y_rep": [1]})
+
+        to_arviz_prior(fit)
+
+        call_kwargs = mock_from.call_args[1]
+        assert call_kwargs["prior_predictive"] == ["y_rep"]
+
+    @patch("shared_utils.io.az.from_cmdstanpy")
+    @patch("shared_utils.io.CmdStanMCMC", _MockCmdStanMCMC)
+    def test_sanitizes_coords_dims(self, mock_from):
+        """to_arviz_prior() sanitizes coords/dims."""
+        mock_from.return_value = MagicMock(spec=az.InferenceData)
+        fit = _make_mock_fit({"mu": [0]})
+
+        to_arviz_prior(
+            fit,
+            coords={"idx": np.array([0, 1])},
+            dims={"mu": np.array(["idx"])},
+        )
+
+        call_kwargs = mock_from.call_args[1]
+        assert isinstance(call_kwargs["coords"]["idx"], list)
+        assert isinstance(call_kwargs["dims"]["mu"], list)
+
+

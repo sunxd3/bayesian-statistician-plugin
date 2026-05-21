@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 from collections.abc import Iterable
-from dataclasses import asdict, is_dataclass
 from pathlib import Path
 from typing import Any
 
@@ -15,11 +14,25 @@ from cmdstanpy import CmdStanMCMC
 from .paths import ensure_dir, resolve_path
 
 
-def read_json(path: Path | str, *, base: Path | str | None = None) -> dict:
-    """Read JSON from disk."""
-    path = resolve_path(path, base=base)
-    with open(path) as f:
-        return json.load(f)
+class NumpyEncoder(json.JSONEncoder):
+    """JSON encoder that handles numpy scalar types.
+
+    Fixes TypeError: Object of type bool_ is not JSON serializable
+    by converting numpy scalars to native Python types.
+    """
+
+    def default(self, o: Any) -> Any:
+        """Convert numpy scalars to native Python types."""
+        if isinstance(o, np.bool_):
+            return bool(o)
+        if isinstance(o, np.integer):
+            return int(o)
+        if isinstance(o, np.floating):
+            return float(o)
+        if isinstance(o, np.ndarray):
+            return o.tolist()
+        return super().default(o)
+
 
 
 def write_json(
@@ -29,11 +42,15 @@ def write_json(
     indent: int = 2,
     base: Path | str | None = None,
 ) -> None:
-    """Write JSON to disk, creating parent directories if needed."""
+    """Write JSON to disk, creating parent directories if needed.
+
+    Uses NumpyEncoder to handle numpy scalar types (bool_, int64, etc.)
+    that aren't natively JSON serializable.
+    """
     path = resolve_path(path, base=base)
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:
-        json.dump(payload, f, indent=indent)
+        json.dump(payload, f, indent=indent, cls=NumpyEncoder)
 
 
 def _stan_var_names(fit: CmdStanMCMC) -> set[str]:
@@ -53,24 +70,40 @@ def _stan_var_names(fit: CmdStanMCMC) -> set[str]:
     return set()
 
 
-def _coerce_payload(payload: Any) -> dict:
-    """Convert payload to dict for JSON serialization."""
-    if payload is None:
-        return {}
-    if is_dataclass(payload) and not isinstance(payload, type):
-        return asdict(payload)
-    if isinstance(payload, dict):
-        return payload
-    if hasattr(payload, "__dict__"):
-        return {k: v for k, v in payload.__dict__.items() if not k.startswith("_")}
-    return {"value": payload}
-
 
 def _filter_present(names: Iterable[str], *, available: set[str]) -> list[str]:
     """Filter names to only those present in available set."""
     if not available:
         return list(names)
     return [name for name in names if name in available]
+
+
+def _sanitize_coords_dims(coords_or_dims: dict | None) -> dict | None:
+    """Convert numpy arrays to lists in coords/dims to prevent unhashable type errors.
+
+    ArviZ conversion can fail with "TypeError: unhashable type: 'numpy.ndarray'"
+    when coords or dims contain numpy arrays. This function recursively converts
+    arrays to lists.
+    """
+    if coords_or_dims is None:
+        return None
+
+    sanitized = {}
+    for key, value in coords_or_dims.items():
+        if isinstance(value, np.ndarray):
+            sanitized[key] = value.tolist()
+        elif isinstance(value, dict):
+            sanitized[key] = _sanitize_coords_dims(value)
+        elif isinstance(value, (list, tuple)):
+            # Handle lists/tuples that might contain arrays
+            sanitized[key] = [
+                item.tolist() if isinstance(item, np.ndarray) else item
+                for item in value
+            ]
+        else:
+            sanitized[key] = value
+
+    return sanitized
 
 
 def to_arviz(
@@ -84,17 +117,28 @@ def to_arviz(
 ) -> az.InferenceData:
     """Convert CmdStanPy fit to ArviZ InferenceData.
 
+    Handles common edge cases:
+    - Converts numpy arrays in coords/dims to lists (prevents unhashable type errors)
+    - Validates variable names against Stan model outputs
+    - Provides sensible defaults for posterior_predictive
+
     Args:
         fit: CmdStanMCMC fit object
         y_obs: Observed y values (for observed_data group)
         log_likelihood: Name of log_lik variable in Stan model
         posterior_predictive: Names of posterior predictive variables
-        coords: Coordinate labels
-        dims: Dimension names for variables
+        coords: Coordinate labels (numpy arrays will be converted to lists)
+        dims: Dimension names for variables (numpy arrays will be converted to lists)
 
     Returns:
         ArviZ InferenceData object
+
+    Raises:
+        ValueError: If fit is not a valid CmdStanMCMC object
     """
+    if not isinstance(fit, CmdStanMCMC):
+        raise ValueError(f"fit must be CmdStanMCMC, got {type(fit).__name__}")
+
     observed_data = {"y": y_obs} if y_obs is not None else None
     available = _stan_var_names(fit)
 
@@ -118,6 +162,10 @@ def to_arviz(
         else None
     )
 
+    # Sanitize coords and dims to prevent unhashable type errors
+    coords = _sanitize_coords_dims(coords)
+    dims = _sanitize_coords_dims(dims)
+
     return az.from_cmdstanpy(
         fit,
         log_likelihood=log_likelihood_name,
@@ -128,40 +176,61 @@ def to_arviz(
     )
 
 
-def save_results(
-    idata: az.InferenceData,
-    output_dir: Path | str,
+
+def to_arviz_prior(
+    fit: CmdStanMCMC,
     *,
-    convergence: Any | None = None,
-    loo: Any | None = None,
-) -> None:
-    """Save InferenceData and diagnostic results.
+    observed_data: dict[str, Any] | None = None,
+    prior_predictive: list[str] | str | None = None,
+    coords: dict | None = None,
+    dims: dict | None = None,
+) -> az.InferenceData:
+    """Convert CmdStanPy prior predictive fit to ArviZ InferenceData.
+
+    Similar to to_arviz() but places draws in the prior group instead of posterior.
 
     Args:
-        idata: ArviZ InferenceData
-        output_dir: Directory to save results
-        convergence: Convergence diagnostics (dict or dataclass)
-        loo: LOO-CV results (dict or dataclass)
+        fit: CmdStanMCMC fit object (from prior predictive simulation)
+        observed_data: Dict of observed data arrays
+        prior_predictive: Names of prior predictive variables.
+            Defaults to ["y_rep"] if "y_rep" is in available vars.
+        coords: Coordinate labels (numpy arrays will be converted to lists)
+        dims: Dimension names for variables (numpy arrays will be converted to lists)
+
+    Returns:
+        ArviZ InferenceData with prior and prior_predictive groups
+
+    Raises:
+        ValueError: If fit is not a valid CmdStanMCMC object
     """
-    output_dir = ensure_dir(output_dir)
+    if not isinstance(fit, CmdStanMCMC):
+        raise ValueError(f"fit must be CmdStanMCMC, got {type(fit).__name__}")
 
-    # Save InferenceData
-    idata.to_netcdf(str(output_dir / "posterior.nc"))
+    available = _stan_var_names(fit)
 
-    # Save convergence results
-    if convergence:
-        write_json(output_dir / "convergence.json", _coerce_payload(convergence))
+    if prior_predictive is None:
+        prior_predictive = (
+            ["y_rep"] if ("y_rep" in available or not available) else None
+        )
+    elif isinstance(prior_predictive, str):
+        prior_predictive = [prior_predictive]
 
-    # Save LOO results
-    if loo:
-        write_json(output_dir / "loo.json", _coerce_payload(loo))
+    if prior_predictive:
+        prior_predictive = _filter_present(prior_predictive, available=available)
+        if not prior_predictive:
+            prior_predictive = None
+
+    # Sanitize coords and dims to prevent unhashable type errors
+    coords = _sanitize_coords_dims(coords)
+    dims = _sanitize_coords_dims(dims)
+
+    return az.from_cmdstanpy(
+        prior=fit,
+        prior_predictive=prior_predictive,
+        observed_data=observed_data,
+        coords=coords,
+        dims=dims,
+    )
 
 
-def load_posterior(
-    output_dir: Path | str,
-    *,
-    base: Path | str | None = None,
-) -> az.InferenceData:
-    """Load InferenceData from output directory."""
-    output_dir = resolve_path(output_dir, base=base)
-    return az.from_netcdf(output_dir / "posterior.nc")
+

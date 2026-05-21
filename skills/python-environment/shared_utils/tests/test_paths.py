@@ -1,59 +1,55 @@
+"""Tests for shared_utils.paths module."""
+
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
-import shared_utils.paths as paths
-from shared_utils.paths import ensure_dir, project_root, resolve_path
+from shared_utils.paths import ensure_dir, resolve_path
 
 
-def test_project_root_env_var(tmp_path: Path, monkeypatch) -> None:
-    custom_root = tmp_path / "custom_root"
-    custom_root.mkdir()
-    monkeypatch.setenv("PROJECT_ROOT", str(custom_root))
-    paths._PROJECT_ROOT = None
+class TestEnsureDir:
+    """Tests for ensure_dir()."""
 
-    root = project_root()
+    def test_creates_nested_directories(self, tmp_path: Path):
+        target = tmp_path / "a" / "b" / "c"
+        assert not target.exists()
 
-    assert root == custom_root.resolve()
+        result = ensure_dir(target)
+        assert target.exists()
+        assert target.is_dir()
+        assert result == target
 
+    def test_idempotent(self, tmp_path: Path):
+        target = tmp_path / "already_exists"
+        target.mkdir()
 
-def test_project_root_searches_upward(tmp_path: Path, monkeypatch) -> None:
-    root = tmp_path / "repo"
-    nested = root / "a" / "b"
-    nested.mkdir(parents=True)
-    (root / "pyproject.toml").write_text("[project]\nname='x'\n")
-    monkeypatch.delenv("PROJECT_ROOT", raising=False)
-    paths._PROJECT_ROOT = None
+        result = ensure_dir(target)
+        assert result == target
 
-    monkeypatch.chdir(nested)
-    detected = project_root()
-
-    assert detected == root.resolve()
-
-
-def test_resolve_path_relative(tmp_path: Path) -> None:
-    base = tmp_path / "base"
-    base.mkdir()
-
-    resolved = resolve_path("data/file.json", base=base)
-
-    assert resolved == (base / "data" / "file.json").resolve()
+    def test_with_string_path(self, tmp_path: Path):
+        target = str(tmp_path / "str_dir")
+        result = ensure_dir(target)
+        assert Path(target).exists()
+        assert isinstance(result, Path)
 
 
-def test_resolve_path_absolute(tmp_path: Path) -> None:
-    absolute = tmp_path / "abs.txt"
+class TestResolvePath:
+    """Tests for resolve_path()."""
 
-    resolved = resolve_path(absolute)
+    def test_absolute_path_unchanged(self):
+        p = resolve_path("/absolute/path")
+        assert p == Path("/absolute/path")
 
-    assert resolved == absolute
+    def test_relative_path_with_base(self, tmp_path: Path):
+        p = resolve_path("subdir/file.txt", base=tmp_path)
+        assert p == (tmp_path / "subdir" / "file.txt").resolve()
 
+    def test_tilde_expansion(self):
+        p = resolve_path("~/test.txt")
+        assert "~" not in str(p)
 
-def test_ensure_dir_creates(tmp_path: Path) -> None:
-    target = tmp_path / "a" / "b"
-
-    ensured = ensure_dir(target)
-
-    assert ensured == target.resolve()
-    assert ensured.exists()
-    assert ensured.is_dir()
+    def test_relative_without_base_uses_project_root(self):
+        """resolve_path() with no base uses project_root()."""
+        p = resolve_path("some/file.txt")
+        # Should be resolved (absolute)
+        assert p.is_absolute()

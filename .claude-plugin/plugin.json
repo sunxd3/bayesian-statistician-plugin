@@ -1,11 +1,24 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "bayesian-statistician",
-  "description": "Specialized subagents and skills for Bayesian statistical modeling workflows with Stan and ArviZ",
-  "version": "0.1.0",
-  "hooks": "./hooks/hooks.json",
+  "displayName": "Bayesian Statistician",
+  "description": "Orchestrated subagents and skills for end-to-end Bayesian statistical modeling with Stan and ArviZ",
+  "version": "0.2.0",
   "author": {
-    "name": "Xianda Sun"
+    "name": "Xianda Sun",
+    "email": "sunxdt@gmail.com"
   },
-  "repository": "https://github.com/xiandasun/bayesian-statistician-plugin",
-  "license": "MIT"
+  "homepage": "https://github.com/sunxd3/bayesian-statistician-plugin",
+  "repository": "https://github.com/sunxd3/bayesian-statistician-plugin",
+  "license": "MIT",
+  "keywords": [
+    "bayesian",
+    "statistics",
+    "stan",
+    "cmdstanpy",
+    "arviz",
+    "mcmc",
+    "probabilistic-modeling",
+    "data-analysis"
+  ]
 }

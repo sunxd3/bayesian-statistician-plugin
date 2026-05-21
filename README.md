@@ -1,25 +1,78 @@
 # Bayesian Statistician Plugin
 
-Claude Code plugin for Bayesian statistical modeling workflows with Stan and ArviZ.
+A Claude Code plugin for end-to-end Bayesian statistical modeling with Stan and
+ArviZ. It packages an orchestrator skill, ten specialized subagents, and a
+library of modeling skills that together run a full Bayesian workflow:
+**EDA → model design → fitting → validation → reporting**.
 
-## Usage
+## Prerequisites
+
+- [`uv`](https://docs.astral.sh/uv/) — used for all Python execution.
+- A C++ toolchain — CmdStanPy compiles Stan models against CmdStan. The
+  `python-environment` skill installs CmdStan via
+  `python -m cmdstanpy.install_cmdstan`.
+
+## Install
+
+Clone the repository and load it with `--plugin-dir`:
 
 ```bash
 git clone https://github.com/sunxd3/bayesian-statistician-plugin.git
-
 claude --plugin-dir ./bayesian-statistician-plugin
 ```
 
-Then invoke the `/bayesian-workflow` skill to start:
+Run `/reload-plugins` after pulling updates. Once the plugin is published to a
+marketplace, it can also be installed with `/plugin`.
+
+## Usage
+
+Start the workflow by invoking the orchestrator skill and describing the task:
 
 ```
-> /bayesian-workflow
+> /bayesian-statistician:bayesian-workflow
 > Analyze the dataset in data/sales.csv and build a Bayesian model
 ```
 
-The skill activates the full Bayesian workflow: EDA → Model Design → Fitting → Validation → Reporting, with parallel subagents.
+The orchestrator sets up the Python environment, then drives the workflow
+through four phases, delegating to subagents and writing all results into a
+predictable folder structure (`eda/`, `design/`, `experiments/`,
+`final_report.md`, `log.md`).
 
-## Optional Settings
+## What's inside
+
+**Orchestrator skill** — `bayesian-workflow` runs the full pipeline.
+
+**Subagents (10)** — `eda-analyst`, `model-designer`, `prior-predictive-checker`,
+`recovery-checker`, `model-fitter`, `posterior-predictive-checker`, `critique`,
+`model-refiner`, `model-selector`, `report-writer`.
+
+**Modeling skills (12)** — `python-environment`, `stan-coding`,
+`stan-ode-modeler`, `generative-model-design`, `horseshoe-prior`,
+`convergence-diagnostics`, `inferencedata-handling`, `visual-predictive-checks`,
+`bayesian-model-diagnostics`, `bayesian-model-selection`,
+`statistical-diagnostics`, `artifact-guidelines`. Subagents load the skills
+relevant to their role; you can also invoke any skill directly as
+`/bayesian-statistician:<skill-name>`.
+
+**Bundled library** — `shared_utils`, a Python package with a fit-and-summarize
+pipeline, convergence diagnostics, LOO, and ArviZ helpers. The
+`python-environment` skill copies it into the working project as a path
+dependency.
+
+## How the workflow runs
+
+1. **Data understanding** (`eda/`) — `eda-analyst` explores the data and
+   surfaces competing structural hypotheses about the data-generating process.
+2. **Model design** (`design/`) — structural questions are turned into an
+   experiment plan by parallel `model-designer` instances.
+3. **Model development** (`experiments/`) — each experiment flows through
+   `prior-predictive-checker → recovery-checker → model-fitter →
+   posterior-predictive-checker → critique`, with `model-refiner` and
+   `model-selector` driving iteration until questions are resolved.
+4. **Reporting** (`final_report.md`) — `report-writer` produces a report
+   organized around what was learned about the data-generating process.
+
+## Optional settings
 
 Add to your `.claude/settings.json`:
 
@@ -27,10 +80,17 @@ Add to your `.claude/settings.json`:
 {
   "env": {
     "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1",
-    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-opus-4-5-20251101"
+    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-opus-4-7"
   }
 }
 ```
 
-- `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR`: Resets working directory to project root after each bash command
-- `CLAUDE_CODE_SUBAGENT_MODEL`: Model for subagents (default is sonnet)
+- `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR` — resets the working directory to
+  the project root after each bash command, which keeps the canonical folder
+  structure consistent across subagents.
+- `CLAUDE_CODE_SUBAGENT_MODEL` — model for subagents (default is Sonnet); an
+  Opus model improves modeling quality on harder problems.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

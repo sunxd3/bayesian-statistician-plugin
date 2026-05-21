@@ -7,25 +7,34 @@ from .diagnostics import (
     compute_loo,
     get_divergences,
 )
-from .io import load_posterior, read_json, save_results, to_arviz, write_json
+from .fit_pipeline import (
+    FitResult,
+    cleanup_csv_files,
+    fit_and_summarize,
+)
+from .io import (
+    NumpyEncoder,
+    to_arviz_prior,
+    write_json,
+)
 from .paths import ensure_dir, project_root, resolve_path
-from .stan import compile_model, fit_model, load_stan_data
+from .stan import compile_model, fit_model
 
 __all__ = [
     "ConvergenceResult",
+    "FitResult",
     "LOOResult",
+    "NumpyEncoder",
     "check_convergence",
+    "cleanup_csv_files",
     "compile_model",
     "compute_loo",
     "ensure_dir",
+    "fit_and_summarize",
     "fit_model",
     "get_divergences",
-    "load_posterior",
-    "load_stan_data",
     "project_root",
-    "read_json",
     "resolve_path",
-    "save_results",
-    "to_arviz",
+    "to_arviz_prior",
     "write_json",
 ]

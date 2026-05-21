@@ -27,6 +27,8 @@ Use appropriate types:
 - Repeated row access: `array[M] row_vector[N] x` over `matrix[M, N]`
 - Heterogeneous returns: `tuple(...)` for multiple values
 - Sum-to-zero: `sum_to_zero_vector`, `sum_to_zero_matrix` instead of manual constraints
+- Stochastic matrices: `row_stochastic_matrix[M, N]` (each row is a simplex), `column_stochastic_matrix[M, N]` (each column is a simplex) — use for HMM transition/emission matrices
+- Mixtures: declare component location parameters as `ordered[K]` to break label-switching symmetry. Without this, the posterior has K! equivalent modes and NUTS wastes hours producing unusable samples. Even with ordering, components with the same functional form can still exhibit continuous degeneracies (component collapse) — each component should correspond to a distinct physical process. Label-switching causes catastrophic R-hat (>10) without divergences; the fix is ordering constraints, not longer chains
 
 Memory layout: matrices are column-major, arrays are row-major.
 
@@ -39,12 +41,93 @@ Always use log form:
 - Precompute shared expressions: compute `mu = X * beta` once, reuse
 - Finite mixtures: use `log_sum_exp` on log scale
 
+**Boolean aggregation in generated quantities:**
+Stan does NOT support vectorized boolean comparisons. Use loops:
+```stan
+// ❌ WRONG - causes semantic error
+int n_below = sum(to_vector(p_pred) < 0.01);
+
+// ✓ CORRECT - loop over elements
+int n_below = 0;
+for (n in 1:N) {
+  if (p_pred[n] < 0.01) n_below += 1;
+}
+```
+
 ## Parameterization
 
 Use constrained types over manual checks:
 - `<lower=0>`, `<upper=...>`, `ordered`, `positive_ordered`, `simplex`, `unit_vector`
 - Covariance (K≥3): `cholesky_factor_corr[K] L_Omega` with `multi_normal_cholesky`
 - Sum-to-zero: use built-in types, not "last element = minus sum"
+
+**Non-centered via offset/multiplier:**
+```stan
+// Instead of manual non-centered:
+//   vector[J] z; ... theta = mu + sigma * z;
+// Use built-in syntax:
+vector<offset=mu, multiplier=sigma>[J] theta;
+// Stan samples as (theta - mu) / sigma ~ N(0,1) automatically
+```
+Works on `real`, `vector`, `row_vector`, `matrix`. Prefer this over manual non-centered parameterization.
+
+**Mixed centered/non-centered for unbalanced hierarchies:**
+When group sizes vary widely, neither monolithic centered nor non-centered works. Use mixed parameterization:
+```stan
+data {
+  int<lower=1> K_cp;                // number of centered groups
+  int<lower=1> K_ncp;               // number of non-centered groups
+  array[K_cp] int cp_idx;           // indices of data-rich groups
+  array[K_ncp] int ncp_idx;         // indices of data-sparse groups
+}
+parameters {
+  vector[K_cp] theta_cp;            // centered: direct group effects
+  vector[K_ncp] eta_ncp;            // non-centered: standardized offsets
+  real mu;
+  real<lower=0.001> tau;
+}
+transformed parameters {
+  vector[K_cp + K_ncp] theta;
+  theta[cp_idx] = theta_cp;
+  theta[ncp_idx] = mu + tau * eta_ncp;
+}
+model {
+  theta_cp ~ normal(mu, tau);       // centered likelihood
+  eta_ncp ~ std_normal();           // non-centered likelihood
+}
+```
+Heuristic: histogram observation counts per group. Groups with >25 observations → centered; sparse groups → non-centered. Split at natural gaps in the count distribution.
+
+**Tau prior and parameterization are coupled decisions:**
+- Non-centered + infinity-suppressing tau prior (`half_normal`, `exponential`): most robust default when testing whether heterogeneity exists (expanding from homogeneous model).
+- Centered + zero-suppressing tau prior: appropriate when testing whether groups share information (expanding from unpooled model).
+- Never choose parameterization and tau prior independently — they are complementary.
+
+**QR reparameterization for correlated predictors:**
+When predictors are correlated, coefficient posteriors have difficult geometry. Decorrelate via QR:
+```stan
+transformed data {
+  matrix[N, K] Q = qr_thin_Q(X) * sqrt(N - 1);
+  matrix[K, K] R_inv = inverse(qr_thin_R(X) / sqrt(N - 1));
+}
+parameters {
+  vector[K] theta;  // coefficients in decorrelated space
+}
+generated quantities {
+  vector[K] beta = R_inv * theta;  // recover original-scale coefficients
+}
+```
+
+**CRITICAL: Scale parameters must have positive lower bounds:**
+```stan
+// ❌ WRONG - sigma can reach exactly 0 and crash sampling
+real<lower=0> sigma;
+
+// ✓ CORRECT - prevents sigma=0 crashes in hierarchical models
+real<lower=0.001> sigma;
+real<lower=0.01> sigma_group[J];
+```
+This is especially important for hierarchical priors where scale parameters can collapse to zero.
 
 For custom transforms, use built-in `*_constrain`, `*_unconstrain`, `*_jacobian` functions.
 
@@ -62,6 +145,11 @@ Modularize complex logic in `functions` block:
 - Signature: data arguments first, then parameters, then tuning constants
 - Use `tuple` returns for multiple heterogeneous outputs
 
+**Common function name errors:**
+- Use `abs()` NOT `fabs()` - Stan renamed it from C conventions
+- Use `sqrt()` NOT `sqrtf()` - Stan uses full precision names
+- Use `exp()` NOT `expf()` - all Stan functions are full precision
+
 ## Preventing Crashes
 
 Both compilation and sampling can crash or OOM.
@@ -70,10 +158,22 @@ Both compilation and sampling can crash or OOM.
 - Always use tight bounds: `int<lower=1, upper=K> id[N]`
 - Guard math: check parameters before `log`, `sqrt`, division
 - Add explicit bounds for dispersion: `real<lower=0.01> phi` (never exactly 0)
+- Never use `<lower=0>` for scale parameters in hierarchical models - use `<lower=0.001>` or higher
 
 **Execution:**
-- Wrap `CmdStanModel()` and `model.sample()` in try-except
+- Prefer `fit_and_summarize()` over manual `fit_model()` + ArviZ + save — it returns structured results and deletes CmdStan CSVs by default (`cleanup_csvs=True`). Pass `cleanup_csvs=False` to keep raw CSVs
+- Wrap `CmdStanModel()` and sampling in try-except
 - Probe with short runs before full sampling
+- CRITICAL: Never set `iter_warmup=0` when `adapt_engaged=True` - causes immediate failure
+- Always ensure warmup > 0 for adaptation (minimum 50-100 iterations)
+- NEVER use Read tool on large Stan CSV files (>256KB) - use `cmdstanpy` summary methods or head/tail commands instead
+
+**CRITICAL: Suppress Stan progress output.**
+Stan progress bars (tqdm + CmdStan stdout) accumulate in the agent transcript and can crash the session when the transcript exceeds buffer limits. Always suppress them:
+- `shared_utils.fit_model()` and `fit_and_summarize()` default to `show_progress=False, refresh=0` — no action needed
+- If calling `model.sample()` directly: always pass `show_progress=False, show_console=False, refresh=0`
+- If running a Stan binary from the command line: pass `refresh=0`
+- NEVER set `show_progress=True` or `show_console=True` — they produce megabytes of output that bloats the transcript
 
 **On crash/OOM:**
 - Reduce `parallel_chains` (4 → 2 → 1)
@@ -82,11 +182,14 @@ Both compilation and sampling can crash or OOM.
 
 ## ArviZ Integration
 
+`fit_model()` accepts an explicit `fixed_param` parameter for prior predictive sampling: `fit_model(model, data, fixed_param=True, iter_warmup=0, adapt_engaged=False)`.
+
 Design Stan programs for downstream ArviZ workflow:
 
 **Generated quantities:**
 - Always include pointwise log-likelihood: `vector[N] log_lik` - required for model comparison and downstream workflow
 - Always include posterior predictive draws: `vector[N] y_rep` - required for all predictive checks
+- Use CONSISTENT naming: `y_obs` for observed data, `y_rep` for replications - avoid mixing `y`, `y_pred`, `y_sim`
 - For multiple observed variables, use one vector per variable: `log_lik_y1`, `log_lik_y2`
 - This will incur modest overhead, but might be worth workflow simplicity
 
@@ -99,16 +202,130 @@ Design Stan programs for downstream ArviZ workflow:
 - Write new Stan file with same data/parameters/transformed parameters but extended generated quantities
 - Call `model.generate_quantities(data=data, mcmc_sample=fit)` - orders of magnitude faster than refitting
 
-**Save and cache:**
-- Convert to InferenceData: `az.from_cmdstanpy(fit, log_likelihood="log_lik", posterior_predictive=["y_rep"])`
-- Save as NetCDF: `idata.to_netcdf("posterior.nc")` - makes all downstream analysis instant
+## Generated-Quantities-Only (GQ-Only) Programs
+
+Stan is the **single source of truth** for all data generation. Python orchestrates (compiles, calls Stan, loads results, plots) but must **never** implement the generative model (no `numpy.random`, no `scipy.stats` for generating y_rep). This prevents silent divergence between the Python simulation and the Stan model.
+
+Two GQ-only program patterns — both have no `parameters` block, no `model` block (or empty), and run with `fixed_param=True, iter_warmup=0, adapt_engaged=False`:
+
+### Pattern 1: Prior Simulation (`prior_model.stan`)
+
+Samples parameters from their priors via `_rng` functions, then generates synthetic data. Place in `prior_predictive/prior_model.stan`.
+
+```stan
+// prior_model.stan — mirrors priors from model.stan
+data {
+  int<lower=1> N;
+  // ... same data declarations as model.stan (dimensions, covariates)
+  // Do NOT include observed y — this generates it
+}
+generated quantities {
+  // 1. Draw parameters from priors (MUST match model.stan exactly)
+  real alpha = normal_rng(0, 10);
+  real<lower=0> sigma = lognormal_rng(0, 1);
+
+  // 2. Compute transformed parameters (same logic as model.stan)
+  vector[N] mu;
+  for (n in 1:N)
+    mu[n] = alpha;  // + beta * x[n], etc.
+
+  // 3. Generate replicated data (same likelihood as model.stan)
+  array[N] real y_rep;
+  for (n in 1:N)
+    y_rep[n] = normal_rng(mu[n], sigma);
+}
+```
+
+**CRITICAL:** Every `_rng` call must mirror the corresponding `~` statement in `model.stan`. If you change a prior in `model.stan`, update `prior_model.stan` to match.
+
+### Pattern 2: Data Simulator (`simulator.stan`)
+
+Takes known parameter values as `data{}` input, generates synthetic data. Place in `simulation/simulator.stan`. Used for parameter recovery checks.
+
+```stan
+// simulator.stan — generates data from known parameters
+data {
+  int<lower=1> N;
+  // ... same data declarations as model.stan (dimensions, covariates)
+
+  // True parameter values (passed in from Python)
+  real alpha_true;
+  real<lower=0> sigma_true;
+}
+generated quantities {
+  // Compute transformed parameters (same logic as model.stan)
+  vector[N] mu;
+  for (n in 1:N)
+    mu[n] = alpha_true;
+
+  // Generate synthetic data (same likelihood as model.stan)
+  array[N] real y_rep;
+  for (n in 1:N)
+    y_rep[n] = normal_rng(mu[n], sigma_true);
+}
+```
+
+### GQ-only pitfalls
+
+- `_rng` functions are only available in `generated quantities` and `transformed data` blocks
+- For `<lower=0>` parameters: use `lognormal_rng()`, `exponential_rng()`, or `fabs(normal_rng())` — not manual truncation
+- For `ordered` vectors: draw independently and `sort_asc()`
+- For `simplex` vectors: `dirichlet_rng(alpha)`
+- For `cholesky_factor_corr`: `lkj_corr_cholesky_rng(K, eta)` (Stan ≥ 2.32)
+- For multivariate normals: `multi_normal_rng(mu, Sigma)` or `multi_normal_cholesky_rng(mu, L)`
+- **Subsampling for large N**: When N > 2000, subsample the data dict in Python before passing to Stan (fewer rows, adjusted N). The Stan program is unchanged.
+
+**Prior predictive workflow:**
+```python
+from shared_utils import compile_model, fit_model, to_arviz_prior, cleanup_csv_files
+
+prior_stan = compile_model(prior_dir / "prior_model.stan")
+fit = fit_model(prior_stan, stan_data, fixed_param=True,
+                iter_warmup=0, adapt_engaged=False)
+idata = to_arviz_prior(fit, prior_predictive=["y_rep"],
+                        observed_data={"y_obs": y_obs})
+cleanup_csv_files(fit)
+idata.to_netcdf(str(prior_dir / "prior_predictive.nc"))
+# idata has groups: prior (all GQ vars), prior_predictive (y_rep)
+```
+
+**Recovery data generation workflow:**
+```python
+from shared_utils import compile_model, fit_model, cleanup_csv_files
+
+simulator = compile_model(sim_dir / "simulator.stan")
+sim_fit = fit_model(simulator, sim_data, fixed_param=True,
+                    iter_warmup=0, adapt_engaged=False, iter_sampling=1)
+y_synth = sim_fit.stan_variable("y_rep")
+cleanup_csv_files(sim_fit)
+```
+
+**Do NOT** run `fit_model(fixed_param=True)` on the main inference model for prior simulation — `fixed_param=True` does not sample from priors in the `parameters{}` block; it holds them at their initial values. Always use a GQ-only `prior_model.stan`.
+
+**Fit and save:**
+- Use `fit_and_summarize(model, stan_data, model_name="name", save_dir=experiment_dir)` — returns `FitResult` with summary, diagnostics, LOO, and thinned draws
+- **CSVs are always cleaned up** (`cleanup_csvs=True`). Draws are fully extracted first — nothing is lost. CSVs are 5-500 MB/chain; there is no reason to keep them
+- **Save .nc for main data fits** (`save_netcdf=True`). The .nc (5-50 MB) preserves y_rep and log_lik draws that `thinned_draws.npz` does NOT contain. You need this for Stan-generated y_rep PPC, LOO-PIT, and `az.compare()`. Skip .nc for probe runs, simulation recovery, and prior predictive
+- Always-saved: summary.json, diagnostics.json, loo.json, thinned_draws.npz (200 parameter-only draws)
+- `thinned_draws` contains model parameters only (mu, sigma, theta, etc.) — NOT y_rep or log_lik. For basic PPC you can forward-simulate from parameter draws, but for full PPC with Stan-generated quantities, load the .nc
 - Use consistent coords/dims for all models in the workflow
 
 ## Known Issues
 
 - **CmdStanPy `diagnose()` OOMs** on large data (N > 10K). Use `check_convergence()` from `shared_utils` instead.
 - **ArviZ column names** are lowercase (`r_hat`, `ess_bulk`). CmdStanPy uses uppercase (`R_hat`, `ESS_bulk`).
+- **CmdStanPy summary columns renamed**: `N_Eff` → `ESS_bulk`, `N_eff` → `ESS_tail`. Use the ESS_* names.
 - **Stan CSV columns** use dots: `beta.1` not `beta[1]`.
+- **ArviZ expects specific group names**: ensure `y` in `observed_data` and `y_rep` in `posterior_predictive` exist.
+- **NumPy 2.x removed `np.trapz`**: use `scipy.integrate.trapezoid` instead.
+
+## Numerical Stability
+
+When writing custom log-density functions or user-defined functions:
+- Use Stan's stable math functions: `log_sum_exp`, `log1p_exp`, `log1m_exp`, `log_diff_exp`, `log1m` instead of manual `log(exp(...))` or `log(1-x)` expressions
+- Check for degenerate parameter configurations where both numerator and denominator approach zero (0/0 indeterminate forms). Derive a first-order Taylor approximation at the degenerate limit and implement a piecewise function: `if (fabs(x) < 1e-8) { use_taylor_approx; } else { use_exact; }`
+- Guard against `log(0)` at parameter boundaries: use `log1m(x)` instead of `log(1-x)` when x can approach 1
+- For interval-censored likelihoods, use `log_diff_exp(log_cdf_upper, log_cdf_lower)` — never compute `cdf_upper - cdf_lower` and then take `log()`
 
 ## References
 
