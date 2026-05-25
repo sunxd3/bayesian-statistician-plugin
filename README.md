@@ -49,6 +49,12 @@ The orchestrator drives the workflow through four phases, delegating to
 subagents and writing all results into a predictable folder structure
 (`eda/`, `design/`, `experiments/`, `final_report.md`, `log.md`).
 
+Individual phases can also be run standalone — for example, EDA alone:
+
+```
+> /bayesian-workflow:eda data/sales.csv
+```
+
 ## What's inside
 
 **Orchestrator skill** — `run` drives the full pipeline.
@@ -57,9 +63,13 @@ subagents and writing all results into a predictable folder structure
 `recovery-checker`, `model-fitter`, `posterior-predictive-checker`, `critique`,
 `model-refiner`, `model-selector`, `report-writer`.
 
-**Commands** — `/bayesian-workflow:setup` bootstraps the Python environment
-(copies `shared_utils`, creates `pyproject.toml`, runs `uv sync` and
-`cmdstanpy.install_cmdstan`).
+**Commands**:
+- `/bayesian-workflow:setup` — bootstraps the Python environment (copies
+  `shared_utils`, creates `pyproject.toml`, runs `uv sync` and
+  `cmdstanpy.install_cmdstan`).
+- `/bayesian-workflow:eda <data_path> [output_dir] [--focus=<area>]` — run
+  EDA on a dataset standalone, without the full workflow pipeline. Wraps
+  the `eda-analyst` subagent.
 
 **Modeling skills (11)** — `validation-protocol`, `python-environment`,
 `stan` (with `references/ode.md` and `references/horseshoe.md` for ODE-based

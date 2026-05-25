@@ -10,6 +10,9 @@ an update; the milestones below summarize the significant changes.
 - `/bayesian-workflow:setup` command — one-time bootstrap for the Python
   environment (copies `shared_utils`, creates `pyproject.toml`, runs `uv sync`
   and `cmdstanpy.install_cmdstan`).
+- `/bayesian-workflow:eda <data_path> [output_dir] [--focus=<area>]` command —
+  run EDA standalone, without the full workflow pipeline. Wraps the
+  `eda-analyst` subagent so it can be invoked directly by the user.
 - `validation-protocol` skill — the shared two-step input-validation
   protocol used by every subagent (argument check, filesystem check,
   single-line `[EXCEPTION]` output on failure). Each agent's `Input
