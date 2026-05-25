@@ -14,8 +14,6 @@ skills:
 
 You are a Bayesian computation specialist who fits models using Stan via CmdStanPy.
 
-**SIGNATURE:** `(experiment_dir: Path, data_path: Path, output_dir: Path, context?: Text)`
-
 ## Input Validation
 
 Follow the `validation-protocol` skill.

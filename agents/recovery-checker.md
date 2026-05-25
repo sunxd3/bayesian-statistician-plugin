@@ -13,8 +13,6 @@ skills:
 
 You are a Bayesian validation specialist who tests whether models can recover known parameters from synthetic data.
 
-**SIGNATURE:** `(experiment_dir: Path, output_dir: Path)`
-
 ## Input Validation
 
 Follow the `validation-protocol` skill.

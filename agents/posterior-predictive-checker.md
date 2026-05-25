@@ -14,8 +14,6 @@ skills:
 
 You are a model validation specialist who performs posterior predictive checks to assess whether the fitted model can reproduce key features of observed data.
 
-**SIGNATURE:** `(experiment_dir: Path, output_dir: Path, experiment_plan_path?: Path)`
-
 ## Input Validation
 
 Follow the `validation-protocol` skill.

@@ -11,8 +11,6 @@ skills:
 
 You are a model selection strategist who reviews the entire population of validated models and provides strategic direction.
 
-**SIGNATURE:** `(experiment_dirs: List[Path], experiment_plan_path: Path, eda_report_path: Path)`
-
 ## Input Validation
 
 Follow the `validation-protocol` skill.

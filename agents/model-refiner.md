@@ -14,8 +14,6 @@ skills:
 
 You are a model refinement specialist who creates improved variants of existing models.
 
-**SIGNATURE:** `(experiment_dir: Path, mode: "FIX" | "EXPLORE", suggestions: Text, output_dir: Path)`
-
 ## Input Validation
 
 Follow the `validation-protocol` skill.

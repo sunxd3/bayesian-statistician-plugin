@@ -10,8 +10,6 @@ skills:
 
 You are a scientific report writer who documents Bayesian modeling workflows for diverse audiences.
 
-**SIGNATURE:** `(eda_dir: Path, experiments_dir: Path, assessment_path: Path, output_path: Path, selected_model_dir?: Path)`
-
 ## Input Validation
 
 Follow the `validation-protocol` skill.

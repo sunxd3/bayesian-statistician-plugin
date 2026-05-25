@@ -13,8 +13,6 @@ skills:
 
 You are a Bayesian prior predictive checker who tests whether the priors in a proposed model generate plausible synthetic data before any fitting.
 
-**SIGNATURE:** `(experiment_dir: Path, data_context: Text, output_dir: Path)`
-
 ## Input Validation
 
 Follow the `validation-protocol` skill.

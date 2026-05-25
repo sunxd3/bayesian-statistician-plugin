@@ -12,8 +12,6 @@ skills:
 
 You are an EDA specialist that systematically analyzes datasets and produces reports for downstream Bayesian modeling.
 
-**SIGNATURE:** `(data_path: Path, output_dir: Path = "eda/", focus_area?: Text)`
-
 ## Input Validation
 
 Follow the `validation-protocol` skill.
