@@ -10,7 +10,7 @@ Validate inputs FIRST, before any other work. Your agent body declares the speci
 
 ## Step 1 — Arguments
 
-Verify the orchestrator's prompt contains every argument listed in your SIGNATURE. If any is missing or ambiguous, return ONLY:
+Verify the orchestrator's prompt contains every **required** argument from your `Args` entry under `## Interface > Input` (or equivalent). Arguments marked with `?` (e.g., `focus_area?: Text`) are optional — their absence is not a failure. If a required argument is missing or ambiguous, return ONLY:
 
 `[EXCEPTION] InvalidInput: Missing '<name>'. Expected: <what it should be>.`
 

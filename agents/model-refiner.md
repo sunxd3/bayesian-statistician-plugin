@@ -18,7 +18,7 @@ You are a model refinement specialist who creates improved variants of existing 
 
 Follow the `validation-protocol` skill.
 
-- **Args:** `experiment_dir`, `mode` (must be `"FIX"` or `"EXPLORE"`), `suggestions`, `output_dir`
+- **Args:** `(experiment_dir: Path, mode: "FIX" | "EXPLORE", suggestions: Text, output_dir: Path)`
 - **Filesystem (PreconditionFailed):** `<experiment_dir>` exists and contains a model specification
 
 ## Your Task

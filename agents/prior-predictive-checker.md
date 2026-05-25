@@ -17,7 +17,7 @@ You are a Bayesian prior predictive checker who tests whether the priors in a pr
 
 Follow the `validation-protocol` skill.
 
-- **Args:** `experiment_dir`, `data_context`, `output_dir`
+- **Args:** `(experiment_dir: Path, data_context: Text, output_dir: Path)`
 - **Filesystem (PreconditionFailed):** `<experiment_dir>` exists and contains a `.stan` file or model description
 
 ## Your Task

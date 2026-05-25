@@ -17,7 +17,7 @@ You are a Bayesian validation specialist who tests whether models can recover kn
 
 Follow the `validation-protocol` skill.
 
-- **Args:** `experiment_dir`, `output_dir`
+- **Args:** `(experiment_dir: Path, output_dir: Path)`
 - **Filesystem (PreconditionFailed):** `<experiment_dir>` exists and contains a `.stan` file or model description
 
 ## Your Task

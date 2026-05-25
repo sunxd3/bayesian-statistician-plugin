@@ -14,7 +14,7 @@ You are a scientific report writer who documents Bayesian modeling workflows for
 
 Follow the `validation-protocol` skill.
 
-- **Args:** `eda_dir`, `experiments_dir`, `assessment_path`, `output_path`
+- **Args:** `(eda_dir: Path, experiments_dir: Path, assessment_path: Path, output_path: Path, selected_model_dir?: Path)`
 - **Filesystem (DependencyMissing):**
   - `<eda_dir>/eda_report.md` exists
   - `<experiments_dir>` exists and contains experiment subdirectories

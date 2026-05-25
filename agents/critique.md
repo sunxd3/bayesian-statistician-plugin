@@ -16,7 +16,7 @@ You are a model critic who assesses a single model from three angles: statistica
 
 Follow the `validation-protocol` skill.
 
-- **Args:** `experiment_dir`, `experiment_plan_path`, `eda_report_path`, `data_path`
+- **Args:** `(experiment_dir: Path, experiment_plan_path: Path, eda_report_path: Path, data_path: Path)`
 - **Filesystem (all DependencyMissing):**
   - `<experiment_dir>/fit/` exists with fit results
   - validation artifacts exist under `<experiment_dir>` (prior predictive, posterior predictive, or recovery)

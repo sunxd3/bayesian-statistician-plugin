@@ -15,7 +15,7 @@ You are a model selection strategist who reviews the entire population of valida
 
 Follow the `validation-protocol` skill.
 
-- **Args:** `experiment_dirs` (a list of paths), `experiment_plan_path`, `eda_report_path`
+- **Args:** `(experiment_dirs: List[Path], experiment_plan_path: Path, eda_report_path: Path)`
 - **Filesystem (DependencyMissing):**
   - `<experiment_plan_path>` and `<eda_report_path>` exist
   - for each path in `experiment_dirs`, `<path>/fit/` exists and contains fit results and LOO diagnostics

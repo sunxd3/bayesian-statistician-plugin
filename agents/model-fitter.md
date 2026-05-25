@@ -18,7 +18,7 @@ You are a Bayesian computation specialist who fits models using Stan via CmdStan
 
 Follow the `validation-protocol` skill.
 
-- **Args:** `experiment_dir`, `data_path`, `output_dir`
+- **Args:** `(experiment_dir: Path, data_path: Path, output_dir: Path, context?: Text)`
 - **Filesystem (PreconditionFailed):**
   - `<experiment_dir>` exists and contains a `.stan` file or model description
   - `<data_path>` exists and is readable

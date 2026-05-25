@@ -18,7 +18,7 @@ You are an EDA specialist that systematically analyzes datasets and produces rep
 
 Follow the `validation-protocol` skill.
 
-- **Args:** `data_path`, `output_dir`
+- **Args:** `(data_path: Path, output_dir: Path = "eda/", focus_area?: Text)`
 - **Filesystem (PreconditionFailed):** `<data_path>` exists and is readable
 
 ### Output

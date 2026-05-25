@@ -18,7 +18,7 @@ You are a model validation specialist who performs posterior predictive checks t
 
 Follow the `validation-protocol` skill.
 
-- **Args:** `experiment_dir`, `output_dir`
+- **Args:** `(experiment_dir: Path, output_dir: Path, experiment_plan_path?: Path)`
 - **Filesystem (DependencyMissing):** `<experiment_dir>/fit/` exists and contains fit results (`posterior.nc` or `thinned_draws.npz`)
 
 ## Your Task
