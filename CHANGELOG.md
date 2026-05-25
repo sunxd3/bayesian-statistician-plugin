@@ -6,6 +6,16 @@ an update; the milestones below summarize the significant changes.
 
 ## Unreleased
 
+### Changed
+- Renamed agent `recovery-checker` → `fake-data-checker` to match Gelman's
+  canonical "fake-data simulation" vocabulary. Restructured the agent body
+  to the new Interface (Input / Returns / Side effects) + pseudocode
+  pattern, with methodology extracted into a new `fake-data-simulation`
+  skill (`references/single-draw.md` for the cheap pre-fit check,
+  `references/sbc.md` for the rigorous Simulation-Based Calibration
+  variant per Talts et al. 2018, `references/decision.md` for PASS/FAIL
+  criteria).
+
 ### Added
 - `/bayesian-workflow:setup` command — one-time bootstrap for the Python
   environment (copies `shared_utils`, creates `pyproject.toml`, runs `uv sync`

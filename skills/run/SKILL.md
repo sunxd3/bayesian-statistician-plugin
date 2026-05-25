@@ -146,7 +146,7 @@ Pool at any moment:
 ```
 Correct (per-experiment, per-stage):
 TaskCreate("prior-predictive-checker exp_1")
-TaskCreate("recovery-checker exp_1")
+TaskCreate("fake-data-checker exp_1")
 TaskCreate("model-fitter exp_1")
 TaskCreate("posterior-predictive-checker exp_1")
 TaskCreate("critique exp_1")
@@ -256,7 +256,7 @@ Write steps 1a-1d as the opening sections of `design/experiment_plan.md`. All do
 
 ### Phase 3: Model Development and Selection → `experiments/`
 
-Use the task pool (see "Task Pool for Pipeline Flow") to validate all experiments from the experiment plan. Each experiment flows through 5 stages: `prior-predictive-checker` → `recovery-checker` → `model-fitter` → `posterior-predictive-checker` → `critique`.
+Use the task pool (see "Task Pool for Pipeline Flow") to validate all experiments from the experiment plan. Each experiment flows through 5 stages: `prior-predictive-checker` → `fake-data-checker` → `model-fitter` → `posterior-predictive-checker` → `critique`.
 
 The `critique` agent performs statistical assessment, domain assessment, and framework questioning in a single pass.
 

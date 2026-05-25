@@ -26,7 +26,7 @@ Follow the `validation-protocol` skill.
 
 ### Step 1 — Write model.stan (if it doesn't exist)
 
-If no Stan model file exists for this experiment, you are the first agent to write it. Write the complete, final `model.stan` including the full likelihood in the `model` block and `generated quantities` with `log_lik` and `y_rep`. This file lives in the experiment root and is used by all downstream agents (recovery-checker, model-fitter).
+If no Stan model file exists for this experiment, you are the first agent to write it. Write the complete, final `model.stan` including the full likelihood in the `model` block and `generated quantities` with `log_lik` and `y_rep`. This file lives in the experiment root and is used by all downstream agents (fake-data-checker, model-fitter).
 
 ### Step 2 — Write prior_model.stan
 
@@ -65,4 +65,4 @@ Write report to `<output_dir>/prior_predictive_report.md`. Begin the report with
 
 Include: what you checked and how, findings with visual evidence, any prior adjustments made.
 
-When returning to the orchestrator, state the recommendation and end with: `ACTION: PASS → invoke recovery-checker for this experiment.` or `ACTION: FAIL → invoke model-refiner (FIX mode) for this experiment.`
+When returning to the orchestrator, state the recommendation and end with: `ACTION: PASS → invoke fake-data-checker for this experiment.` or `ACTION: FAIL → invoke model-refiner (FIX mode) for this experiment.`

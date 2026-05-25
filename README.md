@@ -60,7 +60,7 @@ Individual phases can also be run standalone — for example, EDA alone:
 **Orchestrator skill** — `run` drives the full pipeline.
 
 **Subagents (10)** — `eda-analyst`, `model-designer`, `prior-predictive-checker`,
-`recovery-checker`, `model-fitter`, `posterior-predictive-checker`, `critique`,
+`fake-data-checker`, `model-fitter`, `posterior-predictive-checker`, `critique`,
 `model-refiner`, `model-selector`, `report-writer`.
 
 **Commands**:
@@ -71,10 +71,12 @@ Individual phases can also be run standalone — for example, EDA alone:
   EDA on a dataset standalone, without the full workflow pipeline. Wraps
   the `eda-analyst` subagent.
 
-**Modeling skills (11)** — `validation-protocol`, `python-environment`,
+**Modeling skills (12)** — `validation-protocol`, `python-environment`,
 `stan` (with `references/ode.md` and `references/horseshoe.md` for ODE-based
 dynamics and sparse regression), `generative-model-design`,
-`convergence-diagnostics`, `inferencedata-handling`, `visual-predictive-checks`,
+`fake-data-simulation` (with `references/single-draw.md`, `references/sbc.md`,
+`references/decision.md`), `convergence-diagnostics`,
+`inferencedata-handling`, `visual-predictive-checks`,
 `bayesian-model-diagnostics`, `bayesian-model-selection`,
 `eda` (with `references/process/` for EDA procedures and `references/tests/`
 for a diagnostic test library by data shape), `artifact-guidelines`. Subagents
@@ -92,7 +94,7 @@ copies it into the working project as a path dependency.
 2. **Model design** (`design/`) — structural questions are turned into an
    experiment plan by parallel `model-designer` instances.
 3. **Model development** (`experiments/`) — each experiment flows through
-   `prior-predictive-checker → recovery-checker → model-fitter →
+   `prior-predictive-checker → fake-data-checker → model-fitter →
    posterior-predictive-checker → critique`, with `model-refiner` and
    `model-selector` driving iteration until questions are resolved.
 4. **Reporting** (`final_report.md`) — `report-writer` produces a report
