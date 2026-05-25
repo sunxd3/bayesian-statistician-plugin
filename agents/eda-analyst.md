@@ -28,7 +28,7 @@ A short summary of key findings (text), for the orchestrator to read.
 ### Side effects
 
 Files written under `output_dir`:
-- `log.md` — append-only running notebook; one entry per major step in the workflow. Format: `## <UTC timestamp> — eda-analyst: <action>` then content. The orchestrator reads this for the full trace; you only write to it.
+- `log.md` — append-only running notebook; one entry per major step in the workflow. Format: `## <UTC timestamp> — eda-analyst: <action>` then content. **Append each entry live, as you reach that step — do NOT batch the file at the end.** The orchestrator (and any human watcher) reads this for real-time progress; a crash mid-workflow must leave a partial log on disk, not nothing. You write to it; the orchestrator reads it.
 - `data.cleaned.parquet` — canonical cleaned dataset for downstream agents. Schema documented in `eda_report.md` (Data Semantics Audit section).
 - `data.augmented.parquet` (optional) — derived columns beyond the cleaned schema (rolling/cumulative summaries, multi-lag features, etc.) that the modeling-handoff analysis surfaces and that downstream model-designer/model-fitter may want. Emit when the investigation or handoff produces such columns. Document the added columns in `eda_report.md`.
 - `eda_report.md` — sections: Data Semantics Audit (with Scientific Domain Identification and final schema), Data Quality, Findings, Variance Decomposition, Residual Analysis, Competing Structural Hypotheses, Dependence Classification, Risks/Pitfalls, Modeling Implications, Recommended Encodings
@@ -42,19 +42,19 @@ The block below is a workflow spec in Python-style pseudocode. Function names de
 
 ```python
 data = load(data_path)                                # log shape + column types
-log("loaded", shape=data.shape, columns=data.columns) # → output_dir/log.md
+append_log("loaded", shape=data.shape, columns=data.columns) # → output_dir/log.md
 
 audit = audit_semantics(data)                         # ref: eda > process/data-semantics-audit
 data = apply_audit_fixes(data, audit)                 # granularity, encoding, propagation,
                                                       # snake_case names, NaN harmonization, types
                                                       # → data.cleaned.parquet
                                                       # ref: eda > process/standardization
-log("semantic audit + standardization complete", issues=audit.issues)
+append_log("semantic audit + standardization complete", issues=audit.issues)
 
 quality = check_quality(data)                         # → quality_summary.csv
                                                       # columns: variable, missingness, type, duplicates
                                                       # ref: eda > process/data-quality-checks
-log("quality checked")
+append_log("quality checked")
 
 univariate = profile_univariate(data)                 # → univariate_summary.csv
                                                       # one row per variable: variable name (first col),
@@ -65,7 +65,7 @@ structure = profile_structure(data, univariate)       # variance decomposition,
                                                       # dependence classification
 if has_timestamps(data):
     structure.timeseries = profile_timestamps(data)   # ref: eda > process/timestamp-handling
-log("structure profiled")
+append_log("structure profiled")
 
 # Deepen analysis where findings surface new questions. Plotting happens here
 # (and only here) — each probe produces supporting plot(s) and any diagnostic
@@ -78,11 +78,11 @@ while questions := surface_open_questions(univariate, structure):
     observations = [view(p) for p in plots]
     findings = interpret(observations, test_results, questions)
     structure = integrate(structure, findings)
-    log("investigated", questions=questions, findings=findings, plots=plots)
+    append_log("investigated", questions=questions, findings=findings, plots=plots)
 
 hypotheses = compete_hypotheses(audit, univariate, structure)
                                                       # 2-3 cited stories with evidence
-log("hypotheses proposed", count=len(hypotheses))
+append_log("hypotheses proposed", count=len(hypotheses))
 
 handoff = synthesize_handoff(univariate, structure, hypotheses)
                                                       # ref: eda > process/modeling-handoff
