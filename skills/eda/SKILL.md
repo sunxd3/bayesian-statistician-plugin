@@ -17,6 +17,7 @@ Reference for performing EDA in service of Bayesian modeling. Read references on
 Operational checklists and procedures for each step of the EDA workflow:
 
 - `references/process/data-semantics-audit.md` — understanding what columns **mean** (scientific domain, column roles, granularity, sparsity, encoding sanity, suspicious patterns)
+- `references/process/standardization.md` — mechanical cleanup driven by the audit (snake_case names, NaN harmonization, type coercion, categorical normalization) that produces `data.cleaned.parquet`
 - `references/process/data-quality-checks.md` — missingness, duplicates, invalid values, type issues
 - `references/process/timestamp-handling.md` — parsing timestamps, frequency inference, gaps, panel coverage
 - `references/process/visualization.md` — plot quantity, structure, and documentation requirements
@@ -31,7 +32,6 @@ Statistical diagnostic tests organized by data shape. Load only what your data n
 - `references/tests/time-series.md` — stationarity (ADF, KPSS), autocorrelation (Durbin-Watson, Ljung-Box), ACF/PACF patterns, ARCH effects
 - `references/tests/count.md` — overdispersion (Cameron-Trivedi, dispersion parameter), zero-inflation, Vuong test for non-nested models
 - `references/tests/missing-and-hierarchical.md` — MCAR/MAR/MNAR mechanisms, Little's test, ICC, design effect
-- `references/tests/model-comparison.md` — AIC/BIC, likelihood ratio test
 
 ## Key Thresholds Summary
 

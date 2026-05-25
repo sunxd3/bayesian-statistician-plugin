@@ -29,7 +29,8 @@ A short summary of key findings (text), for the orchestrator to read.
 
 Files written under `output_dir`:
 - `log.md` — append-only running notebook; one entry per major step in the workflow. Format: `## <UTC timestamp> — eda-analyst: <action>` then content. The orchestrator reads this for the full trace; you only write to it.
-- `eda_report.md` — sections: Data Semantics Audit (with Scientific Domain Identification), Data Quality, Findings, Variance Decomposition, Residual Analysis, Competing Structural Hypotheses, Dependence Classification, Risks/Pitfalls, Modeling Implications, Recommended Encodings
+- `data.cleaned.parquet` — canonical cleaned dataset for downstream agents. Schema documented in `eda_report.md` (Data Semantics Audit section).
+- `eda_report.md` — sections: Data Semantics Audit (with Scientific Domain Identification and final schema), Data Quality, Findings, Variance Decomposition, Residual Analysis, Competing Structural Hypotheses, Dependence Classification, Risks/Pitfalls, Modeling Implications, Recommended Encodings
 - `quality_summary.csv`, `univariate_summary.csv` — schemas in pseudocode
 - `*.png` — plots referenced in the report
 - `*.py` — analysis scripts (keep after execution)
@@ -43,8 +44,11 @@ data = load(data_path)                                # log shape + column types
 log("loaded", shape=data.shape, columns=data.columns) # → output_dir/log.md
 
 audit = audit_semantics(data)                         # ref: eda > process/data-semantics-audit
-data = apply_audit_fixes(data, audit)                 # granularity, encoding, propagation
-log("semantic audit complete", issues=audit.issues)
+data = apply_audit_fixes(data, audit)                 # granularity, encoding, propagation,
+                                                      # snake_case names, NaN harmonization, types
+                                                      # → data.cleaned.parquet
+                                                      # ref: eda > process/standardization
+log("semantic audit + standardization complete", issues=audit.issues)
 
 quality = check_quality(data)                         # → quality_summary.csv
                                                       # columns: variable, missingness, type, duplicates
