@@ -63,12 +63,15 @@ if has_timestamps(data):
 log("structure profiled")
 
 # Deepen analysis where findings surface new questions. Plotting happens here
-# (and only here) — each probe produces its supporting plot(s) and any
-# diagnostic tests needed for that question.
+# (and only here) — each probe produces supporting plot(s) and any diagnostic
+# tests needed for that question. View every plot before drawing findings;
+# plots are evidence, not just artifacts.
 # Plot rules: ref: eda > process/visualization.
 # Diagnostic tests by shape: ref: eda > tests/<shape>.
 while questions := surface_open_questions(univariate, structure):
-    findings, plots = investigate(data, questions)    # → *.png; targeted probes + tests
+    plots, test_results = probe(data, questions)      # → *.png + diagnostic tests
+    observations = [view(p) for p in plots]
+    findings = interpret(observations, test_results, questions)
     structure = integrate(structure, findings)
     log("investigated", questions=questions, findings=findings, plots=plots)
 
