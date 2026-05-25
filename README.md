@@ -61,9 +61,10 @@ subagents and writing all results into a predictable folder structure
 (copies `shared_utils`, creates `pyproject.toml`, runs `uv sync` and
 `cmdstanpy.install_cmdstan`).
 
-**Modeling skills (12)** — `python-environment`, `stan-coding`,
-`stan-ode-modeler`, `generative-model-design`, `horseshoe-prior`,
-`convergence-diagnostics`, `inferencedata-handling`, `visual-predictive-checks`,
+**Modeling skills (10)** — `python-environment`, `stan` (with
+`references/ode.md` and `references/horseshoe.md` for ODE-based dynamics
+and sparse regression), `generative-model-design`, `convergence-diagnostics`,
+`inferencedata-handling`, `visual-predictive-checks`,
 `bayesian-model-diagnostics`, `bayesian-model-selection`,
 `statistical-diagnostics`, `artifact-guidelines`. Subagents load the skills
 relevant to their role; you can also invoke any skill directly as

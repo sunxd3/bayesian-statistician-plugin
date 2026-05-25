@@ -6,7 +6,7 @@ description: >
 skills:
   - python-environment
   - artifact-guidelines
-  - stan-coding
+  - stan
   - visual-predictive-checks
 ---
 
@@ -37,7 +37,7 @@ If no Stan model file exists for this experiment, you are the first agent to wri
 
 ### Step 2 — Write prior_model.stan
 
-Write a **generated-quantities-only** Stan program at `<output_dir>/prior_model.stan`. This program mirrors the priors from `model.stan` using `_rng` functions and generates synthetic `y_rep`. It has no `parameters` block and no `model` block. See the `stan-coding` skill for the full pattern and pitfalls.
+Write a **generated-quantities-only** Stan program at `<output_dir>/prior_model.stan`. This program mirrors the priors from `model.stan` using `_rng` functions and generates synthetic `y_rep`. It has no `parameters` block and no `model` block. See the `stan` skill for the full pattern and pitfalls.
 
 Every `_rng` call must be a **line-by-line mirror** of the corresponding `~` statement in `model.stan`. Every transformed parameter computation must match exactly. If `model.stan` says `sigma ~ lognormal(0, 1)`, then `prior_model.stan` must say `real sigma = lognormal_rng(0, 1)`.
 

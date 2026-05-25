@@ -1,12 +1,6 @@
----
-name: stan-ode-modeler
-description: Guidelines for Stan models with ODE-based dynamics using modern interfaces
-user-invocable: false
----
+# Stan ODE Models
 
-# Stan ODE Modeler
-
-Use this skill when writing Stan models where latent dynamics are defined by ODEs: epidemic models (SIR/SEIR), PK/PD compartment models, population dynamics, biochemical reactions, growth models.
+Reference for Stan models where latent dynamics are defined by ODEs: epidemic models (SIR/SEIR), PK/PD compartment models, population dynamics, biochemical reactions, growth models. Combine with the core `stan` skill for general program structure.
 
 Uses Stan 2.24+ modern ODE interface (`ode_rk45`, `ode_bdf`, `ode_adams`, adjoint solvers), not legacy `integrate_ode_*`.
 
@@ -16,7 +10,7 @@ Uses Stan 2.24+ modern ODE interface (`ode_rk45`, `ode_bdf`, `ode_adams`, adjoin
 2. **Choose solver** (see below)
 3. **Write complete Stan program**: functions (ODE RHS), data, parameters, transformed parameters (solve ODE), model (priors + likelihood), generated quantities (predictions)
 4. **Scale appropriately**: Non-dimensionalize time and states to O(1) scales, use log/logit transforms for constraints
-5. **Use stan-coding skill** for general Stan structure, parameterization, and ArviZ integration
+5. **Use the core `stan` skill** for general Stan structure, parameterization, and ArviZ integration
 
 ## Modern ODE Interface
 
@@ -53,7 +47,7 @@ transformed parameters {
 ```
 
 **Generated quantities** (predictions, forecasts):
-Include y_rep and log_lik following stan-coding skill guidelines.
+Include y_rep and log_lik following the core `stan` skill guidelines.
 
 ## Example: SIR Model
 

@@ -6,7 +6,7 @@ description: >
 skills:
   - python-environment
   - artifact-guidelines
-  - stan-coding
+  - stan
   - convergence-diagnostics
 ---
 
@@ -39,7 +39,7 @@ Pick 1 set of realistic parameter values (optionally 2 if the model has known id
 
 ### Step 2 — Write simulator.stan
 
-Write a **generated-quantities-only** Stan program at `<output_dir>/simulator.stan`. This program takes the true parameter values as `data{}` input and generates synthetic `y_rep`. It has no `parameters` block and no `model` block. See the `stan-coding` skill for the full pattern and pitfalls.
+Write a **generated-quantities-only** Stan program at `<output_dir>/simulator.stan`. This program takes the true parameter values as `data{}` input and generates synthetic `y_rep`. It has no `parameters` block and no `model` block. See the `stan` skill for the full pattern and pitfalls.
 
 The transformed parameter computation and `_rng` calls must be a **line-by-line mirror** of the corresponding blocks in `model.stan`.
 

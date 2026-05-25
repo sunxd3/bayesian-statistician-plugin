@@ -7,7 +7,7 @@ skills:
   - python-environment
   - artifact-guidelines
   - generative-model-design
-  - stan-coding
+  - stan
   - bayesian-model-diagnostics
 ---
 

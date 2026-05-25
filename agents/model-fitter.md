@@ -6,7 +6,7 @@ description: >
 skills:
   - python-environment
   - artifact-guidelines
-  - stan-coding
+  - stan
   - convergence-diagnostics
   - inferencedata-handling
 ---
@@ -52,7 +52,7 @@ Must achieve: R̂ < 1.01, ESS > 100 per chain (prefer > 400 total), no divergent
 ## Troubleshooting
 
 - **Divergent transitions**: Increase adapt_delta (0.8 → 0.95 → 0.99). If persists, model likely misspecified.
-- **Hierarchical divergences**: Before increasing adapt_delta, generate θ[k] vs log(τ) scatter plots with divergence overlay for each group-level parameter. Divergences clustering near small τ = centered parameterization failing (switch to non-centered for those groups). Divergences near large τ = non-centered failing (switch to centered). If group sizes vary widely, use mixed parameterization (see `stan-coding` skill). Do not just increase adapt_delta — this masks the geometric problem.
+- **Hierarchical divergences**: Before increasing adapt_delta, generate θ[k] vs log(τ) scatter plots with divergence overlay for each group-level parameter. Divergences clustering near small τ = centered parameterization failing (switch to non-centered for those groups). Divergences near large τ = non-centered failing (switch to centered). If group sizes vary widely, use mixed parameterization (see `stan` skill). Do not just increase adapt_delta — this masks the geometric problem.
 - **Custom initialization**: If fits show adaptation problems (many divergences, extreme step sizes, chains stuck in different modes), try custom initialization before declaring the model broken. Set `inits` to a function returning prior means or medians for all parameters, or use posterior draws from a simpler fitted model. This often resolves adaptation failures caused by extreme initial values and is cheaper than reparameterization.
 - **Slow mixing**: Try reparameterization (centered → non-centered). If persists, model too complex.
 - **R̂ > 1.01**: Run longer or check for multimodality. If multimodal, identification problem.

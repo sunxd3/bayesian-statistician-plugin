@@ -21,6 +21,12 @@ an update; the milestones below summarize the significant changes.
   (`shared_utils` API, script structure). Setup steps moved to the new
   `setup` command. The bundled `shared_utils/` library now lives at the
   plugin root and is referenced via `${CLAUDE_PLUGIN_ROOT}/shared_utils`.
+- Consolidated Stan skills via progressive disclosure: `stan-coding`
+  renamed to `stan`; `stan-ode-modeler` and `horseshoe-prior` folded in
+  as `skills/stan/references/ode.md` and `skills/stan/references/horseshoe.md`.
+  Subagent skill lists updated. Net: 12 modeling skills → 10, with the
+  previously-orphaned ODE and horseshoe guides now discoverable from the
+  umbrella `stan` skill.
 
 ## 0.2.0 — 2026-05-21
 

@@ -6,7 +6,7 @@ description: >
 skills:
   - python-environment
   - artifact-guidelines
-  - stan-coding
+  - stan
   - visual-predictive-checks
   - inferencedata-handling
 ---

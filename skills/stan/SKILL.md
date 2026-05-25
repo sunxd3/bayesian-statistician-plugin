@@ -1,12 +1,16 @@
 ---
-name: stan-coding
-description: Best practices for writing efficient, clean Stan programs
+name: stan
+description: Best practices for writing efficient, clean Stan programs. Covers structure, parameterization, prior/posterior predictive blocks, and pitfalls. Sub-references handle specialized cases.
 user-invocable: false
 ---
 
-# Stan Coding Guidelines
+# Stan
 
 Use this skill when writing or modifying Stan programs to ensure clean, efficient code.
+
+**Specialized patterns** — read the reference on demand:
+- `references/ode.md` — ODE-based dynamics (SIR/SEIR, PK/PD, population, biochemical, growth models) using Stan 2.24+ modern interfaces (`ode_rk45`, `ode_bdf`, `ode_adams`, adjoint).
+- `references/horseshoe.md` — horseshoe priors for sparse regression (automatic variable selection, regularized horseshoe).
 
 ## Program Structure
 

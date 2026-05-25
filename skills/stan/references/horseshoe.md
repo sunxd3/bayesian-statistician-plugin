@@ -1,12 +1,6 @@
----
-name: horseshoe-prior
-description: Stable horseshoe prior implementation patterns for sparse regression
-user-invocable: false
----
-
 # Horseshoe Prior for Sparse Bayesian Regression
 
-Use this skill when implementing sparse regression models with horseshoe priors. The horseshoe prior provides automatic variable selection with heavy tails for large effects and strong shrinkage for small effects.
+Reference for sparse regression models with horseshoe priors. The horseshoe prior provides automatic variable selection with heavy tails for large effects and strong shrinkage for small effects. Combine with the core `stan` skill for general program structure.
 
 ## When to Use
 
