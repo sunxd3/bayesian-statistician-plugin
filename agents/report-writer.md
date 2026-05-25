@@ -16,7 +16,7 @@ Follow the `validation-protocol` skill.
 
 - **Args:** `(eda_dir: Path, experiments_dir: Path, assessment_path: Path, output_path: Path, selected_model_dir?: Path)`
 - **Filesystem (DependencyMissing):**
-  - `<eda_dir>/eda_report.md` exists
+  - `<eda_dir>/eda_report.html` exists
   - `<experiments_dir>` exists and contains experiment subdirectories
   - `<assessment_path>` exists (population assessment from model-selector)
 

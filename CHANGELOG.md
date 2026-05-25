@@ -10,6 +10,17 @@ an update; the milestones below summarize the significant changes.
 - `/bayesian-workflow:setup` command — one-time bootstrap for the Python
   environment (copies `shared_utils`, creates `pyproject.toml`, runs `uv sync`
   and `cmdstanpy.install_cmdstan`).
+- Reports (any phase's final deliverable) are now HTML instead of Markdown.
+  EDA emits `eda_report.html`; canonical project structure now expects
+  `final_report.html`. The editorial-magazine design (light theme,
+  Fraunces + Source Sans 3 + JetBrains Mono, embedded plot figures,
+  full skeleton template) lives in
+  `artifact-guidelines > references/html-report.md` so any agent that
+  produces a report can use it. Markdown is still used for logs and
+  intermediate notes; conventions live in
+  `artifact-guidelines > references/markdown-report.md`.
+  Dependent agents (`model-designer`, `report-writer`) and the `run`
+  orchestrator updated to reference the new filenames.
 - `/bayesian-workflow:eda <data_path> [output_dir] [--focus=<area>]` command —
   run EDA standalone, without the full workflow pipeline. Wraps the
   `eda-analyst` subagent so it can be invoked directly by the user.

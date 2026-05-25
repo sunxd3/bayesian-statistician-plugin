@@ -29,9 +29,9 @@ A short summary of key findings (text), for the orchestrator to read.
 
 Files written under `output_dir`:
 - `log.md` — append-only running notebook; one entry per major step in the workflow. Format: `## <UTC timestamp> — eda-analyst: <action>` then content. **Append each entry live, as you reach that step — do NOT batch the file at the end.** The orchestrator (and any human watcher) reads this for real-time progress; a crash mid-workflow must leave a partial log on disk, not nothing. You write to it; the orchestrator reads it.
-- `data.cleaned.parquet` — canonical cleaned dataset for downstream agents. Schema documented in `eda_report.md` (Data Semantics Audit section).
-- `data.augmented.parquet` (optional) — derived columns beyond the cleaned schema (rolling/cumulative summaries, multi-lag features, etc.) that the modeling-handoff analysis surfaces and that downstream model-designer/model-fitter may want. Emit when the investigation or handoff produces such columns. Document the added columns in `eda_report.md`.
-- `eda_report.md` — sections: Data Semantics Audit (with Scientific Domain Identification and final schema), Data Quality, Findings, Variance Decomposition, Residual Analysis, Competing Structural Hypotheses, Dependence Classification, Risks/Pitfalls, Modeling Implications, Recommended Encodings
+- `data.cleaned.parquet` — canonical cleaned dataset for downstream agents. Schema documented in `eda_report.html` (Data Semantics Audit section).
+- `data.augmented.parquet` (optional) — derived columns beyond the cleaned schema (rolling/cumulative summaries, multi-lag features, etc.) that the modeling-handoff analysis surfaces and that downstream model-designer/model-fitter may want. Emit when the investigation or handoff produces such columns. Document the added columns in `eda_report.html`.
+- `eda_report.html` — single self-contained HTML file (no external assets except Google Fonts). Sections: Data Semantics Audit (with Scientific Domain Identification and final schema), Data Quality, Findings, Variance Decomposition, Residual Analysis, Competing Structural Hypotheses, Dependence Classification, Risks/Pitfalls, Modeling Implications, Recommended Encodings. Embed each plot via `<img>` referencing the PNG by filename (same directory). Follow the design + skeleton in `artifact-guidelines > references/html-report`.
 - `quality_summary.csv`, `univariate_summary.csv` — schemas in pseudocode
 - `*.png` — plots referenced in the report
 - `*.py` — analysis scripts (keep after execution)
@@ -90,7 +90,8 @@ handoff = synthesize_handoff(univariate, structure, hypotheses)
                                                       # (rolling means, lag-N, etc.), also emit
                                                       # → data.augmented.parquet (optional)
 
-write(output_dir / "eda_report.md",                   # final knit of all prior outputs
+write(output_dir / "eda_report.html",                 # final knit; HTML with embedded plots
       compose_report(audit, quality, univariate, structure, hypotheses, handoff))
+                                                      # ref: artifact-guidelines > references/html-report
 return summary_of(audit, quality, univariate, structure, hypotheses, handoff)
 ```

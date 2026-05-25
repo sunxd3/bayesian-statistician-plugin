@@ -23,6 +23,8 @@ Operational checklists and procedures for each step of the EDA workflow:
 - `references/process/visualization.md` — plot quantity, structure, and documentation requirements
 - `references/process/modeling-handoff.md` — variance decomposition, residual analysis, competing structural hypotheses, dependence classification, likelihood mapping, modeling-ready recommendations
 
+For the HTML report format (design, palette, fonts, skeleton template), see `artifact-guidelines > references/html-report`. For log format, see `artifact-guidelines > references/markdown-report`.
+
 ## Test references
 
 Statistical diagnostic tests organized by data shape. Load only what your data needs:

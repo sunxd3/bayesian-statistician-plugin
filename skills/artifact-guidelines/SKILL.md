@@ -8,30 +8,35 @@ user-invocable: false
 
 This skill provides best practices for all subagents when generating written artifacts, code files, and figures.
 
-## Writing Guidelines
+## Format choice
 
-Use GitHub-flavored CommonMark markdown for all text outputs (reports, logs, documentation). Never use plain .txt files.
+- **Final reports** (the deliverable of any phase — EDA reports, critiques, experiment summaries, final synthesis) → HTML. See `references/html-report.md` for the design, palette, typography, and skeleton template.
+- **Logs and intermediate notes** (`log.md`, README-style notes, working scratch) → Markdown (GitHub-flavored CommonMark). See `references/markdown-report.md` for the log entry format.
+- Never use plain `.txt`.
+
+## Writing Guidelines
 
 Write concisely:
 - Short paragraphs with complete sentences
 - Favor insight over exhaustiveness
 - Use lists sparingly, only when they genuinely clarify (e.g., model assumptions, validation criteria)
-- Avoid markdown overuse - minimal headers and bold, no excessive formatting
+- Avoid formatting overuse — minimal headers and bold, no excessive emphasis
 
-In reports:
+In reports (HTML):
 - Lead with key findings or conclusions
-- Support claims with evidence (plots, statistics, diagnostics)
-- Reference files with clear relative paths: "As shown in `figures/washout_curves.png`..." or "`washout_curves.png`" if in same directory
+- Support claims with evidence (embedded figures, statistics, diagnostics)
+- Reference plot files in `<figcaption>` and alt text; readers can find them on disk
 - Document what you tried, what worked, and what didn't
 
-In logs:
+In logs (Markdown):
 - Capture decisions and reasoning, not play-by-play execution
 - Record why you chose certain paths or skipped alternatives
 - Note failures and how you addressed them
+- Append entries live as work proceeds; do NOT batch the file at the end
 
 Use scratchpad:
 - You should create local files to write a first draft, including thinking process
-- Rewrite it to form final output, then delete the temporary local files you created 
+- Rewrite it to form final output, then delete the temporary local files you created
 
 ## Directory Structure
 
@@ -42,11 +47,11 @@ data/             # Source data files
 eda/              # Exploratory data analysis
 design/           # Model design: designer outputs and experiment plan
 experiments/      # Model development and execution
-final_report.md   # Final deliverable
-log.md            # Decision log
+final_report.html # Final deliverable (HTML, see references/html-report.md)
+log.md            # Decision log (Markdown, see references/markdown-report.md)
 ```
 
-Use **relative paths** from the project root (not absolute paths). The system prompt defines this canonical structure. Scripts should reference files using relative paths like `eda/eda_report.md` or `experiments/experiment_1/fit/`.
+Use **relative paths** from the project root (not absolute paths). The system prompt defines this canonical structure. Scripts should reference files using relative paths like `eda/eda_report.html` or `experiments/experiment_1/fit/`.
 
 ## Code Organization
 

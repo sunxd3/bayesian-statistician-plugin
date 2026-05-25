@@ -37,4 +37,4 @@ Apply these transformations to produce the canonical cleaned dataset (`data.clea
 
 ## Output
 
-Emit `data.cleaned.parquet` (Parquet preserves dtypes). Document the final schema (column names + dtypes) in the Data Semantics Audit section of `eda_report.md` so downstream agents can rely on it.
+Emit `data.cleaned.parquet` (Parquet preserves dtypes). Document the final schema (column names + dtypes) in the Data Semantics Audit section of `eda_report.html` so downstream agents can rely on it.

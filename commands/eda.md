@@ -30,6 +30,6 @@ The subagent validates inputs per `validation-protocol` and follows its own work
 ## Present results
 
 When the subagent returns, present the summary to the user. Point them at:
-- `<output_dir>/eda_report.md` — full narrative report
+- `<output_dir>/eda_report.html` — full narrative report (open in a browser)
 - `<output_dir>/log.md` — append-only running trace of the workflow
 - `<output_dir>/data.cleaned.parquet` — canonical cleaned dataset

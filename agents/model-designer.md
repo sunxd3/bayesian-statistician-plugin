@@ -16,7 +16,7 @@ You are a Bayesian modeling strategist who designs experiments to resolve struct
 Follow the `validation-protocol` skill.
 
 - **Args:** `(eda_dir: Path, structural_question: Text, baseline_spec: Text, other_questions: Text, output_dir: Path)`
-- **Filesystem (DependencyMissing):** `<eda_dir>/eda_report.md` exists
+- **Filesystem (DependencyMissing):** `<eda_dir>/eda_report.html` exists
 
 ## Your Task
 

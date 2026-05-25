@@ -176,7 +176,7 @@ Use this structure unless the task requires deviation:
 ```
 data/                           # source data and copies
 eda/                            # Phase 1: Data Understanding
-  eda_report.md                 # final synthesis (required)
+  eda_report.html                 # final synthesis (required)
   quality_summary.csv           # data quality table (required)
   univariate_summary.csv        # per-variable summary stats (required)
   analyst_1/                    # if parallel: each instance gets own folder
@@ -197,7 +197,7 @@ experiments/                    # Phase 3: Model Development
       *.png, *.py
     simulation/
       simulator.stan            # GQ-only: true params as data, generates y_rep
-      recovery_report.md        # (required)
+      recovery_report.html      # (required)
       *.png, *.py
     fit/
       fit_report.md             # convergence diagnostics, assessment (required)
@@ -218,12 +218,12 @@ log.md                          # append-only workflow log
 ```
 
 ### Subagent Communication
-Point subagents to files produced by previous subagents rather than summarizing content yourself (e.g., tell model-designer to "Read the EDA report at `eda/eda_report.md`" rather than summarizing EDA findings). Ask subagents to report what files they created so you can pass information along the chain.
+Point subagents to files produced by previous subagents rather than summarizing content yourself (e.g., tell model-designer to "Read the EDA report at `eda/eda_report.html`" rather than summarizing EDA findings). Ask subagents to report what files they created so you can pass information along the chain.
 
 ## Modeling Workflow
 
 ### Phase 1: Data Understanding → `eda/`
-Invoke `eda-analyst` to explore the data. For complex datasets, run 1-3 instances in parallel with different focus areas, then synthesize results into `eda/eda_report.md`.
+Invoke `eda-analyst` to explore the data. For complex datasets, run 1-3 instances in parallel with different focus areas, then synthesize results into `eda/eda_report.html`.
 
 ### Phase 2: Model Design → `design/`
 
