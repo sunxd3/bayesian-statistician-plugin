@@ -66,9 +66,10 @@ subagents and writing all results into a predictable folder structure
 dynamics and sparse regression), `generative-model-design`,
 `convergence-diagnostics`, `inferencedata-handling`, `visual-predictive-checks`,
 `bayesian-model-diagnostics`, `bayesian-model-selection`,
-`statistical-diagnostics`, `artifact-guidelines`. Subagents load the skills
-relevant to their role; you can also invoke any skill directly as
-`/bayesian-workflow:<skill-name>`.
+`eda` (with `references/process/` for EDA procedures and `references/tests/`
+for a diagnostic test library by data shape), `artifact-guidelines`. Subagents
+load the skills relevant to their role; you can also invoke any skill directly
+as `/bayesian-workflow:<skill-name>`.
 
 **Bundled library** — `shared_utils`, a Python package with a fit-and-summarize
 pipeline, convergence diagnostics, LOO, and ArviZ helpers. The setup command

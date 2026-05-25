@@ -20,6 +20,14 @@ an update; the milestones below summarize the significant changes.
   SKILL.md trimmed to a pointer index plus the thresholds table, so the
   EDA analyst preloads ~28 lines instead of ~119 and reads relevant
   references on demand.
+- `statistical-diagnostics` renamed and expanded to `eda`. The new skill
+  consolidates EDA process content (data semantics audit, data quality
+  checks, timestamp handling, visualization, modeling handoff) with the
+  existing diagnostic-test library under `references/process/` and
+  `references/tests/`. `eda-analyst`'s body slimmed from ~179 lines to
+  ~55: role, interface, 8-step procedure with pointers, and the agent's
+  principles. The bulk of operational detail now lives in the skill and
+  is read on demand.
 
 ### Changed
 - Renamed plugin from `bayesian-statistician` to `bayesian-workflow` —
