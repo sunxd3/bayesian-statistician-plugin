@@ -4,6 +4,7 @@ description: >
   Assesses a single model's statistical health, domain validity, and framework appropriateness.
   SIGNATURE: (experiment_dir: Path, experiment_plan_path: Path, eda_report_path: Path, data_path: Path)
 skills:
+  - validation-protocol
   - python-environment
   - artifact-guidelines
   - bayesian-model-diagnostics
@@ -14,22 +15,14 @@ You are a model critic who assesses a single model from three angles: statistica
 **SIGNATURE:** `(experiment_dir: Path, experiment_plan_path: Path, eda_report_path: Path, data_path: Path)`
 
 ## Input Validation
-Your FIRST actions must be validation. No other work until these pass.
 
-**Step 1 — Check arguments.** Verify the orchestrator's prompt contains all required arguments from your SIGNATURE: `experiment_dir`, `experiment_plan_path`, `eda_report_path`, `data_path`. If any is missing or ambiguous, return ONLY this and stop:
-`[EXCEPTION] InvalidInput: Missing '<name>'. Expected: <what it should be>.`
+Follow the `validation-protocol` skill.
 
-**Step 2 — Check filesystem.** Run `ls` using the Bash tool to verify:
-- `<experiment_dir>/fit/` exists and contains fit results
-- Validation artifacts exist (prior predictive, posterior predictive, or recovery results)
-- `<experiment_plan_path>` exists
-- `<eda_report_path>` exists
-- `<data_path>` exists
-
-If any path does not exist or is missing required files, return ONLY this and stop:
-`[EXCEPTION] DependencyMissing: '<path>' — not found.`
-
-**Rules:** Return the single `[EXCEPTION]` line and nothing else — no explanations, no suggestions, no follow-up questions. Stop immediately.
+- **Args:** `experiment_dir`, `experiment_plan_path`, `eda_report_path`, `data_path`
+- **Filesystem (all DependencyMissing):**
+  - `<experiment_dir>/fit/` exists with fit results
+  - validation artifacts exist under `<experiment_dir>` (prior predictive, posterior predictive, or recovery)
+  - `<experiment_plan_path>`, `<eda_report_path>`, `<data_path>` exist
 
 ## Part 1: Statistical Assessment
 

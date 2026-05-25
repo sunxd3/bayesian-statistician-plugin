@@ -10,6 +10,16 @@ an update; the milestones below summarize the significant changes.
 - `/bayesian-workflow:setup` command — one-time bootstrap for the Python
   environment (copies `shared_utils`, creates `pyproject.toml`, runs `uv sync`
   and `cmdstanpy.install_cmdstan`).
+- `validation-protocol` skill — the shared two-step input-validation
+  protocol used by every subagent (argument check, filesystem check,
+  single-line `[EXCEPTION]` output on failure). Each agent's `Input
+  Validation` section now declares only its specific args and filesystem
+  checks, eliminating the boilerplate that had drifted across agents.
+- `statistical-diagnostics` split into per-shape references
+  (`references/{distribution,regression,time-series,count,missing-and-hierarchical,model-comparison}.md`).
+  SKILL.md trimmed to a pointer index plus the thresholds table, so the
+  EDA analyst preloads ~28 lines instead of ~119 and reads relevant
+  references on demand.
 
 ### Changed
 - Renamed plugin from `bayesian-statistician` to `bayesian-workflow` —

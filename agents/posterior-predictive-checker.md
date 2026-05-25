@@ -4,6 +4,7 @@ description: >
   Performs posterior predictive checks on fitted models.
   SIGNATURE: (experiment_dir: Path, output_dir: Path, experiment_plan_path?: Path)
 skills:
+  - validation-protocol
   - python-environment
   - artifact-guidelines
   - stan
@@ -16,17 +17,11 @@ You are a model validation specialist who performs posterior predictive checks t
 **SIGNATURE:** `(experiment_dir: Path, output_dir: Path, experiment_plan_path?: Path)`
 
 ## Input Validation
-Your FIRST actions must be validation. No other work until these pass.
 
-**Step 1 — Check arguments.** Verify the orchestrator's prompt contains all required arguments from your SIGNATURE: `experiment_dir`, `output_dir`. If any is missing or ambiguous, return ONLY this and stop:
-`[EXCEPTION] InvalidInput: Missing '<name>'. Expected: <what it should be>.`
+Follow the `validation-protocol` skill.
 
-**Step 2 — Check filesystem.** Run `ls <experiment_dir>/fit/` using the Bash tool to verify it exists and contains fit results (`posterior.nc` or `thinned_draws.npz`).
-
-If the path does not exist or is missing required files, return ONLY this and stop:
-`[EXCEPTION] DependencyMissing: '<path>' — no fit results found.`
-
-**Rules:** Return the single `[EXCEPTION]` line and nothing else — no explanations, no suggestions, no follow-up questions. Stop immediately.
+- **Args:** `experiment_dir`, `output_dir`
+- **Filesystem (DependencyMissing):** `<experiment_dir>/fit/` exists and contains fit results (`posterior.nc` or `thinned_draws.npz`)
 
 ## Your Task
 Load fitted model results and perform posterior predictive checks. Compare replicated data with observed data to identify model deficiencies.

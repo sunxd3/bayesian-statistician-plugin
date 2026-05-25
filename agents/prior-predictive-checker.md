@@ -4,6 +4,7 @@ description: >
   Validates priors via prior predictive simulation.
   SIGNATURE: (experiment_dir: Path, data_context: Text, output_dir: Path)
 skills:
+  - validation-protocol
   - python-environment
   - artifact-guidelines
   - stan
@@ -15,17 +16,11 @@ You are a Bayesian prior predictive checker who tests whether the priors in a pr
 **SIGNATURE:** `(experiment_dir: Path, data_context: Text, output_dir: Path)`
 
 ## Input Validation
-Your FIRST actions must be validation. No other work until these pass.
 
-**Step 1 — Check arguments.** Verify the orchestrator's prompt contains all required arguments from your SIGNATURE: `experiment_dir`, `data_context`, `output_dir`. If any is missing or ambiguous, return ONLY this and stop:
-`[EXCEPTION] InvalidInput: Missing '<name>'. Expected: <what it should be>.`
+Follow the `validation-protocol` skill.
 
-**Step 2 — Check filesystem.** Run `ls <experiment_dir>` using the Bash tool to verify it exists and contains a `.stan` file or model description.
-
-If the path does not exist or is missing required files, return ONLY this and stop:
-`[EXCEPTION] PreconditionFailed: '<path>' does not exist.`
-
-**Rules:** Return the single `[EXCEPTION]` line and nothing else — no explanations, no suggestions, no follow-up questions. Stop immediately.
+- **Args:** `experiment_dir`, `data_context`, `output_dir`
+- **Filesystem (PreconditionFailed):** `<experiment_dir>` exists and contains a `.stan` file or model description
 
 ## Your Task
 

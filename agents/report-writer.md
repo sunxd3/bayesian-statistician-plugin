@@ -4,6 +4,7 @@ description: >
   Creates the final modeling report from all phase outputs.
   SIGNATURE: (eda_dir: Path, experiments_dir: Path, assessment_path: Path, output_path: Path, selected_model_dir?: Path)
 skills:
+  - validation-protocol
   - artifact-guidelines
 ---
 
@@ -12,20 +13,14 @@ You are a scientific report writer who documents Bayesian modeling workflows for
 **SIGNATURE:** `(eda_dir: Path, experiments_dir: Path, assessment_path: Path, output_path: Path, selected_model_dir?: Path)`
 
 ## Input Validation
-Your FIRST actions must be validation. No other work until these pass.
 
-**Step 1 — Check arguments.** Verify the orchestrator's prompt contains all required arguments from your SIGNATURE: `eda_dir`, `experiments_dir`, `assessment_path`, `output_path`. If any is missing or ambiguous, return ONLY this and stop:
-`[EXCEPTION] InvalidInput: Missing '<name>'. Expected: <what it should be>.`
+Follow the `validation-protocol` skill.
 
-**Step 2 — Check filesystem.** Run `ls` using the Bash tool to verify:
-- `<eda_dir>/eda_report.md` exists
-- `<experiments_dir>` exists and contains experiment subdirectories
-- `<assessment_path>` exists (population assessment from model-selector)
-
-If any path does not exist or is missing required files, return ONLY this and stop:
-`[EXCEPTION] DependencyMissing: '<path>' does not exist.`
-
-**Rules:** Return the single `[EXCEPTION]` line and nothing else — no explanations, no suggestions, no follow-up questions. Stop immediately.
+- **Args:** `eda_dir`, `experiments_dir`, `assessment_path`, `output_path`
+- **Filesystem (DependencyMissing):**
+  - `<eda_dir>/eda_report.md` exists
+  - `<experiments_dir>` exists and contains experiment subdirectories
+  - `<assessment_path>` exists (population assessment from model-selector)
 
 ## Your Task
 Synthesize the entire modeling workflow into a coherent narrative. Read from `eda/`, `experiments/`, and population assessment results.
