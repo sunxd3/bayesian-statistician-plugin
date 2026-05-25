@@ -30,6 +30,7 @@ A short summary of key findings (text), for the orchestrator to read.
 Files written under `output_dir`:
 - `log.md` — append-only running notebook; one entry per major step in the workflow. Format: `## <UTC timestamp> — eda-analyst: <action>` then content. The orchestrator reads this for the full trace; you only write to it.
 - `data.cleaned.parquet` — canonical cleaned dataset for downstream agents. Schema documented in `eda_report.md` (Data Semantics Audit section).
+- `data.augmented.parquet` (optional) — derived columns beyond the cleaned schema (rolling/cumulative summaries, multi-lag features, etc.) that the modeling-handoff analysis surfaces and that downstream model-designer/model-fitter may want. Emit when the investigation or handoff produces such columns. Document the added columns in `eda_report.md`.
 - `eda_report.md` — sections: Data Semantics Audit (with Scientific Domain Identification and final schema), Data Quality, Findings, Variance Decomposition, Residual Analysis, Competing Structural Hypotheses, Dependence Classification, Risks/Pitfalls, Modeling Implications, Recommended Encodings
 - `quality_summary.csv`, `univariate_summary.csv` — schemas in pseudocode
 - `*.png` — plots referenced in the report
@@ -85,6 +86,9 @@ log("hypotheses proposed", count=len(hypotheses))
 
 handoff = synthesize_handoff(univariate, structure, hypotheses)
                                                       # ref: eda > process/modeling-handoff
+                                                      # if it derives columns useful downstream
+                                                      # (rolling means, lag-N, etc.), also emit
+                                                      # → data.augmented.parquet (optional)
 
 write(output_dir / "eda_report.md",                   # final knit of all prior outputs
       compose_report(audit, quality, univariate, structure, hypotheses, handoff))
