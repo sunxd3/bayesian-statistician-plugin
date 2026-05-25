@@ -7,7 +7,7 @@
   },
   "plugins": [
     {
-      "name": "bayesian-statistician",
+      "name": "bayesian-workflow",
       "source": {
         "source": "github",
         "repo": "sunxd3/bayesian-statistician-plugin"

@@ -9,7 +9,7 @@ library of modeling skills that together run a full Bayesian workflow:
 
 - [`uv`](https://docs.astral.sh/uv/) — used for all Python execution.
 - A C++ toolchain — CmdStanPy compiles Stan models against CmdStan. The
-  `python-environment` skill installs CmdStan via
+  `/bayesian-workflow:setup` command installs CmdStan via
   `python -m cmdstanpy.install_cmdstan`.
 
 ## Install
@@ -18,7 +18,7 @@ library of modeling skills that together run a full Bayesian workflow:
 
 ```
 /plugin marketplace add sunxd3/bayesian-statistician-plugin
-/plugin install bayesian-statistician@sunxd3-plugins
+/plugin install bayesian-workflow@sunxd3-plugins
 ```
 
 **For local development**, clone the repository and load it with `--plugin-dir`:
@@ -32,24 +32,34 @@ Run `/reload-plugins` after editing a locally loaded plugin.
 
 ## Usage
 
-Invoke the orchestrator skill with your data path or analysis goal:
+Bootstrap the Python environment once per project (optional — the orchestrator
+will do it on first run if you skip):
 
 ```
-> /bayesian-statistician:bayesian-workflow Analyze data/sales.csv and build a Bayesian model
+> /bayesian-workflow:setup
 ```
 
-The orchestrator sets up the Python environment, then drives the workflow
-through four phases, delegating to subagents and writing all results into a
-predictable folder structure (`eda/`, `design/`, `experiments/`,
-`final_report.md`, `log.md`).
+Then invoke the orchestrator skill with your data path or analysis goal:
+
+```
+> /bayesian-workflow:run Analyze data/sales.csv and build a Bayesian model
+```
+
+The orchestrator drives the workflow through four phases, delegating to
+subagents and writing all results into a predictable folder structure
+(`eda/`, `design/`, `experiments/`, `final_report.md`, `log.md`).
 
 ## What's inside
 
-**Orchestrator skill** — `bayesian-workflow` runs the full pipeline.
+**Orchestrator skill** — `run` drives the full pipeline.
 
 **Subagents (10)** — `eda-analyst`, `model-designer`, `prior-predictive-checker`,
 `recovery-checker`, `model-fitter`, `posterior-predictive-checker`, `critique`,
 `model-refiner`, `model-selector`, `report-writer`.
+
+**Commands** — `/bayesian-workflow:setup` bootstraps the Python environment
+(copies `shared_utils`, creates `pyproject.toml`, runs `uv sync` and
+`cmdstanpy.install_cmdstan`).
 
 **Modeling skills (12)** — `python-environment`, `stan-coding`,
 `stan-ode-modeler`, `generative-model-design`, `horseshoe-prior`,
@@ -57,12 +67,11 @@ predictable folder structure (`eda/`, `design/`, `experiments/`,
 `bayesian-model-diagnostics`, `bayesian-model-selection`,
 `statistical-diagnostics`, `artifact-guidelines`. Subagents load the skills
 relevant to their role; you can also invoke any skill directly as
-`/bayesian-statistician:<skill-name>`.
+`/bayesian-workflow:<skill-name>`.
 
 **Bundled library** — `shared_utils`, a Python package with a fit-and-summarize
-pipeline, convergence diagnostics, LOO, and ArviZ helpers. The
-`python-environment` skill copies it into the working project as a path
-dependency.
+pipeline, convergence diagnostics, LOO, and ArviZ helpers. The setup command
+copies it into the working project as a path dependency.
 
 ## How the workflow runs
 

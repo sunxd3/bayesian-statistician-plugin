@@ -1,5 +1,5 @@
 ---
-name: bayesian-workflow
+name: run
 description: End-to-end Bayesian statistical modeling workflow — EDA, model design, fitting, validation, and reporting via orchestrated subagents. Use when building probabilistic models with Stan and ArviZ.
 disable-model-invocation: true
 argument-hint: [data path or analysis goal]
@@ -161,7 +161,7 @@ TaskCreate("Phase 3: Model Development")  ← too coarse, no pipeline enforcemen
 
 - Bayesian inference: Stan via CmdStanPy, ArviZ for diagnostics
 - Package management: `uv` exclusively (never bare `python` or `pip`)
-- First run: set up the Python environment (dependencies + bundled `shared_utils`) following the `python-environment` skill
+- First run: set up the Python environment (dependencies + bundled `shared_utils`) by running the `/bayesian-workflow:setup` command. Check for `./pyproject.toml` and `./shared_utils/` first — the user may have already run it.
 - Scripts should be self-contained and run with `uv run`
 
 Every accepted Bayesian model must use Stan via CmdStanPy for posterior inference with NUTS. Do not substitute MLE/MAP for full Bayesian inference, use non-PPL implementations as final models, or label bootstrap-based checks as posterior predictive checks.

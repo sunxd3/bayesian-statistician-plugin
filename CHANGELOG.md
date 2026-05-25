@@ -4,6 +4,24 @@ Notable changes to this plugin. It is distributed via git without an explicit
 `version` in `plugin.json`, so marketplace users receive each pushed commit as
 an update; the milestones below summarize the significant changes.
 
+## Unreleased
+
+### Added
+- `/bayesian-workflow:setup` command — one-time bootstrap for the Python
+  environment (copies `shared_utils`, creates `pyproject.toml`, runs `uv sync`
+  and `cmdstanpy.install_cmdstan`).
+
+### Changed
+- Renamed plugin from `bayesian-statistician` to `bayesian-workflow` —
+  matches the canonical name of the methodology (Gelman et al., 2020).
+  Install command is now `/plugin install bayesian-workflow@sunxd3-plugins`.
+- Renamed orchestrator skill `bayesian-workflow` to `run`. Invoke as
+  `/bayesian-workflow:run`.
+- `python-environment` skill trimmed to reference-only content
+  (`shared_utils` API, script structure). Setup steps moved to the new
+  `setup` command. The bundled `shared_utils/` library now lives at the
+  plugin root and is referenced via `${CLAUDE_PLUGIN_ROOT}/shared_utils`.
+
 ## 0.2.0 — 2026-05-21
 
 Full sync with the upstream `bayesian-statistician` agent.

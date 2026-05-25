@@ -1,6 +1,6 @@
 ---
 name: python-environment
-description: Python environment setup with uv, the bundled shared_utils library, and script structure guidelines.
+description: Reference for the Bayesian workflow Python environment — `shared_utils` API and script structure conventions. Assumes the environment has been bootstrapped via `/bayesian-workflow:setup`.
 user-invocable: false
 ---
 
@@ -8,44 +8,7 @@ user-invocable: false
 
 **Always use `uv`.** Never use bare `python`/`pip`, never search for a Python interpreter, never create a virtual environment by hand. `uv run` resolves the environment from the nearest `pyproject.toml` up the directory tree.
 
-## Environment Setup
-
-The Bayesian workflow needs a project with Stan/ArviZ dependencies plus the bundled `shared_utils` library. Do this **once**, at the start of a workflow, from the working directory. If `./shared_utils/` and `pyproject.toml` already exist, the environment is set up — skip to running scripts.
-
-1. Copy the bundled `shared_utils` package into the project so it survives plugin updates and is a stable path dependency:
-
-   ```bash
-   cp -r "${CLAUDE_SKILL_DIR}/shared_utils" ./shared_utils
-   ```
-
-2. Create `pyproject.toml` in the project root (if one already exists, merge these `dependencies` and the `[tool.uv.sources]` entry into it):
-
-   ```toml
-   [project]
-   name = "bayesian-analysis"
-   version = "0.0.0"
-   requires-python = ">=3.11"
-   dependencies = [
-       "arviz>=0.17.0,<1.0.0",
-       "cmdstanpy>=1.2.0",
-       "numpy>=1.26.0",
-       "pandas>=2.0.0",
-       "matplotlib>=3.8.0",
-       "scipy>=1.11.0",
-       "seaborn>=0.13.0",
-       "shared-utils",
-   ]
-
-   [tool.uv.sources]
-   shared-utils = { path = "./shared_utils" }
-   ```
-
-3. Sync the environment and install the CmdStan toolchain (CmdStanPy compiles Stan models against it):
-
-   ```bash
-   uv sync
-   uv run python -m cmdstanpy.install_cmdstan
-   ```
+If `./shared_utils/` and `pyproject.toml` are not yet present, the environment has not been bootstrapped — run `/bayesian-workflow:setup`.
 
 After setup, run every script from the project root:
 
@@ -53,7 +16,7 @@ After setup, run every script from the project root:
 uv run python experiments/experiment_X/fit/run_fit.py
 ```
 
-The environment provides `arviz`, `cmdstanpy`, `numpy`, `pandas`, `matplotlib`, `scipy`, `seaborn`, and `shared_utils`. `scikit-learn`, `statsmodels`, and deep-learning frameworks are intentionally excluded — the workflow is Stan-based (see the `bayesian-workflow` skill). Add a dependency to `pyproject.toml` only if a model genuinely requires it.
+The environment provides `arviz`, `cmdstanpy`, `numpy`, `pandas`, `matplotlib`, `scipy`, `seaborn`, and `shared_utils`. `scikit-learn`, `statsmodels`, and deep-learning frameworks are intentionally excluded — the workflow is Stan-based (see the `run` skill). Add a dependency to `pyproject.toml` only if a model genuinely requires it.
 
 ## Shared Utilities
 
@@ -88,7 +51,7 @@ from shared_utils import ensure_dir, resolve_path, project_root
 - `write_json(path, data)` — write JSON to disk (auto-creates parent directories, uses `NumpyEncoder` for numpy types, indent=2). Prefer over raw `json.dump()` + `open()`.
 - `NumpyEncoder` handles `numpy.bool_` and other numpy scalars for JSON serialization (used internally by `write_json`).
 
-For the full API, read the package source in this skill's `shared_utils/src/shared_utils/` directory.
+For the full API, read the package source at `./shared_utils/src/shared_utils/` in your project (copied there by `/bayesian-workflow:setup`).
 
 ## Script Structure
 
