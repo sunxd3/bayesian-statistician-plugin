@@ -82,15 +82,77 @@ Before comparing models, verify that each model's LOO is trustworthy:
 - If a model has >5% of observations with Pareto k > 0.7, its ELPD is unreliable. Either refit with `az.reloo()` or exclude it from the comparison and note why.
 - If *all* models have high Pareto k, the comparison is unreliable. Flag this and recommend k-fold CV for the entire population.
 
+## Goal-Aware Selection
+
+ELPD is the primary criterion only for predictive goals.
+
+- **Inferential goals.** Do not select a model solely because it has the best ELPD. A model with slightly worse ELPD but much better estimand contraction (more precise, interpretable target parameter) is preferred. Report contraction ratios for the key quantities of interest defined in the experiment plan.
+- **Descriptive goals.** Weight PPC quality (variance decomposition, between-group vs within-group fit) alongside ELPD.
+
+## Strategic Decisions
+
+After comparison, recommend one of four directions for the orchestrator.
+
+**CONTINUE_QUESTION** — current structural question has room to improve.
+
+- Recent variants improving on earlier ones.
+- Diagnostics suggest specific extensions worth trying.
+- Haven't reached complexity ceiling (no unidentifiable parameters, reasonable computation).
+- Action: provide specific suggestions for next variants.
+
+**SWITCH_QUESTION** — current question is resolved or plateaued.
+
+- Recent extensions show no improvement on the primary comparison metric.
+- Computational issues persist despite reparameterization.
+- Clear ceiling reached (added complexity doesn't help).
+- Action: recommend moving focus to next structural question in the plan.
+
+**ADEQUATE** — population contains strong model(s).
+
+- Top model(s) pass all validation cleanly.
+- Attempted extensions show no improvement.
+- Predictive performance acceptable for the task.
+- For inferential goals: the target estimand posterior is precise enough to answer the analysis question (substantial contraction from prior, credible interval excludes practically meaningless values).
+- Action: can stop iteration, or continue other classes for comparison.
+
+**EXHAUSTED** — all classes explored, no further improvement.
+
+- All model classes from plan attempted.
+- Best models identified, improvement plateaued.
+- Action: accept best and proceed to reporting. If multiple competitive models exist (ΔELPD < 2×SE), consider stacking.
+
+## Coverage Audit
+
+Required before finalizing an ADEQUATE or EXHAUSTED recommendation. Not needed for CONTINUE_QUESTION / SWITCH_QUESTION (iteration continues).
+
+1. **Read the EDA report**, focusing on Modeling Implications and Competing Structural Hypotheses.
+2. **Extract recommended approaches**: response scales, likelihood families, variance structures, or explicitly suggested specifications.
+3. **Cross-check against validated experiments**: for each substantive EDA recommendation, was at least one model of that type validated? If a recommended approach was proposed but failed validation, that's not a gap — it was explored and found wanting.
+4. **Check analysis purpose alignment**: did the top-ranked model achieve the analysis purpose? For inferential goals, verify sufficient estimand contraction. If the best model has good predictive performance but fails to isolate the target estimand precisely, that's a coverage gap.
+5. **Identify gaps**: recommendations that were NOT addressed by validated models. Focus on **structurally different approaches**, not minor variations. Missing a different parameterization of variance is minor; missing an entire response scale (e.g., log vs original) is major. Distinguish primary recommendations ("use X") from alternatives ("consider Y") — gaps in primary recommendations are critical; gaps in alternatives are worth noting but not blocking.
+
+Report as `COVERAGE: COMPLETE` (list how each substantive recommendation was addressed) or `COVERAGE: GAPS` (list unaddressed recommendations with specific structural questions that would fill them).
+
+## Meta Considerations
+
+If persistent issues across all classes (none reaching ADEQUATE):
+
+- Data quality problems that modeling can't fix.
+- Problem inherently more complex than available data supports.
+- Need different data or methods entirely.
+
+Surface these in the assessment rather than recommending more iteration.
+
 ## Output Checklist
 
-When writing `experiments/population_assessment.md`, include:
+When writing `experiments/population_assessment.html`, include:
 
 1. ELPD ranking table (all validated models, with ΔELPD ± SE). **Always report both the ELPD difference AND its standard error** — an ELPD difference without SE is uninterpretable. Also report p_loo and number of high Pareto k observations per model.
-2. Stacking weights from `az.compare()`
-3. `az.plot_compare()` visualization
-4. Best model per structural question
-5. Improvement trajectory (did variants help?)
-6. Strategic recommendation: CONTINUE_QUESTION / SWITCH_QUESTION / ADEQUATE / EXHAUSTED
-7. If ADEQUATE/EXHAUSTED: whether to pick a single winner or stack, with justification
-8. `az.plot_elpd()` for pointwise ELPD differences — shows WHICH observations drive model comparison results, not just aggregate scores. Critical for diagnosing whether one model is uniformly better or only better on specific subgroups/outliers
+2. Stacking weights from `az.compare()`.
+3. `az.plot_compare()` visualization.
+4. Best model per structural question.
+5. Improvement trajectory (did variants help?).
+6. Strategic recommendation: CONTINUE_QUESTION / SWITCH_QUESTION / ADEQUATE / EXHAUSTED.
+7. If ADEQUATE/EXHAUSTED: whether to pick a single winner or stack, with justification, plus a `COVERAGE:` section (COMPLETE / GAPS).
+8. Any new structural questions discovered from model comparison (unexpected patterns, discriminating features).
+9. `az.plot_elpd()` for pointwise ELPD differences — shows WHICH observations drive model comparison results, not just aggregate scores. Critical for diagnosing whether one model is uniformly better or only better on specific subgroups/outliers.

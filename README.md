@@ -47,7 +47,7 @@ Then invoke the orchestrator skill with your data path or analysis goal:
 
 The orchestrator drives the workflow through four phases, delegating to
 subagents and writing all results into a predictable folder structure
-(`eda/`, `design/`, `experiments/`, `final_report.md`, `log.md`).
+(`eda/`, `design/`, `experiments/`, `final_report.html`, `log.md`).
 
 Individual phases can also be run standalone — for example, EDA alone:
 
@@ -71,17 +71,21 @@ Individual phases can also be run standalone — for example, EDA alone:
   EDA on a dataset standalone, without the full workflow pipeline. Wraps
   the `eda-analyst` subagent.
 
-**Modeling skills (12)** — `validation-protocol`, `python-environment`,
+**Modeling skills (13)** — `validation-protocol`, `python-environment`,
 `stan` (with `references/ode.md` and `references/horseshoe.md` for ODE-based
-dynamics and sparse regression), `generative-model-design`,
-`fake-data-simulation` (with `references/single-draw.md`, `references/sbc.md`,
-`references/decision.md`), `convergence-diagnostics`,
-`inferencedata-handling`, `visual-predictive-checks`,
-`bayesian-model-diagnostics`, `bayesian-model-selection`,
-`eda` (with `references/process/` for EDA procedures and `references/tests/`
-for a diagnostic test library by data shape), `artifact-guidelines`. Subagents
-load the skills relevant to their role; you can also invoke any skill directly
-as `/bayesian-workflow:<skill-name>`.
+dynamics and sparse regression), `generative-model-design` (lean SKILL.md
+index + `references/` for spec sections, design principles, and the
+resolution-sequence pattern), `fake-data-simulation` (with
+`references/single-draw.md`, `references/sbc.md`, `references/decision.md`),
+`convergence-diagnostics`, `inferencedata-handling`, `visual-predictive-checks`,
+`bayesian-model-diagnostics`, `bayesian-model-selection`, `model-critique`
+(SKILL.md index + `references/` for statistical, domain, and framework
+assessment plus verdict templates), `eda` (with `references/process/` for EDA
+procedures and `references/tests/` for a diagnostic test library by data
+shape), `artifact-guidelines` (with `references/html-report.md`,
+`references/markdown-report.md`, and `references/final-report.md` for the
+Phase-4 narrative structure). Subagents load the skills relevant to their
+role; you can also invoke any skill directly as `/bayesian-workflow:<skill-name>`.
 
 **Bundled library** — `shared_utils`, a Python package with a fit-and-summarize
 pipeline, convergence diagnostics, LOO, and ArviZ helpers. The setup command
@@ -97,7 +101,7 @@ copies it into the working project as a path dependency.
    `prior-predictive-checker → fake-data-checker → model-fitter →
    posterior-predictive-checker → critique`, with `model-refiner` and
    `model-selector` driving iteration until questions are resolved.
-4. **Reporting** (`final_report.md`) — `report-writer` produces a report
+4. **Reporting** (`final_report.html`) — `report-writer` produces a report
    organized around what was learned about the data-generating process.
 
 ## Optional settings

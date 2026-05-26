@@ -12,6 +12,7 @@ This skill provides best practices for all subagents when generating written art
 
 - **Final reports** (the deliverable of any phase — EDA reports, critiques, experiment summaries, final synthesis) → HTML. See `references/html-report.md` for the design, palette, typography, and skeleton template.
 - **Logs and intermediate notes** (`log.md`, README-style notes, working scratch) → Markdown (GitHub-flavored CommonMark). See `references/markdown-report.md` for the log entry format.
+- **Final phase-4 modeling report** → use the narrative structure in `references/final-report.md` (Executive Summary / Methods / Results / Discussion / Supplementary + Practical Contrasts).
 - Never use plain `.txt`.
 
 ## Writing Guidelines

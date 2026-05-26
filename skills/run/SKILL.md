@@ -61,7 +61,7 @@ Use TaskCreate/TaskUpdate for real-time task tracking (ephemeral, current sessio
 - "EDA suggested AR(1) but day-level RE absorbed most autocorrelation — didn't expect that"
 
 **Cross-references** — link to files so the trail is followable.
-- "See `experiments/exp2/critique/critique_report.md` for full diagnostics"
+- "See `experiments/exp2/critique/critique_report.html` for full diagnostics"
 
 **Phase transitions and key decisions** — why you chose paths, skipped models, or revised approaches.
 
@@ -192,7 +192,7 @@ experiments/                    # Phase 3: Model Development
     model.stan                  # main inference model
     prior_predictive/
       prior_model.stan          # GQ-only: mirrors priors, generates y_rep
-      prior_predictive_report.md  # (required)
+      prior_predictive_report.html  # (required)
       prior_predictive.nc       # ArviZ InferenceData (prior + prior_predictive)
       *.png, *.py
     simulation/
@@ -200,20 +200,20 @@ experiments/                    # Phase 3: Model Development
       recovery_report.html      # (required)
       *.png, *.py
     fit/
-      fit_report.md             # convergence diagnostics, assessment (required)
+      fit_report.html           # convergence diagnostics, assessment (required)
       posterior.nc              # ArviZ InferenceData (needed through reporting)
       thinned_draws.npz         # parameter draws only (lightweight)
       loo.json                  # LOO results: ELPD, Pareto k (needed by selector)
       *.png, *.py
     posterior_predictive/
-      posterior_predictive_report.md  # (required)
+      posterior_predictive_report.html  # (required)
       *.png, *.py
     critique/
-      critique_report.md        # statistical + domain + framework (required)
+      critique_report.html      # statistical + domain + framework (required)
       *.png, *.py
   experiment_2/
-  population_assessment.md      # model-selector output (required)
-final_report.md                 # Phase 4 output (required)
+  population_assessment.html    # model-selector output (required)
+final_report.html               # Phase 4 output (required)
 log.md                          # append-only workflow log
 ```
 
@@ -301,7 +301,7 @@ This is the scientific process: hypothesize → test → observe → generate ne
 
 The selector may also report **new structural questions** discovered from model comparison (unexpected patterns, discriminating features) alongside any of the above decisions. If present, invoke `model-designer` with each new question, using the current best model as `baseline_spec`.
 
-**Coverage audit**: When the `model-selector` subagent returns ADEQUATE or EXHAUSTED, read its `COVERAGE:` section from `experiments/population_assessment.md`. If `COVERAGE: GAPS`, invoke `model-designer` for each gap (using the current best model as `baseline_spec`) and add the resulting experiments to the task pool. If `COVERAGE: COMPLETE`, proceed to reporting.
+**Coverage audit**: When the `model-selector` subagent returns ADEQUATE or EXHAUSTED, read its `COVERAGE:` section from `experiments/population_assessment.html`. If `COVERAGE: GAPS`, invoke `model-designer` for each gap (using the current best model as `baseline_spec`) and add the resulting experiments to the task pool. If `COVERAGE: COMPLETE`, proceed to reporting.
 
-### Phase 4: Reporting → `final_report.md`
+### Phase 4: Reporting → `final_report.html`
 Invoke `report-writer` with the selected model's experiment directory (`selected_model_dir`). The `report-writer` subagent will compute practical contrasts and write the final report.
