@@ -6,9 +6,7 @@ user-invocable: false
 
 # Fake-Data Simulation
 
-Gelman's canonical pre-fit validation: pick known parameters, simulate data from the model, refit, and check that the inference recovers what you put in. Practiced as a routine gate before fitting to real data.
-
-> "I really really really like fake-data simulation." — Gelman, 2019.
+Pick known parameters, simulate data from the model, refit, and check that the inference recovers what you put in.
 
 ## Variants
 
