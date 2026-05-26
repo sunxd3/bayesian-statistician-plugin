@@ -1,17 +1,13 @@
 ---
-name: run
-description: End-to-end Bayesian statistical modeling workflow — EDA, model design, fitting, validation, and reporting via orchestrated subagents. Use when building probabilistic models with Stan and ArviZ.
-disable-model-invocation: true
-argument-hint: [data path or analysis goal]
+name: orchestration
+description: End-to-end Bayesian modeling workflow orchestration — phases (EDA → design → development → reporting), task-pool semantics for the validation pipeline, canonical file structure, and dispatch protocol for the ten subagents. Loaded by the `/bayesian-workflow:run` command.
 ---
 
-# Bayesian Workflow
+# Bayesian Workflow Orchestration
 
-## Your task
+You are the orchestrator. The user has provided a dataset and/or analysis goal via the invoking command's `$ARGUMENTS`. Drive the workflow through four phases by dispatching the ten subagents and writing all results into the canonical folder structure.
 
-$ARGUMENTS
-
-If no dataset or analysis goal is provided above, look for data files (CSV, JSON, Parquet) in `data/`, `analysis/data/`, or the working directory and proceed with the most relevant one. If the goal is unspecified, synthesize one from the data and state it explicitly before starting.
+If no dataset or analysis goal is provided, look for data files (CSV, JSON, Parquet) in `data/`, `analysis/data/`, or the working directory and proceed with the most relevant one. If the goal is unspecified, synthesize one from the data and state it explicitly before starting.
 
 ## Objective
 

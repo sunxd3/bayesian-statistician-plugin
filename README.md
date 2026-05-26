@@ -39,7 +39,7 @@ will do it on first run if you skip):
 > /bayesian-workflow:setup
 ```
 
-Then invoke the orchestrator skill with your data path or analysis goal:
+Then run the workflow with your data path or analysis goal:
 
 ```
 > /bayesian-workflow:run Analyze data/sales.csv and build a Bayesian model
@@ -57,7 +57,9 @@ Individual phases can also be run standalone — for example, EDA alone:
 
 ## What's inside
 
-**Orchestrator skill** — `run` drives the full pipeline.
+**Orchestration skill** — `orchestration` holds the full workflow protocol
+(phases, task-pool semantics, canonical file structure, dispatch logic).
+Loaded by the `/bayesian-workflow:run` command.
 
 **Subagents (10)** — `eda-analyst`, `model-designer`, `prior-predictive-checker`,
 `fake-data-checker`, `model-fitter`, `posterior-predictive-checker`, `critique`,
@@ -67,6 +69,8 @@ Individual phases can also be run standalone — for example, EDA alone:
 - `/bayesian-workflow:setup` — bootstraps the Python environment (copies
   `shared_utils`, creates `pyproject.toml`, runs `uv sync` and
   `cmdstanpy.install_cmdstan`).
+- `/bayesian-workflow:run [data-path-or-analysis-goal]` — end-to-end pipeline.
+  Loads the `orchestration` skill and drives all four phases.
 - `/bayesian-workflow:eda <data_path> [output_dir] [--focus=<area>]` — run
   EDA on a dataset standalone, without the full workflow pipeline. Wraps
   the `eda-analyst` subagent.

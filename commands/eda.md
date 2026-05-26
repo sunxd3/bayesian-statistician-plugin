@@ -1,6 +1,6 @@
 ---
 description: Run exploratory data analysis on a dataset for Bayesian modeling. Standalone — can be used independently of the full /bayesian-workflow:run pipeline.
-argument-hint: <data_path> [output_dir] [--focus=<area>]
+argument-hint: "<data_path> [output_dir] [--focus=<area>]"
 allowed-tools: Task, Bash, Read
 ---
 
