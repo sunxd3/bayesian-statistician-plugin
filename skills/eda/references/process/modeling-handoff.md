@@ -31,7 +31,7 @@ State 2-3 competing stories about the data-generating process. Each story should
 
 Example: "Story A: traffic is deterministic by hour and day-type with i.i.d. noise (evidence: hour×weekend explains 93% of variance). Story B: there are day-level latent states that shift the baseline (evidence: residual lag-1 autocorrelation is 0.83 after temporal controls, and between-day variance is X% of total). Story C: weather disrupts traffic in real-time (evidence against: weather explains <2% after temporal controls; evidence for: conditional on rush hours, heavy rain reduces volume by Y%)."
 
-These stories become the structural questions that model designers will formalize and test.
+These stories become the candidate structural questions in `analysis-design > Structural questions`, which the orchestrator finalizes and hands to model designers.
 
 ## Dependence classification
 
@@ -43,7 +43,7 @@ Explicitly classify the primary data structure. This determines the validation s
 - **Spatial**: observations have spatial adjacency structure.
 - **Combinations**: e.g., "grouped + temporal" (panel data with time ordering within each group).
 
-State this classification at the top of the Dependence Classification section, before any nuance. This is a critical handoff to the orchestrator for validation planning.
+State this classification at the top of the Dependence Classification section, before any nuance. This is a critical handoff to the orchestrator and feeds `analysis-design > Validation strategy`.
 
 ## Likelihood and scale guidance
 

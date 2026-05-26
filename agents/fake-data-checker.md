@@ -30,7 +30,7 @@ A short verdict (PASS / FAIL) and key recovery numbers for the orchestrator.
 ### Side effects
 
 Files written under `output_dir`:
-- `log.md` — append-only running notebook. Append each entry live, as you reach that step. Format: `## <UTC timestamp> — fake-data-checker: <action>` then content. Ref: `artifact-guidelines > references/markdown-report`.
+- `log.md` — append-only notebook. Append entries live as work proceeds, not at the end. See `artifact-guidelines > references/markdown-report`.
 - `simulator.stan` — GQ-only Stan program; a line-by-line mirror of `model.stan`. Ref: `fake-data-simulation > references/single-draw` (step 2).
 - `recovery_report.html` — verdict + diagnostics + visual evidence. Begin with a verdict line. Follow the design in `artifact-guidelines > references/html-report`.
 - `*.png` — recovery scatter and interval plots.

@@ -8,6 +8,8 @@ user-invocable: false
 
 Reference for specifying generative models and organizing experiments around a structural question. Read references on demand — each section below is a required decision when specifying a model; the principles and resolution-sequence references apply across the whole proposal.
 
+For the upstream analysis-level decisions (analysis purpose, validation strategy, domain context, and the structural questions themselves), see `analysis-design`.
+
 ## Key Practices
 
 - **Mixture model discipline.** Every component must correspond to a named physical process. Never propose "K Normal components with unknown K" — it produces permutation symmetry and component collapse. Always require `ordered[K]` constraints on component location parameters. Use Hurdle vs Zero-Inflated, Censored vs Truncated based on the real generative story, not what's convenient.

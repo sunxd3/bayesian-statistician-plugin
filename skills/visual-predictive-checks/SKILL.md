@@ -8,21 +8,11 @@ user-invocable: false
 
 Use this skill when running prior or posterior predictive checks to validate Bayesian models. These checks compare simulated data from the model to observed data (or plausible ranges for prior predictive checks).
 
-## ArviZ Workflow
+## Workflow
 
-1. Fit model with CmdStanPy, generating predictive quantities in `generated quantities` block
-   - **CRITICAL**: Use consistent naming: `y_rep` for posterior predictive (not `y_pred`, `y_sim`, `y`)
-   - For observed data: use `y_obs` (not just `y`)
-   - This prevents KeyError issues in ArviZ conversion
-2. Convert to ArviZ InferenceData using `az.from_cmdstanpy`
-   ```python
-   idata = az.from_cmdstanpy(
-       fit,
-       posterior_predictive=["y_rep"],  # must match Stan variable name
-       observed_data={"y": y_obs}       # ArviZ expects "y" key
-   )
-   ```
-3. Create visual checks using ArviZ plot functions
+1. Fit the model with `generated quantities { vector[N] y_rep; vector[N] log_lik; }` — see `stan > ArviZ Integration`.
+2. Convert to ArviZ InferenceData — see `inferencedata-handling`. Use the conventions `y_obs` (observed) and `y_rep` (replications); mixing `y_pred`/`y_sim` causes downstream KeyErrors.
+3. Generate visual checks (sections below) appropriate to the data type and the analysis purpose.
 
 ## Visual Checks by Data Type
 
@@ -68,6 +58,8 @@ When an analysis purpose is stated (descriptive / inferential / predictive), the
 - **Predictive goals.** Focus on tail calibration and coverage at decision-relevant thresholds (the values where downstream decisions change).
 - **Descriptive goals.** Focus on reproducing the variance decomposition (between-group vs within-group patterns).
 
+For the underlying analysis purposes, see `analysis-design > Analysis purpose`.
+
 ## Key Principles
 
 Use multiple complementary views rather than relying on a single plot. For example, for continuous outcomes, combine ECDF (shows full distribution) with PIT ECDF (shows calibration) and t-stat PPCs (shows specific features like central tendency and spread).
@@ -78,29 +70,7 @@ Avoid double-dipping: use test statistics not directly fit by the model (e.g., s
 
 Name plots descriptively: `prior_predictive_ecdf.png`, `loo_pit_calibration.png`, `posterior_rootogram.png`.
 
-## NumPy 2.x Compatibility
+## Pitfalls
 
-**CRITICAL**: NumPy 2.x removed `np.trapz`. Use `scipy.integrate.trapezoid` instead:
-
-```python
-# ❌ WRONG - fails on NumPy 2.x
-from numpy import trapz
-prob = trapz(density, x)
-
-# ✓ CORRECT - works on all versions
-from scipy.integrate import trapezoid
-prob = trapezoid(density, x)
-```
-
-This applies to any posterior predictive density (PPD) calculations.
-
-## Common Issues
-
-**Variable naming errors:**
-- `KeyError: 'y_rep'`: Stan generated quantities doesn't include `y_rep` - check your Stan code
-- `KeyError: 'y'`: No observed_data provided to `az.from_cmdstanpy` - add `observed_data={"y": y_obs}`
-- Inconsistent naming across files causes cascading errors - stick to `y_obs`/`y_rep` standard
-
-**NumPy/SciPy API issues:**
-- `AttributeError: 'trapz' not found`: Using NumPy 2.x - switch to `scipy.integrate.trapezoid`
-- Both functions have identical signatures: `trapezoid(y, x)` or `trapezoid(y, dx=dx)`
+- **Naming**: variable naming errors across files cause cascading KeyErrors — stick to `y_obs` / `y_rep`. See `inferencedata-handling > Common failures`.
+- **NumPy 2.x removed `np.trapz`**: use `scipy.integrate.trapezoid` for any PPD (posterior predictive density) integration. Same signature: `trapezoid(y, x)`.

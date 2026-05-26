@@ -1,6 +1,6 @@
 # Markdown Format
 
-Use Markdown (GitHub-flavored CommonMark) for artifacts that are **append-only, machine-friendly, or intermediate** rather than final shareable deliverables. See [[html-report]] for final reports.
+Use Markdown (GitHub-flavored CommonMark) for artifacts that are **append-only, machine-friendly, or intermediate** rather than final shareable deliverables. See `html-report.md` for final reports.
 
 ## When to use Markdown
 
@@ -8,7 +8,7 @@ Use Markdown (GitHub-flavored CommonMark) for artifacts that are **append-only, 
 - **README-style notes** alongside data or experiments (`experiments/exp_X/README.md`) — short context for a future reader.
 - **Inline working notes** — short documents that document a decision or trade-off where rendering in a browser would be overkill.
 
-Do not use Markdown for the final report of any phase. Reports use HTML (see [[html-report]]).
+Do not use Markdown for the final report of any phase. Reports use HTML (see `html-report.md`).
 
 ## Markdown conventions
 

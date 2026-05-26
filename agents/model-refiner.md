@@ -38,7 +38,7 @@ A short summary of what changed and the expected diagnostic improvement, for the
 
 Files written under `output_dir` (a new experiment directory named by the orchestrator, e.g. `experiments/exp_1_v2/`):
 
-- `log.md` — append-only running notebook. Append each entry live. Format: `## <UTC timestamp> — model-refiner: <action>` then content. Ref: `artifact-guidelines > references/markdown-report`.
+- `log.md` — append-only notebook. Append entries live as work proceeds, not at the end. See `artifact-guidelines > references/markdown-report`.
 - `model.stan` — the modified Stan program. Single source of truth for downstream agents.
 - `refinement_notes.md` — what changed and why, grounded in the cited diagnostic evidence. Include the original-vs-new diff summary, the specific diagnostic pattern motivating each change, and the expected improvement. The new variant must be added to the task pool entering at the prior-predictive-checker stage.
 

@@ -20,11 +20,11 @@ For MCMC sampler health (R-hat, ESS, BFMI, divergences), see `convergence-diagno
 | **Time-series / temporal** | No — LOO assumes independence, will overstate predictive performance | Flag as warning. Recommend Leave-Future-Out CV (LFO-CV) or rolling-origin evaluation |
 | **Grouped / hierarchical** (e.g., patients, stores) | Depends on prediction target | If generalizing to *new groups*: use grouped LOO (leave-out entire groups). If predicting new observations within known groups: standard LOO is acceptable |
 
-This check is non-negotiable. Standard LOO on dependent data produces misleading ELPD estimates.
+This check is non-negotiable. Standard LOO on dependent data produces misleading ELPD estimates. The data structure should have been declared up front (see `analysis-design > Validation strategy`); if not, infer it from the data here and flag the gap.
 
 ### Implementation Note
 
-If you need LFO-CV, grouped LOO, or other non-standard validation methods, check `shared_utils` first — it may already have an implementation. Do not write custom cross-validation loops from scratch if a shared utility exists.
+For non-standard CV methods (LFO-CV, grouped LOO), look for an implementation in `shared_utils` first (see `python-environment > Shared Utilities`). If none exists, write minimal custom code rather than a full ad-hoc framework.
 
 ## Pareto k Diagnostics
 

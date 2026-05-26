@@ -14,7 +14,7 @@ For single-model diagnostics (LOO-PIT, Pareto k), see `bayesian-model-diagnostic
 
 **Check BEFORE trusting `az.compare()` rankings:**
 
-Do not trust ELPD rankings if the underlying LOO estimates were computed on dependent data (time-series, spatial, grouped) using standard `az.loo()`. Standard LOO assumes conditional independence — on dependent data it will overstate predictive performance and can flip model rankings.
+Do not trust ELPD rankings if the underlying LOO estimates were computed on dependent data (time-series, spatial, grouped) using standard `az.loo()`. Standard LOO assumes conditional independence — on dependent data it will overstate predictive performance and can flip model rankings. The per-model LOO-validity check lives in `bayesian-model-diagnostics > Data Structure Precondition`; the table below is the per-comparison check.
 
 | Data structure | ELPD rankings valid? | Action |
 |---|---|---|
@@ -24,7 +24,7 @@ Do not trust ELPD rankings if the underlying LOO estimates were computed on depe
 
 ### Implementation Note
 
-If you need rolling CV, Diebold-Mariano tests, grouped LOO, or other non-standard comparison methods, check `shared_utils` first — it may already have an implementation. Do not write custom evaluation loops from scratch if a shared utility exists.
+For non-standard comparison methods (rolling CV, Diebold-Mariano, grouped LOO), look for an implementation in `shared_utils` first (see `python-environment > Shared Utilities`). If none exists, write minimal custom code rather than a full ad-hoc framework.
 
 ## ELPD Comparison Rules
 
@@ -84,7 +84,7 @@ Before comparing models, verify that each model's LOO is trustworthy:
 
 ## Goal-Aware Selection
 
-ELPD is the primary criterion only for predictive goals.
+ELPD is the primary criterion only for predictive goals. The analysis purpose (see `analysis-design > Analysis purpose`) determines which criterion to weight:
 
 - **Inferential goals.** Do not select a model solely because it has the best ELPD. A model with slightly worse ELPD but much better estimand contraction (more precise, interpretable target parameter) is preferred. Report contraction ratios for the key quantities of interest defined in the experiment plan.
 - **Descriptive goals.** Weight PPC quality (variance decomposition, between-group vs within-group fit) alongside ELPD.
@@ -128,7 +128,7 @@ Required before finalizing an ADEQUATE or EXHAUSTED recommendation. Not needed f
 1. **Read the EDA report**, focusing on Modeling Implications and Competing Structural Hypotheses.
 2. **Extract recommended approaches**: response scales, likelihood families, variance structures, or explicitly suggested specifications.
 3. **Cross-check against validated experiments**: for each substantive EDA recommendation, was at least one model of that type validated? If a recommended approach was proposed but failed validation, that's not a gap — it was explored and found wanting.
-4. **Check analysis purpose alignment**: did the top-ranked model achieve the analysis purpose? For inferential goals, verify sufficient estimand contraction. If the best model has good predictive performance but fails to isolate the target estimand precisely, that's a coverage gap.
+4. **Check analysis purpose alignment**: did the top-ranked model achieve the analysis purpose (see `analysis-design > Analysis purpose`)? For inferential goals, verify sufficient estimand contraction. If the best model has good predictive performance but fails to isolate the target estimand precisely, that's a coverage gap.
 5. **Identify gaps**: recommendations that were NOT addressed by validated models. Focus on **structurally different approaches**, not minor variations. Missing a different parameterization of variance is minor; missing an entire response scale (e.g., log vs original) is major. Distinguish primary recommendations ("use X") from alternatives ("consider Y") — gaps in primary recommendations are critical; gaps in alternatives are worth noting but not blocking.
 
 Report as `COVERAGE: COMPLETE` (list how each substantive recommendation was addressed) or `COVERAGE: GAPS` (list unaddressed recommendations with specific structural questions that would fill them).

@@ -30,7 +30,7 @@ A short summary: strategic decision (CONTINUE_QUESTION / SWITCH_QUESTION / ADEQU
 
 Files written to `experiments/`:
 
-- `log.md` — append-only running notebook. Append each entry live. Format: `## <UTC timestamp> — model-selector: <action>` then content. Ref: `artifact-guidelines > references/markdown-report`.
+- `log.md` — append-only notebook. Append entries live as work proceeds, not at the end. See `artifact-guidelines > references/markdown-report`.
 - `population_assessment.html` — full assessment: ranking, comparison plots, per-question best model, improvement trajectory, strategic recommendation, coverage audit (when ADEQUATE/EXHAUSTED), new structural questions (if any). Follow the output checklist in `bayesian-model-selection`. Format per `artifact-guidelines > references/html-report`.
 - `*.png` — comparison plots (`az.plot_compare`, `az.plot_elpd`, `az.plot_khat`).
 - `*.py` — analysis scripts.

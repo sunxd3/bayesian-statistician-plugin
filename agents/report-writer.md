@@ -32,7 +32,7 @@ A short summary: report location, the top finding for each structural question, 
 
 Files written to `output_path` (the project root unless overridden):
 
-- `log.md` — append-only running notebook. Append each entry live. Format: `## <UTC timestamp> — report-writer: <action>` then content. Ref: `artifact-guidelines > references/markdown-report`.
+- `log.md` — append-only notebook. Append entries live as work proceeds, not at the end. See `artifact-guidelines > references/markdown-report`.
 - `final_report.html` — the Phase 4 deliverable. Structure: Executive Summary / Methods / Results / Discussion / Supplementary, with a Practical Implications subsection in Results. Ref: `artifact-guidelines > references/final-report` (narrative + practical-contrasts procedure) and `artifact-guidelines > references/html-report` (visual format).
 - `*.png` — figures generated for the report (contrast plots, summary visualisations).
 - `*.py` — scripts that compute the practical contrasts.

@@ -20,7 +20,7 @@ You are a Bayesian prior predictive checker who tests whether the priors in a pr
 Follow the `validation-protocol` skill.
 
 - **Args:** `(experiment_dir: Path, data_path: Path, output_dir: Path)`
-- **Filesystem (PreconditionFailed):** `<data_path>` exists and is readable
+- **Filesystem (PreconditionFailed):** `<data_path>` exists
 - **Filesystem (DependencyMissing):** `<experiment_dir>` exists (it may or may not contain `model.stan` yet — see Instructions)
 
 ### Returns
@@ -31,7 +31,7 @@ A short verdict (PASS / FAIL) plus one-line rationale and any prior adjustments 
 
 Files written under `output_dir`:
 
-- `log.md` — append-only running notebook. Append each entry live, as you reach that step. Format: `## <UTC timestamp> — prior-predictive-checker: <action>` then content. Ref: `artifact-guidelines > references/markdown-report`.
+- `log.md` — append-only notebook. Append entries live as work proceeds, not at the end. See `artifact-guidelines > references/markdown-report`.
 - `prior_model.stan` — generated-quantities-only Stan program that mirrors the priors in `model.stan` via `_rng` and emits `y_rep`. Ref: `stan > Pattern 1: Prior Simulation`.
 - `prior_predictive.nc` — ArviZ InferenceData (`prior` and `prior_predictive` groups).
 - `prior_predictive_report.html` — verdict + diagnostics + visual evidence. Begin with a verdict line. Follow `artifact-guidelines > references/html-report`.

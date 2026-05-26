@@ -2,10 +2,11 @@
 name: model-designer
 description: >
   Designs experiments to resolve a structural question about the data-generating process.
-  SIGNATURE: (eda_dir: Path, structural_question: Text, baseline_spec: Text, other_questions: Text, output_dir: Path)
+  SIGNATURE: (eda_dir: Path, experiment_plan_path: Path, structural_question: Text, baseline_spec: Text, other_questions: Text, output_dir: Path)
 skills:
   - validation-protocol
   - artifact-guidelines
+  - analysis-design
   - generative-model-design
 ---
 
@@ -17,8 +18,8 @@ You are a Bayesian modeling strategist who designs experiments to resolve a stru
 
 Follow the `validation-protocol` skill.
 
-- **Args:** `(eda_dir: Path, structural_question: Text, baseline_spec: Text, other_questions: Text, output_dir: Path)`
-- **Filesystem (DependencyMissing):** `<eda_dir>/eda_report.html` exists
+- **Args:** `(eda_dir: Path, experiment_plan_path: Path, structural_question: Text, baseline_spec: Text, other_questions: Text, output_dir: Path)`
+- **Filesystem (DependencyMissing):** `<eda_dir>/eda_report.html` and `<experiment_plan_path>` exist
 
 ### Returns
 
@@ -28,7 +29,7 @@ A short summary of the proposed resolution sequence (text), for the orchestrator
 
 Files written under `output_dir`:
 
-- `log.md` — append-only running notebook; one entry per major step. Format: `## <UTC timestamp> — model-designer: <action>` then content. **Append each entry live, as you reach that step — do NOT batch the file at the end.** The orchestrator reads this for real-time progress; a crash mid-workflow must leave a partial log on disk.
+- `log.md` — append-only notebook. Append entries live as work proceeds, not at the end. See `artifact-guidelines > references/markdown-report`.
 - `designer_proposal.md` — the resolution sequence. Sections: (1) assigned question and the EDA evidence bearing on it, (2) shared baseline reference (not redesigned), (3) each experiment with generative story, what it tests, resolution criteria, computational risks, key quantities of interest, (4) cross-designer interaction notes, (5) predicted outcomes with reasoning. Follow `artifact-guidelines > references/markdown-report`.
 
 ## Instructions
@@ -36,10 +37,12 @@ Files written under `output_dir`:
 The block below is a workflow spec in Python-style pseudocode. Function names describe operations you perform; this is **not** actual code to execute. Follow the data flow: each line consumes the inputs shown and produces the named outputs. Use `# ref:` comments to load skill references on demand.
 
 ```python
+plan = read(experiment_plan_path)                   # analysis-design outputs: purpose, validation, domain
 eda = read_html(eda_dir / "eda_report.html")        # focus on Competing Structural Hypotheses,
                                                     # Variance Decomposition, Residual Analysis
-purpose = infer_analysis_purpose(eda)               # descriptive | inferential | predictive
-append_log("eda read", question=structural_question, purpose=purpose)  # → output_dir/log.md
+purpose = plan.analysis_purpose                     # descriptive | inferential | predictive
+                                                    # (decided upstream by analysis-design)
+append_log("inputs read", question=structural_question, purpose=purpose)  # → output_dir/log.md
 
 evidence = extract_evidence(eda, structural_question)
                                                     # which EDA findings bear on this question

@@ -1,6 +1,6 @@
 # HTML Report Format
 
-Use HTML (not Markdown) for the final written deliverable of any phase — EDA reports, model critiques, experiment summaries, final synthesis reports. A single self-contained HTML file can embed plots inline, render tables natively, and be opened or shared as a single artifact. Plot PNGs sit alongside the HTML in the same directory and are referenced via relative paths (`<img src="plot_01.png">`). See [[markdown-report]] for when Markdown is still the right choice (logs, README-style notes).
+Use HTML (not Markdown) for the final written deliverable of any phase — EDA reports, model critiques, experiment summaries, final synthesis reports. A single self-contained HTML file can embed plots inline, render tables natively, and be opened or shared as a single artifact. Plot PNGs sit alongside the HTML in the same directory and are referenced via relative paths (`<img src="plot_01.png">`). See `markdown-report.md` for when Markdown is still the right choice (logs, README-style notes).
 
 ## Design philosophy
 
@@ -10,6 +10,17 @@ The aesthetic target is **editorial/scientific magazine**, not a dashboard. Thin
 - **Light theme.** Warm off-white background, deep ink text, one muted accent color. No dark mode toggle.
 - **Single column, generous measure.** Reading column ~720px max. Plots and wide tables can break out wider via `figure.wide` blocks.
 - **Hierarchy via type, not color.** Section weight comes from font size, spacing, and rule lines — not from background blocks or colored callouts.
+
+## Writing rules
+
+- Lead with the key finding or verdict — first paragraph after the headline.
+- Support every claim with evidence: an embedded figure, a statistic, a diagnostic.
+- Reference plot files in both `<figcaption>` and `alt` text — readers can find them on disk.
+- Short paragraphs of complete sentences. Lists only when they genuinely clarify
+  (e.g., model assumptions, validation criteria).
+- Document what worked, what didn't, and what you tried — negative results are
+  findings.
+- Minimal headers and bold. No excessive emphasis. The plots are the visual richness.
 
 ## Typography
 

@@ -1,7 +1,6 @@
 ---
 name: stan
 description: Best practices for writing efficient, clean Stan programs. Covers structure, parameterization, prior/posterior predictive blocks, and pitfalls. Sub-references handle specialized cases.
-user-invocable: false
 ---
 
 # Stan
@@ -163,15 +162,13 @@ Both compilation and sampling can crash or OOM.
 - Always use tight bounds: `int<lower=1, upper=K> id[N]`
 - Guard math: check parameters before `log`, `sqrt`, division
 - Add explicit bounds for dispersion: `real<lower=0.01> phi` (never exactly 0)
-- Never use `<lower=0>` for scale parameters in hierarchical models - use `<lower=0.001>` or higher
+- Never use `<lower=0>` for scale parameters in hierarchical models — use `<lower=0.001>` or higher
 
 **Execution:**
-- Prefer `fit_and_summarize()` over manual `fit_model()` + ArviZ + save — it returns structured results and deletes CmdStan CSVs by default (`cleanup_csvs=True`). Pass `cleanup_csvs=False` to keep raw CSVs
 - Wrap `CmdStanModel()` and sampling in try-except
 - Probe with short runs before full sampling
-- CRITICAL: Never set `iter_warmup=0` when `adapt_engaged=True` - causes immediate failure
-- Always ensure warmup > 0 for adaptation (minimum 50-100 iterations)
-- NEVER use Read tool on large Stan CSV files (>256KB) - use `cmdstanpy` summary methods or head/tail commands instead
+- Always ensure warmup > 0 when `adapt_engaged=True` (minimum 50-100 iterations) — Stan needs warmup to adapt the mass matrix
+- NEVER use the Read tool on large Stan CSV files (>256KB) — use `cmdstanpy` summary methods or head/tail commands instead
 
 **CRITICAL: Suppress Stan progress output.**
 Stan progress bars (tqdm + CmdStan stdout) accumulate in the agent transcript and can crash the session when the transcript exceeds buffer limits. Always suppress them:
@@ -185,16 +182,16 @@ Stan progress bars (tqdm + CmdStan stdout) accumulate in the agent transcript an
 - Reduce `max_treedepth` (10 → 8)
 - Subsample data or simplify model
 
-## ArviZ Integration
+For the Python fitting workflow (`fit_and_summarize`, save patterns, prior/recovery recipes), see `python-environment > Common workflows`.
 
-`fit_model()` accepts an explicit `fixed_param` parameter for prior predictive sampling: `fit_model(model, data, fixed_param=True, iter_warmup=0, adapt_engaged=False)`.
+## ArviZ Integration
 
 Design Stan programs for downstream ArviZ workflow:
 
 **Generated quantities:**
-- Always include pointwise log-likelihood: `vector[N] log_lik` - required for model comparison and downstream workflow
-- Always include posterior predictive draws: `vector[N] y_rep` - required for all predictive checks
-- Use CONSISTENT naming: `y_obs` for observed data, `y_rep` for replications - avoid mixing `y`, `y_pred`, `y_sim`
+- Always include pointwise log-likelihood: `vector[N] log_lik` — required for model comparison and downstream workflow
+- Always include posterior predictive draws: `vector[N] y_rep` — required for all predictive checks
+- Use CONSISTENT naming: `y_obs` for observed data, `y_rep` for replications — avoid mixing `y`, `y_pred`, `y_sim`
 - For multiple observed variables, use one vector per variable: `log_lik_y1`, `log_lik_y2`
 - This will incur modest overhead, but might be worth workflow simplicity
 
@@ -205,13 +202,18 @@ Design Stan programs for downstream ArviZ workflow:
 **Extending without refitting:**
 - To add new derived quantities, use `generate_quantities` mode with original posterior draws
 - Write new Stan file with same data/parameters/transformed parameters but extended generated quantities
-- Call `model.generate_quantities(data=data, mcmc_sample=fit)` - orders of magnitude faster than refitting
+- Call `model.generate_quantities(data=data, mcmc_sample=fit)` — orders of magnitude faster than refitting
+
+For InferenceData group structure and naming conventions, see `inferencedata-handling`.
 
 ## Generated-Quantities-Only (GQ-Only) Programs
 
-Stan is the **single source of truth** for all data generation. Python orchestrates (compiles, calls Stan, loads results, plots) but must **never** implement the generative model (no `numpy.random`, no `scipy.stats` for generating y_rep). This prevents silent divergence between the Python simulation and the Stan model.
+GQ-only programs are Stan programs without `parameters` or `model` blocks. They run via `fixed_param=True` (with `iter_warmup=0, adapt_engaged=False`) and produce synthetic data via `_rng` calls. Two patterns:
 
-Two GQ-only program patterns — both have no `parameters` block, no `model` block (or empty), and run with `fixed_param=True, iter_warmup=0, adapt_engaged=False`:
+- **Prior simulation** — sample parameters from priors, generate `y_rep` (Pattern 1).
+- **Data simulator** — take known parameter values as `data{}` input, generate `y_rep` (Pattern 2).
+
+For the methodology (why Stan must own data generation, what the line-by-line mirror invariant means), see `fake-data-simulation > Key Practice — Stan is the single source of truth`. For the Python workflow (compile, run with `fixed_param`, convert, save), see `python-environment > Common workflows`.
 
 ### Pattern 1: Prior Simulation (`prior_model.stan`)
 
@@ -241,7 +243,7 @@ generated quantities {
 }
 ```
 
-**CRITICAL:** Every `_rng` call must mirror the corresponding `~` statement in `model.stan`. If you change a prior in `model.stan`, update `prior_model.stan` to match.
+Every `_rng` call must mirror the corresponding `~` statement in `model.stan`. If you change a prior in `model.stan`, update `prior_model.stan` to match.
 
 ### Pattern 2: Data Simulator (`simulator.stan`)
 
@@ -270,7 +272,7 @@ generated quantities {
 }
 ```
 
-### GQ-only pitfalls
+### GQ-Only Pitfalls
 
 - `_rng` functions are only available in `generated quantities` and `transformed data` blocks
 - For `<lower=0>` parameters: use `lognormal_rng()`, `exponential_rng()`, or `fabs(normal_rng())` — not manual truncation
@@ -280,40 +282,7 @@ generated quantities {
 - For multivariate normals: `multi_normal_rng(mu, Sigma)` or `multi_normal_cholesky_rng(mu, L)`
 - **Subsampling for large N**: When N > 2000, subsample the data dict in Python before passing to Stan (fewer rows, adjusted N). The Stan program is unchanged.
 
-**Prior predictive workflow:**
-```python
-from shared_utils import compile_model, fit_model, to_arviz_prior, cleanup_csv_files
-
-prior_stan = compile_model(prior_dir / "prior_model.stan")
-fit = fit_model(prior_stan, stan_data, fixed_param=True,
-                iter_warmup=0, adapt_engaged=False)
-idata = to_arviz_prior(fit, prior_predictive=["y_rep"],
-                        observed_data={"y_obs": y_obs})
-cleanup_csv_files(fit)
-idata.to_netcdf(str(prior_dir / "prior_predictive.nc"))
-# idata has groups: prior (all GQ vars), prior_predictive (y_rep)
-```
-
-**Recovery data generation workflow:**
-```python
-from shared_utils import compile_model, fit_model, cleanup_csv_files
-
-simulator = compile_model(sim_dir / "simulator.stan")
-sim_fit = fit_model(simulator, sim_data, fixed_param=True,
-                    iter_warmup=0, adapt_engaged=False, iter_sampling=1)
-y_synth = sim_fit.stan_variable("y_rep")
-cleanup_csv_files(sim_fit)
-```
-
 **Do NOT** run `fit_model(fixed_param=True)` on the main inference model for prior simulation — `fixed_param=True` does not sample from priors in the `parameters{}` block; it holds them at their initial values. Always use a GQ-only `prior_model.stan`.
-
-**Fit and save:**
-- Use `fit_and_summarize(model, stan_data, model_name="name", save_dir=experiment_dir)` — returns `FitResult` with summary, diagnostics, LOO, and thinned draws
-- **CSVs are always cleaned up** (`cleanup_csvs=True`). Draws are fully extracted first — nothing is lost. CSVs are 5-500 MB/chain; there is no reason to keep them
-- **Save .nc for main data fits** (`save_netcdf=True`). The .nc (5-50 MB) preserves y_rep and log_lik draws that `thinned_draws.npz` does NOT contain. You need this for Stan-generated y_rep PPC, LOO-PIT, and `az.compare()`. Skip .nc for probe runs, simulation recovery, and prior predictive
-- Always-saved: summary.json, diagnostics.json, loo.json, thinned_draws.npz (200 parameter-only draws)
-- `thinned_draws` contains model parameters only (mu, sigma, theta, etc.) — NOT y_rep or log_lik. For basic PPC you can forward-simulate from parameter draws, but for full PPC with Stan-generated quantities, load the .nc
-- Use consistent coords/dims for all models in the workflow
 
 ## Known Issues
 

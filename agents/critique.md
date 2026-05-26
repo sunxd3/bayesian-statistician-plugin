@@ -33,7 +33,7 @@ A short verdict (VIABLE / CONCERNS / BROKEN) plus the highest-priority concern (
 
 Files written under `<experiment_dir>/critique/` (create the directory if needed):
 
-- `log.md` — append-only running notebook. Append each entry live, as you reach that step. Format: `## <UTC timestamp> — critique: <action>` then content. Ref: `artifact-guidelines > references/markdown-report`.
+- `log.md` — append-only notebook. Append entries live as work proceeds, not at the end. See `artifact-guidelines > references/markdown-report`.
 - `critique_report.html` — verdict + statistical + domain + framework assessment + suggestions. Begin with `DECISION: VIABLE` / `CONCERNS` / `BROKEN`. Follow `model-critique > references/decision` for the section template and `artifact-guidelines > references/html-report` for the format.
 - `*.png` — diagnostic plots generated during assessment (residuals against unused covariates, contraction summaries, custom domain checks).
 - `*.py` — assessment scripts.

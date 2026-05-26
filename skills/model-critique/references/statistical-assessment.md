@@ -28,7 +28,7 @@ If you detect unexplained residual structure (autocorrelation, heteroskedasticit
 
 ## Estimand contraction
 
-If the experiment plan specifies key quantities of interest, compute prior-to-posterior contraction for those parameters: `az.summary()` on target parameters, compare posterior SD to prior SD. A model that passes PPCs but leaves the target estimand diffuse (contraction ratio < 50%) may be adequate predictively but inadequate for the analysis purpose. Report contraction ratios. Classify each key parameter:
+If the experiment plan specifies key quantities of interest (see `analysis-design > Analysis purpose`), compute prior-to-posterior contraction for those parameters: `az.summary()` on target parameters, compare posterior SD to prior SD. A model that passes PPCs but leaves the target estimand diffuse (contraction ratio < 50%) may be adequate predictively but inadequate for the analysis purpose. Report contraction ratios. Classify each key parameter:
 
 - Contraction ≈ 0 with posterior near prior mean → data uninformative (prior dominates).
 - Contraction ≈ 0 with posterior pushed toward prior tails → prior-likelihood conflict (domain thresholds may be wrong or the observational model is misspecified).

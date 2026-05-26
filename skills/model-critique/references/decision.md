@@ -12,7 +12,7 @@
 
 Base suggestions on diagnostic evidence, not arbitrary elaboration. When identifying weaknesses, cite the specific summary statistic or data feature. Each suggested extension should nest the current model.
 
-For inferential or descriptive goals, a model with slightly worse PPC calibration may still be preferred if it yields more precise and interpretable estimates of the target estimand. Do not reject a model solely for marginal PPC issues if the core generative structure is sound and the estimand is well-identified.
+For inferential or descriptive goals (see `analysis-design > Analysis purpose`), a model with slightly worse PPC calibration may still be preferred if it yields more precise and interpretable estimates of the target estimand. Do not reject a model solely for marginal PPC issues if the core generative structure is sound and the estimand is well-identified.
 
 **CONCERNS** — the model is statistically viable but has domain or framework issues that weaken its scientific validity. List concerns in priority order using the template below.
 

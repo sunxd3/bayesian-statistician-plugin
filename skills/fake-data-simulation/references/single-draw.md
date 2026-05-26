@@ -18,32 +18,32 @@ See the `stan` skill for full GQ-only patterns and pitfalls.
 
 ### 3. Generate synthetic data in Stan
 
-```python
-from shared_utils import compile_model, fit_model, cleanup_csv_files
+Pass the true parameters as part of the `data` dict to `simulator.stan` and run
+it in fixed-param mode. The Stan `_rng` calls produce one draw of synthetic
+`y_rep`.
 
-# Pass true parameters as data
-true_params = {"alpha_true": 2.5, "sigma_true": 1.0}
-sim_data = {**stan_data, **true_params}
+Dataflow:
+1. Compile `simulator.stan` via `compile_model`
+2. Merge `true_params` into `stan_data`
+3. Run with `fixed_param=True, iter_warmup=0, adapt_engaged=False, iter_sampling=1`
+4. Extract `y_rep` via `stan_variable("y_rep")`
+5. Clean up CSVs via `cleanup_csv_files`
 
-simulator = compile_model(sim_dir / "simulator.stan")
-sim_fit = fit_model(simulator, sim_data, fixed_param=True,
-                    iter_warmup=0, adapt_engaged=False, iter_sampling=1)
-y_synth = sim_fit.stan_variable("y_rep")
-cleanup_csv_files(sim_fit)
-```
+See `python-environment > Common workflows > Recovery / fake-data simulation`
+for the canonical script.
 
 ### 4. Fit `model.stan` to the synthetic data
 
-```python
-from shared_utils import compile_model, fit_and_summarize
+Build a fresh `stan_data` dict with `y_obs` replaced by the simulated `y_rep`,
+then run the standard posterior inference flow.
 
-model = compile_model(experiment_dir / "model.stan")
-synth_stan_data = {**stan_data, "y_obs": y_synth.flatten()}
-result = fit_and_summarize(model, synth_stan_data, model_name="recovery",
-                           save_dir=sim_dir)
-```
+Dataflow:
+1. Compile `model.stan`
+2. Substitute `y_obs = y_synth.flatten()` in `stan_data`
+3. Run `fit_and_summarize` with `save_dir=<sim_dir>`
 
-Do NOT use raw `model.sample()` — progress bars crash the agent transcript, and raw calls skip CSV cleanup.
+See `python-environment > Common workflows > Posterior inference` for the
+canonical script.
 
 ### 5. Check recovery
 

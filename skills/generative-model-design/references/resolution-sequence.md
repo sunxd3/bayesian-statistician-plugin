@@ -14,7 +14,7 @@ When your question involves grouped structure, expand incrementally: complete po
 
 ## Inferential-purpose constraint
 
-If the analysis purpose is inferential, the resolution sequence must prioritize parameter interpretability over predictive performance. Do not add flexible structures that absorb the signal of the target estimand unless they serve as necessary controls for confounding. The goal is to isolate the estimand, not maximize ELPD.
+If the analysis purpose is inferential (see `analysis-design > Analysis purpose`), the resolution sequence must prioritize parameter interpretability over predictive performance. Do not add flexible structures that absorb the signal of the target estimand unless they serve as necessary controls for confounding. The goal is to isolate the estimand, not maximize ELPD.
 
 ## Per-experiment specification
 

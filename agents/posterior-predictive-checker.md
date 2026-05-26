@@ -33,7 +33,7 @@ A short verdict (PASS / FAIL) plus a one-line rationale for the orchestrator.
 
 Files written under `output_dir`:
 
-- `log.md` — append-only running notebook. Append each entry live, as you reach that step. Format: `## <UTC timestamp> — posterior-predictive-checker: <action>` then content. Ref: `artifact-guidelines > references/markdown-report`.
+- `log.md` — append-only notebook. Append entries live as work proceeds, not at the end. See `artifact-guidelines > references/markdown-report`.
 - `posterior_predictive_report.html` — verdict + checks + visual evidence. Begin with a verdict line. Follow `artifact-guidelines > references/html-report`.
 - `*.png` — PPC plots (marginal, conditional, residual, calibration).
 - `*.py` — analysis scripts.

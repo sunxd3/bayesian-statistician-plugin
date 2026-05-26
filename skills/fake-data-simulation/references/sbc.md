@@ -25,10 +25,13 @@ Deviations from uniform indicate miscalibration:
 
 1. **Choose number of replicates R** — typically 100–1000. More = sharper diagnostic, higher cost.
 2. **For r = 1..R:**
-   a. Draw θ\* from the prior (in a Stan program with priors but no data — use the prior-predictive simulator pattern).
-   b. Simulate y\* from p(y | θ\*) via the same `simulator.stan`.
-   c. Fit `model.stan` to y\* with thinned draws (typically M = 99 or 999 to make rank computation clean).
-   d. For each parameter of interest, compute the rank of θ\* among posterior draws.
+   a. Draw θ\* from the prior and simulate y\* from p(y | θ\*) — both in a
+      single GQ-only Stan program (see `stan > Pattern 1: Prior Simulation`).
+      Extract both the parameter draw and the simulated data from the fit.
+   b. Fit `model.stan` to y\* with thinned draws (typically M = 99 or 999 to
+      make rank computation clean).
+   c. For each parameter of interest, compute the rank of θ\* among posterior
+      draws.
 3. **Diagnose**: histogram of ranks for each parameter; should look uniform. Use the ECDF-difference plot from Säilynoja et al. for sharper visual diagnostics.
 
 ## Stan ecosystem support

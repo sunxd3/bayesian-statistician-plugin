@@ -36,6 +36,13 @@ Written artifacts (reports, logs):
 - These are the primary deliverables that users will read retrospectively
 - Invoke the `artifact-guidelines` skill to get the full guidelines
 
+### Subagent responses
+
+Subagent responses share your context window. Each subagent writes all detail to
+files and returns a short verdict plus key numbers; the exact response shape is
+defined in each subagent's `Interface > Returns`. Do not ask subagents to embed
+report content in their reply — read the report file when you need detail.
+
 ## Persistent Log
 
 Use TaskCreate/TaskUpdate for real-time task tracking (ephemeral, current session). Separately, maintain `log.md` as a lab notebook — a chronological, honest record of what happened, what surprised you, and what you learned. Write entries as you go, not as a polished retrospective.
@@ -223,30 +230,18 @@ Invoke `eda-analyst` to explore the data. For complex datasets, run 1-3 instance
 
 ### Phase 2: Model Design → `design/`
 
-**Step 1: Define analysis purpose, domain context, and structural questions.** Read the EDA report's Competing Structural Hypotheses, Variance Decomposition, Residual Analysis, and Scientific Domain sections.
+**Step 1: Define the analysis.** Read the EDA report (focus on Competing Structural Hypotheses, Variance Decomposition, Residual Analysis, Scientific Domain). Following `analysis-design`, decide:
 
-**1a. Analysis purpose.** Determine the goal type based on the user's prompt and the data's nature:
-- **Descriptive** (default for minimal prompts): characterize the data-generating process with honest uncertainty.
-- **Inferential**: estimate a specific causal or conditional effect. Prioritize unconfounded estimation of target parameters; do not add flexible structures that absorb the estimand's signal.
-- **Predictive**: maximize out-of-sample performance; parameter interpretability is secondary.
+- Analysis purpose (descriptive / inferential / predictive) + 1-3 key quantities of interest + what "adequate" means
+- Validation strategy (hold-out scheme matched to the data's dependence structure)
+- Domain context (canonical frameworks; or state "no strong conventions identified" and proceed empirically)
+- 2-3 contrastive structural questions
 
-If the user prompt lacks a specific question, **assume loudly**: synthesize a purpose based on the dataset's nature and state it explicitly. A sharp answer to an assumed question is better than a generic answer to no question.
-
-Define 1-3 **key quantities of interest** and state what **adequate** means — when is the model good enough to stop?
-
-**1b. Validation strategy.** Define how models will be evaluated, accounting for the data's dependence structure. Standard observation-level LOO is only appropriate for i.i.d. data — for grouped data it interpolates within known groups, and for temporal data it overstates future predictive performance. State the appropriate hold-out scheme.
-
-**1c. Domain context.** Identify the scientific domain and its canonical modeling frameworks. Do not default to generic GLMs when the domain has mechanistic structure — use the domain's standard response model, parameterization, and baseline components.
-
-If the domain is not recognizable, state "No strong domain conventions identified" and proceed with empirical-first design.
-
-**1d. Structural questions.** Extract 2-3 contrastive structural questions — each should pit two explanations of the data-generating process against each other, framed in terms of the key quantities of interest and domain theory where possible.
-
-Write steps 1a-1d as the opening sections of `design/experiment_plan.md`. All downstream agents read this.
+Write these as the opening sections of `design/experiment_plan.md`. All downstream agents read this.
 
 **Step 2: Define a domain-aware shared baseline.** Construct a baseline that implements the domain's canonical theory, reconciled with EDA findings. If no domain conventions were identified, fall back to the simplest model that captures the dominant EDA structure. All designers extend from this baseline.
 
-**Step 3: Assign questions to designers.** Run 2-3 `model-designer` instances in parallel. Give each their assigned question, the shared baseline, the other designers' questions, and their output directory. Encourage designers to consider structurally different model families (not just parametric extensions of the baseline) if they better match the data-generating process. Each designer produces a resolution sequence that answers their question.
+**Step 3: Assign questions to designers.** Run 2-3 `model-designer` instances in parallel. Give each: the EDA directory, the path to `design/experiment_plan.md` (so they can read analysis purpose, validation strategy, and domain context from `analysis-design`'s output), their assigned structural question, the shared baseline, the other designers' questions, and their output directory. Encourage designers to consider structurally different model families (not just parametric extensions of the baseline) if they better match the data-generating process. Each designer produces a resolution sequence that answers their question.
 
 **Step 4: Synthesize.** Read all designer proposals and produce the final `design/experiment_plan.md`. De-duplicate overlapping models, add cross-cutting experiments where designer questions interact, order by information value, and set total experiment count (typically 6-10).
 

@@ -16,7 +16,7 @@ After setup, run every script from the project root:
 uv run python experiments/experiment_X/fit/run_fit.py
 ```
 
-The environment provides `arviz`, `cmdstanpy`, `numpy`, `pandas`, `matplotlib`, `scipy`, `seaborn`, and `shared_utils`. `scikit-learn`, `statsmodels`, and deep-learning frameworks are intentionally excluded — the workflow is Stan-based (see the `run` skill). Add a dependency to `pyproject.toml` only if a model genuinely requires it.
+The environment provides `arviz`, `cmdstanpy`, `numpy`, `pandas`, `matplotlib`, `scipy`, `seaborn`, and `shared_utils`. `scikit-learn`, `statsmodels`, and deep-learning frameworks are intentionally excluded — the workflow is Stan-based (see `orchestration > Technical Stack`). Add a dependency to `pyproject.toml` only if a model genuinely requires it.
 
 ## Shared Utilities
 
@@ -82,3 +82,62 @@ from shared_utils import compile_model, fit_and_summarize
 
 # Script logic here...
 ```
+
+## Common workflows
+
+Three canonical Stan-execution recipes via `shared_utils`. The Stan-language
+side of the GQ-only programs referenced below lives in
+`stan > Generated-Quantities-Only Programs`.
+
+### Posterior inference (main path)
+
+`fit_and_summarize` handles compile + sample + diagnostics + LOO + InferenceData
++ CSV cleanup in one call:
+
+```python
+from shared_utils import compile_model, fit_and_summarize
+
+model = compile_model(experiment_dir / "model.stan")
+result = fit_and_summarize(model, stan_data, model_name="exp_1",
+                           save_dir=experiment_dir / "fit",
+                           save_netcdf=True)
+```
+
+Pass `save_netcdf=True` for main data fits — the `.nc` preserves `y_rep` and
+`log_lik` draws needed for PPC, LOO-PIT, and `az.compare()`. Skip for probes
+and recovery runs.
+
+### Prior predictive simulation
+
+Compile a GQ-only `prior_model.stan` (see `stan > Pattern 1`), run with
+`fixed_param=True`, convert via `to_arviz_prior`:
+
+```python
+from shared_utils import compile_model, fit_model, to_arviz_prior, cleanup_csv_files
+
+prior_stan = compile_model(prior_dir / "prior_model.stan")
+fit = fit_model(prior_stan, stan_data, fixed_param=True,
+                iter_warmup=0, adapt_engaged=False)
+idata = to_arviz_prior(fit, prior_predictive=["y_rep"],
+                       observed_data={"y_obs": y_obs})
+cleanup_csv_files(fit)
+idata.to_netcdf(prior_dir / "prior_predictive.nc")
+```
+
+### Recovery / fake-data simulation
+
+Compile a GQ-only `simulator.stan` (see `stan > Pattern 2`), pass true
+parameters as `data`, extract `y_rep`:
+
+```python
+from shared_utils import compile_model, fit_model, cleanup_csv_files
+
+simulator = compile_model(sim_dir / "simulator.stan")
+sim_fit = fit_model(simulator, sim_data, fixed_param=True,
+                    iter_warmup=0, adapt_engaged=False, iter_sampling=1)
+y_synth = sim_fit.stan_variable("y_rep")
+cleanup_csv_files(sim_fit)
+```
+
+Then fit `model.stan` to `y_synth` via `fit_and_summarize` (Posterior
+inference, above).
