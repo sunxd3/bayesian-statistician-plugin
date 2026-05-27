@@ -1,11 +1,12 @@
 ---
 name: orchestration
 description: End-to-end Bayesian modeling workflow orchestration — phases (EDA → design → development → reporting), task-pool semantics for the validation pipeline, canonical file structure, and dispatch protocol for the ten subagents. Loaded by the `/bayesian-workflow:run` command.
+user-invocable: false
 ---
 
 # Bayesian Workflow Orchestration
 
-You are the orchestrator. The user has provided a dataset and/or analysis goal via the invoking command's `$ARGUMENTS`. Drive the workflow through four phases by dispatching the ten subagents and writing all results into the canonical folder structure.
+Drive the Bayesian workflow through four phases by dispatching the ten subagents and writing all results into the canonical folder structure. The invoking command supplies a dataset and/or analysis goal via `$ARGUMENTS`.
 
 If no dataset or analysis goal is provided, look for data files (CSV, JSON, Parquet) in `data/`, `analysis/data/`, or the working directory and proceed with the most relevant one. If the goal is unspecified, synthesize one from the data and state it explicitly before starting.
 
@@ -25,11 +26,11 @@ Core principles:
 
 ## Communication
 
-Your outputs serve two purposes:
+Outputs serve two purposes:
 
 Terminal output:
 - Keep users and developers informed of progress in real-time
-- Report what you're doing and key decisions as they happen
+- Report current actions and key decisions as they happen
 - Be concise but informative
 
 Written artifacts (reports, logs):
@@ -38,20 +39,21 @@ Written artifacts (reports, logs):
 
 ### Subagent responses
 
-Subagent responses share your context window. Each subagent writes all detail to
-files and returns a short verdict plus key numbers; the exact response shape is
-defined in each subagent's `Interface > Returns`. Do not ask subagents to embed
-report content in their reply — read the report file when you need detail.
+Subagent responses share the orchestrator's context window. Each subagent
+writes all detail to files and returns a short verdict plus key numbers; the
+exact response shape is defined in each subagent's `Interface > Returns`. Do
+not ask subagents to embed report content in their reply — read the report
+file for detail.
 
 ## Persistent Log
 
-Use TaskCreate/TaskUpdate for real-time task tracking (ephemeral, current session). Separately, maintain `log.md` as a lab notebook — a chronological, honest record of what happened, what surprised you, and what you learned. Write entries as you go, not as a polished retrospective.
+Use TaskCreate/TaskUpdate for real-time task tracking (ephemeral, current session). Separately, maintain `log.md` as a lab notebook — a chronological, honest record of what happened, what was surprising, and what was learned. Write entries as work proceeds, not as a polished retrospective.
 
 **Append-only.** Never rewrite or delete past entries to make the process look cleaner. Mistakes and dead ends are part of the record.
 
 ### What to record
 
-**Failures and dead ends.** Record with enough detail to learn from — the actual error or symptom, what you tried, and the outcome. Summarize tracebacks; do not paste raw error dumps.
+**Failures and dead ends.** Record with enough detail to learn from — the actual error or symptom, what was tried, and the outcome. Summarize tracebacks; do not paste raw error dumps.
 - **Bad.** "Exp 3 recovery check failed, moved to Exp 4."
 - **Good.** "Exp 3 recovery: KeyError on '5%' column (CmdStanPy quantile labels). Fixed, but beta_temp bias 0.4σ. Skipped; Exp 4 recovered clean."
 
@@ -59,16 +61,16 @@ Use TaskCreate/TaskUpdate for real-time task tracking (ephemeral, current sessio
 - **Bad.** "Prior predictive check passed."
 - **Good.** "Prior PPC: 4% negative draws, prior 95% CI for mu [12, 340] vs observed [45, 280]. Reasonable."
 
-**Surprises and intermediate observations.** Things you didn't expect. These are often more valuable than conclusions.
+**Surprises and intermediate observations.** Things that weren't expected. These are often more valuable than conclusions.
 - "sigma_group piling up near zero — day RE may not be needed"
 - "EDA suggested AR(1) but day-level RE absorbed most autocorrelation — didn't expect that"
 
 **Cross-references.** Link to files so the trail is followable.
 - "See `experiments/exp2/critique/critique_report.html` for full diagnostics"
 
-**Phase transitions and key decisions.** Why you chose paths, skipped models, or revised approaches.
+**Phase transitions and key decisions.** Why a path was chosen, a model skipped, or an approach revised.
 
-**Question status.** Track what you're learning about each structural question. When evidence accumulates (a model passes or fails, a critique reveals something), note what it means for the question. When a question is resolved — either answered or shown to be unresolvable with the available data — record the answer and the evidence that settled it.
+**Question status.** Track what is being learned about each structural question. When evidence accumulates (a model passes or fails, a critique reveals something), note what it means for the question. When a question is resolved — either answered or shown to be unresolvable with the available data — record the answer and the evidence that settled it.
 - "Q1 (day-level RE): exp_1 baseline vs exp_2 with day RE — ELPD +42±8, day RE clearly needed. Resolved: yes, day-level variation matters."
 - "Q2 (weather effects): exp_3 added weather → ELPD +3±5, not distinguishable. Critique found residual seasonal pattern — new question: is it annual cycle, not weather?"
 
@@ -221,7 +223,7 @@ log.md                          # append-only workflow log
 ```
 
 ### Subagent Communication
-Point subagents to files produced by previous subagents rather than summarizing content yourself (e.g., tell model-designer to "Read the EDA report at `eda/eda_report.html`" rather than summarizing EDA findings). Ask subagents to report what files they created so you can pass information along the chain.
+Point subagents to files produced by previous subagents rather than summarizing content inline (e.g., tell model-designer to "Read the EDA report at `eda/eda_report.html`" rather than summarizing EDA findings). Ask subagents to report what files they created so the next dispatch can reference them along the chain.
 
 ## Modeling Workflow
 
@@ -258,7 +260,7 @@ The `critique` agent performs statistical assessment, domain assessment, and fra
 - **Global budget.** Each experiment has a maximum of TWO `model-refiner` invocations across its entire lifecycle (all stages combined). If it fails a third time at any stage, mark it skipped.
 
 **Critique-driven iteration (REQUIRED).**
-When `critique` returns VIABLE or CONCERNS with improvement suggestions, you MUST:
+When `critique` returns VIABLE or CONCERNS with improvement suggestions:
 1. Invoke `model-refiner` in EXPLORE mode with the specific suggestions (prioritize PRIORITY 1 concerns — especially framework concerns)
 2. Create a modified variant (e.g., `exp_1_v2`, `exp_1_robust`)
 3. Add the new variant to the task pool for validation
@@ -277,8 +279,8 @@ Distinguish between:
 - **Refinement suggestion** → model-refiner creates a variant within the current question
 - **New structural question** → model-designer designs new experiments with the current best model as baseline
 
-When you identify a new question from critique or selection insights:
-1. Invoke `model-designer` with the new question and the **current best model** as `baseline_spec` (not the original Phase 2 baseline — build on what you've learned)
+When a new question is identified from critique or selection insights:
+1. Invoke `model-designer` with the new question and the **current best model** as `baseline_spec` (not the original Phase 2 baseline — build on what has been learned)
 2. Add the resulting experiments to the task pool
 3. The new experiments flow through the same validation pipeline as the original ones
 

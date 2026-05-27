@@ -1,6 +1,7 @@
 ---
 name: stan
 description: Best practices for writing efficient, clean Stan programs. Covers structure, parameterization, prior/posterior predictive blocks, and pitfalls. Sub-references handle specialized cases.
+user-invocable: false
 ---
 
 # Stan

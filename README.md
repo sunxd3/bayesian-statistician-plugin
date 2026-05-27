@@ -89,7 +89,7 @@ procedures and `references/tests/` for a diagnostic test library by data
 shape), `artifact-guidelines` (with `references/html-report.md`,
 `references/markdown-report.md`, and `references/final-report.md` for the
 Phase-4 narrative structure). Subagents load the skills relevant to their
-role; you can also invoke any skill directly as `/bayesian-workflow:<skill-name>`.
+role; skills are not user-invocable directly — use the commands above.
 
 **Bundled library** — `shared_utils`, a Python package with a fit-and-summarize
 pipeline, convergence diagnostics, LOO, and ArviZ helpers. The setup command
