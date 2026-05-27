@@ -30,7 +30,7 @@ Model development journey, detailed diagnostics, all models compared, reproducib
 
 Before writing the report, compute practical implications of the findings:
 
-1. Load the selected model's `posterior.nc` and the original dataset.
+1. Load the selected model's posterior and the original dataset (the report-writer agent's Side effects names the file).
 2. Compute 1-3 practical contrasts: set key predictors to meaningful values (e.g., 10th vs 90th percentile of observed data) and compute the absolute difference in predicted outcome on the original scale.
 3. Report these contrasts with uncertainty (posterior median ± 95% HDI of the difference).
 4. Use these empirical results in the Practical Implications subsection — do not just report coefficient magnitudes.

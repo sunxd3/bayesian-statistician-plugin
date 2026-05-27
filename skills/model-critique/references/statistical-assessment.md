@@ -4,7 +4,7 @@ Review the diagnostic artifacts produced by the validation pipeline (prior predi
 
 ## LOO validity
 
-Load LOO results from `fit/loo.json` for ELPD ± SE and Pareto k summary. Load `fit/posterior.nc` only when you need to regenerate `az.plot_khat()` or `az.plot_loo_pit()` visualizations. If `loo.json` is missing, compute `az.loo()` from `posterior.nc`.
+Load the LOO results JSON (the small summary file produced by the model-fitter) for ELPD ± SE and Pareto k summary. Load the full posterior NetCDF only when you need to regenerate `az.plot_khat()` or `az.plot_loo_pit()` visualizations. If the LOO summary is missing, compute `az.loo()` from the posterior.
 
 Read the experiment plan for the data structure and validation strategy. If the data is grouped/panel or temporal and you computed standard observation-level LOO, append a caveat:
 

@@ -145,7 +145,7 @@ Surface these in the assessment rather than recommending more iteration.
 
 ## Output Checklist
 
-When writing `experiments/population_assessment.html`, include:
+When writing the population assessment report, include:
 
 1. ELPD ranking table (all validated models, with ΔELPD ± SE). **Always report both the ELPD difference AND its standard error** — an ELPD difference without SE is uninterpretable. Also report p_loo and number of high Pareto k observations per model.
 2. Stacking weights from `az.compare()`.

@@ -17,7 +17,7 @@ Reference for performing EDA in service of Bayesian modeling. Read references on
 Operational checklists and procedures for each step of the EDA workflow:
 
 - `references/process/data-semantics-audit.md` — understanding what columns **mean** (scientific domain, column roles, granularity, sparsity, encoding sanity, suspicious patterns)
-- `references/process/standardization.md` — mechanical cleanup driven by the audit (snake_case names, NaN harmonization, type coercion, categorical normalization) that produces `data.cleaned.parquet`
+- `references/process/standardization.md` — mechanical cleanup driven by the audit (snake_case names, NaN harmonization, type coercion, categorical normalization) that produces the canonical cleaned dataset
 - `references/process/data-quality-checks.md` — missingness, duplicates, invalid values, type issues
 - `references/process/timestamp-handling.md` — parsing timestamps, frequency inference, gaps, panel coverage
 - `references/process/visualization.md` — plot quantity, structure, and documentation requirements
