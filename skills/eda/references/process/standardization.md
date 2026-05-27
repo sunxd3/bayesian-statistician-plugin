@@ -1,6 +1,6 @@
 # Standardization
 
-Apply these transformations to produce the canonical cleaned dataset (`data.cleaned.parquet`) that downstream agents can trust. Standardization is mechanical cleanup driven by the semantic audit; it does not reinterpret what columns mean.
+Apply these transformations to produce a canonical cleaned dataset that downstream agents can trust. Standardization is mechanical cleanup driven by the semantic audit; it does not reinterpret what columns mean. Emit in a dtype-preserving format (e.g., Parquet, not CSV) and document the final schema (column names + dtypes) on output. For the canonical filename and where the schema is documented, see the eda-analyst agent's Side effects.
 
 ## Column names
 
@@ -35,6 +35,3 @@ Apply these transformations to produce the canonical cleaned dataset (`data.clea
 - **Outlier removal.** Flag, do not drop.
 - **Feature engineering.** Derived columns belong in modeling.
 
-## Output
-
-Emit `data.cleaned.parquet` (Parquet preserves dtypes). Document the final schema (column names + dtypes) in the Data Semantics Audit section of `eda_report.html` so downstream agents can rely on it.
