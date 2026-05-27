@@ -1,12 +1,12 @@
 ---
 name: orchestration
-description: End-to-end Bayesian modeling workflow orchestration — phases (EDA → design → development → reporting), task-pool semantics for the validation pipeline, canonical file structure, and dispatch protocol for the ten subagents. Loaded by the `/bayesian-workflow:run` command.
+description: End-to-end Bayesian modeling workflow orchestration — phases (EDA → design → development → reporting), task-pool semantics for the validation pipeline, canonical file structure, and dispatch protocol for the eleven subagents. Loaded by the `/bayesian-workflow:run` command.
 user-invocable: false
 ---
 
 # Bayesian Workflow Orchestration
 
-Drive the Bayesian workflow through four phases by dispatching the ten subagents and writing all results into the canonical folder structure. The invoking command supplies a dataset and/or analysis goal via `$ARGUMENTS`.
+Drive the Bayesian workflow through four phases by dispatching the eleven subagents and writing all results into the canonical folder structure. The invoking command supplies a dataset and/or analysis goal via `$ARGUMENTS`.
 
 If no dataset or analysis goal is provided, look for data files (CSV, JSON, Parquet) in `data/`, `analysis/data/`, or the working directory and proceed with the most relevant one. If the goal is unspecified, synthesize one from the data and state it explicitly before starting.
 
@@ -232,20 +232,11 @@ Invoke `eda-analyst` to explore the data. For complex datasets, run 1-3 instance
 
 ### Phase 2: Model Design → `design/`
 
-**Step 1: Define the analysis.** Read the EDA report (focus on Competing Structural Hypotheses, Variance Decomposition, Residual Analysis, Scientific Domain). Following `analysis-design`, decide:
+**Step 1: Plan the analysis.** Invoke `analysis-planner` with the EDA directory and `design/` as output. It produces the seed `design/experiment_plan.md` with analysis purpose + KQIs, validation strategy, domain context, 2-3 contrastive structural questions, and a domain-aware shared baseline. All downstream agents read this file.
 
-- Analysis purpose (descriptive / inferential / predictive) + 1-3 key quantities of interest + what "adequate" means
-- Validation strategy (hold-out scheme matched to the data's dependence structure)
-- Domain context (canonical frameworks; or state "no strong conventions identified" and proceed empirically)
-- 2-3 contrastive structural questions
+**Step 2: Assign questions to designers.** Run 2-3 `model-designer` instances in parallel. Give each: the EDA directory, the path to `design/experiment_plan.md` (so they can read analysis purpose, validation strategy, domain context, and the shared baseline from the planner's output), their assigned structural question, the baseline spec, the other designers' questions, and their output directory. Encourage designers to consider structurally different model families (not just parametric extensions of the baseline) if they better match the data-generating process. Each designer produces a resolution sequence that answers their question.
 
-Write these as the opening sections of `design/experiment_plan.md`. All downstream agents read this.
-
-**Step 2: Define a domain-aware shared baseline.** Construct a baseline that implements the domain's canonical theory, reconciled with EDA findings. If no domain conventions were identified, fall back to the simplest model that captures the dominant EDA structure. All designers extend from this baseline.
-
-**Step 3: Assign questions to designers.** Run 2-3 `model-designer` instances in parallel. Give each: the EDA directory, the path to `design/experiment_plan.md` (so they can read analysis purpose, validation strategy, and domain context from `analysis-design`'s output), their assigned structural question, the shared baseline, the other designers' questions, and their output directory. Encourage designers to consider structurally different model families (not just parametric extensions of the baseline) if they better match the data-generating process. Each designer produces a resolution sequence that answers their question.
-
-**Step 4: Synthesize.** Read all designer proposals and produce the final `design/experiment_plan.md`. De-duplicate overlapping models, add cross-cutting experiments where designer questions interact, order by information value, and set total experiment count (typically 6-10).
+**Step 3: Synthesize.** Read all designer proposals and append the final experiments table to `design/experiment_plan.md` (preserving the planner-seeded sections above). De-duplicate overlapping models, add cross-cutting experiments where designer questions interact, order by information value, and set total experiment count (typically 6-10).
 
 ### Phase 3: Model Development and Selection → `experiments/`
 

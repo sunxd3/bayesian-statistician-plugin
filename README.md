@@ -1,7 +1,7 @@
 # Bayesian Statistician Plugin
 
 A Claude Code plugin for end-to-end Bayesian statistical modeling with Stan and
-ArviZ. It packages an orchestrator skill, ten specialized subagents, and a
+ArviZ. It packages an orchestrator skill, eleven specialized subagents, and a
 library of modeling skills that together run a full Bayesian workflow:
 **EDA → model design → fitting → validation → reporting**.
 
@@ -61,9 +61,10 @@ Individual phases can also be run standalone — for example, EDA alone:
 (phases, task-pool semantics, canonical file structure, dispatch logic).
 Loaded by the `/bayesian-workflow:run` command.
 
-**Subagents (10)** — `eda-analyst`, `model-designer`, `prior-predictive-checker`,
-`fake-data-checker`, `model-fitter`, `posterior-predictive-checker`, `critique`,
-`model-refiner`, `model-selector`, `report-writer`.
+**Subagents (11)** — `eda-analyst`, `analysis-planner`, `model-designer`,
+`prior-predictive-checker`, `fake-data-checker`, `model-fitter`,
+`posterior-predictive-checker`, `critique`, `model-refiner`, `model-selector`,
+`report-writer`.
 
 **Commands**:
 - `/bayesian-workflow:setup` — bootstraps the Python environment (copies
@@ -99,8 +100,10 @@ copies it into the working project as a path dependency.
 
 1. **Data understanding** (`eda/`) — `eda-analyst` explores the data and
    surfaces competing structural hypotheses about the data-generating process.
-2. **Model design** (`design/`) — structural questions are turned into an
-   experiment plan by parallel `model-designer` instances.
+2. **Model design** (`design/`) — `analysis-planner` frames the analysis
+   (purpose, validation, domain, structural questions) and the shared baseline;
+   parallel `model-designer` instances then turn the structural questions into
+   an experiment plan.
 3. **Model development** (`experiments/`) — each experiment flows through
    `prior-predictive-checker → fake-data-checker → model-fitter →
    posterior-predictive-checker → critique`, with `model-refiner` and
