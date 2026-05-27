@@ -66,8 +66,8 @@ LOO-PIT (Probability Integral Transform) assesses whether the model's predictive
 
 When writing critique suggestions for `model-refiner`, be specific about the diagnostic evidence:
 
-- **Bad:** "Consider a more flexible model"
-- **Good:** "LOO-PIT shows U-shape (underdispersed). Recommend Student-t likelihood instead of Normal to accommodate the heavy tails visible in the PIT"
-- **Good:** "Pareto k > 0.7 for 12% of observations (mostly in group C). Recommend adding group-level intercepts to reduce influence concentration"
+- **Bad.** "Consider a more flexible model"
+- **Good.** "LOO-PIT shows U-shape (underdispersed). Recommend Student-t likelihood instead of Normal to accommodate the heavy tails visible in the PIT"
+- **Good.** "Pareto k > 0.7 for 12% of observations (mostly in group C). Recommend adding group-level intercepts to reduce influence concentration"
 
 Each suggestion should trace back to a specific diagnostic pattern and propose a concrete structural change.

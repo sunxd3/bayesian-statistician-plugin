@@ -10,7 +10,7 @@ Reference for performing EDA in service of Bayesian modeling. Read references on
 
 ## Key Practices
 
-- **Confounder-aware comparisons**: any claimed association or "effect" must condition on the strongest available confounder — typically the most granular temporal unit, or the variable with the highest marginal association to both predictor and outcome. Never report unconditional means as effects. Always report sample size per arm.
+- **Confounder-aware comparisons.** Any claimed association or "effect" must condition on the strongest available confounder — typically the most granular temporal unit, or the variable with the highest marginal association to both predictor and outcome. Never report unconditional means as effects. Always report sample size per arm.
 
 ## Process references
 

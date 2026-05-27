@@ -34,23 +34,23 @@ Run `az.compare()` on all validated models. This produces ELPD differences (Δ E
 
 The top model's ELPD exceeds the second-best by more than 4× the SE of the difference.
 
-- **Action:** Pick the winner. This is strong evidence of superior predictive performance.
-- **Report:** "Model X is the clear winner (ΔELPD = 15.2, SE = 3.1). Recommend proceeding with Model X."
+- **Action.** Pick the winner. This is strong evidence of superior predictive performance.
+- **Report.** "Model X is the clear winner (ΔELPD = 15.2, SE = 3.1). Recommend proceeding with Model X."
 
 ### Rule 2: Likely Winner (2×SE < ΔELPD < 4×SE)
 
 Moderate evidence favoring the top model.
 
-- **Action:** Prefer the top model, but note the uncertainty. If the runner-up is substantially simpler, consider it.
-- **Report:** "Model X is favored (ΔELPD = 7.4, SE = 2.8) but the difference is moderate. Model Y is simpler and within striking distance."
+- **Action.** Prefer the top model, but note the uncertainty. If the runner-up is substantially simpler, consider it.
+- **Report.** "Model X is favored (ΔELPD = 7.4, SE = 2.8) but the difference is moderate. Model Y is simpler and within striking distance."
 
 ### Rule 3: Indistinguishable (ΔELPD < 2×SE)
 
 The top models overlap — the nominal ranking is not meaningful.
 
-- **Sub-rule 3A (Occam's razor):** If one model is substantially simpler (fewer parameters, no unnecessary hierarchical structure), prefer it. Equal predictive performance with less complexity is better.
-- **Sub-rule 3B (Stacking):** If `az.compare()` assigns significant weight (>0.15) to multiple models, they capture different aspects of the data. Recommend stacking.
-- **Report:** "Models X and Y are statistically indistinguishable (ΔELPD = 1.2, SE = 2.4). Stacking weights: X = 0.6, Y = 0.4. Recommend stacked ensemble."
+- **Sub-rule 3A (Occam's razor).** If one model is substantially simpler (fewer parameters, no unnecessary hierarchical structure), prefer it. Equal predictive performance with less complexity is better.
+- **Sub-rule 3B (Stacking).** If `az.compare()` assigns significant weight (>0.15) to multiple models, they capture different aspects of the data. Recommend stacking.
+- **Report.** "Models X and Y are statistically indistinguishable (ΔELPD = 1.2, SE = 2.4). Stacking weights: X = 0.6, Y = 0.4. Recommend stacked ensemble."
 
 ## Stacking Weight Interpretation
 
@@ -93,33 +93,33 @@ ELPD is the primary criterion only for predictive goals. The analysis purpose (s
 
 After comparison, recommend one of four directions for the orchestrator.
 
-**CONTINUE_QUESTION** — current structural question has room to improve.
+**CONTINUE_QUESTION.** Current structural question has room to improve.
 
 - Recent variants improving on earlier ones.
 - Diagnostics suggest specific extensions worth trying.
 - Haven't reached complexity ceiling (no unidentifiable parameters, reasonable computation).
-- Action: provide specific suggestions for next variants.
+- **Action.** Provide specific suggestions for next variants.
 
-**SWITCH_QUESTION** — current question is resolved or plateaued.
+**SWITCH_QUESTION.** Current question is resolved or plateaued.
 
 - Recent extensions show no improvement on the primary comparison metric.
 - Computational issues persist despite reparameterization.
 - Clear ceiling reached (added complexity doesn't help).
-- Action: recommend moving focus to next structural question in the plan.
+- **Action.** Recommend moving focus to next structural question in the plan.
 
-**ADEQUATE** — population contains strong model(s).
+**ADEQUATE.** Population contains strong model(s).
 
 - Top model(s) pass all validation cleanly.
 - Attempted extensions show no improvement.
 - Predictive performance acceptable for the task.
-- For inferential goals: the target estimand posterior is precise enough to answer the analysis question (substantial contraction from prior, credible interval excludes practically meaningless values).
-- Action: can stop iteration, or continue other classes for comparison.
+- For inferential goals, the target estimand posterior is precise enough to answer the analysis question (substantial contraction from prior, credible interval excludes practically meaningless values).
+- **Action.** Can stop iteration, or continue other classes for comparison.
 
-**EXHAUSTED** — all classes explored, no further improvement.
+**EXHAUSTED.** All classes explored, no further improvement.
 
 - All model classes from plan attempted.
 - Best models identified, improvement plateaued.
-- Action: accept best and proceed to reporting. If multiple competitive models exist (ΔELPD < 2×SE), consider stacking.
+- **Action.** Accept best and proceed to reporting. If multiple competitive models exist (ΔELPD < 2×SE), consider stacking.
 
 ## Coverage Audit
 

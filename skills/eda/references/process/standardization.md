@@ -18,7 +18,7 @@ Apply these transformations to produce the canonical cleaned dataset (`data.clea
 
 - Parse timestamp strings to datetime; preserve timezone if present, do not silently convert.
 - Coerce numerics stored as strings (`"1,234"` → `1234`, `"3.14"` → `3.14`).
-- Booleans: harmonize `"yes"/"no"`, `"true"/"false"`, `0/1` to bool.
+- Harmonize booleans (`"yes"/"no"`, `"true"/"false"`, `0/1`) to `bool`.
 - Store small-cardinality categorical columns as `category` dtype.
 
 ## Categorical encoding
@@ -30,10 +30,10 @@ Apply these transformations to produce the canonical cleaned dataset (`data.clea
 
 ## What NOT to standardize here
 
-- **Scaling / centering / log transforms** — belong in modeling (prior setting).
-- **Imputation** — leave NaNs for the modeling phase to handle explicitly.
-- **Outlier removal** — flag, do not drop.
-- **Feature engineering** — derived columns belong in modeling.
+- **Scaling / centering / log transforms.** Belong in modeling (prior setting).
+- **Imputation.** Leave NaNs for the modeling phase to handle explicitly.
+- **Outlier removal.** Flag, do not drop.
+- **Feature engineering.** Derived columns belong in modeling.
 
 ## Output
 

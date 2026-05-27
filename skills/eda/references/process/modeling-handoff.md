@@ -37,11 +37,11 @@ These stories become the candidate structural questions in `analysis-design > St
 
 Explicitly classify the primary data structure. This determines the validation strategy downstream — getting it wrong invalidates all model comparisons.
 
-- **i.i.d.**: observations are exchangeable given covariates. Standard observation-level LOO is valid.
-- **Grouped/panel**: observations are nested within entities (subjects, sites, stores). State the grouping variable(s), number of groups, and observations per group. Standard LOO overstates performance by interpolating within known groups.
-- **Temporal**: observations have a time ordering that carries information (autocorrelation, trends). State the time resolution and whether gaps exist.
-- **Spatial**: observations have spatial adjacency structure.
-- **Combinations**: e.g., "grouped + temporal" (panel data with time ordering within each group).
+- **i.i.d.** Observations are exchangeable given covariates. Standard observation-level LOO is valid.
+- **Grouped / panel.** Observations are nested within entities (subjects, sites, stores). State the grouping variable(s), number of groups, and observations per group. Standard LOO overstates performance by interpolating within known groups.
+- **Temporal.** Observations have a time ordering that carries information (autocorrelation, trends). State the time resolution and whether gaps exist.
+- **Spatial.** Observations have spatial adjacency structure.
+- **Combinations.** E.g., "grouped + temporal" (panel data with time ordering within each group).
 
 State this classification at the top of the Dependence Classification section, before any nuance. This is a critical handoff to the orchestrator and feeds `analysis-design > Validation strategy`.
 
@@ -60,7 +60,7 @@ Report typical magnitude of target and key predictors. Note whether standardizat
 
 ## Modeling-ready recommendations
 
-- **Encoding choices**: for each categorical/indicator variable, recommend a specific encoding (dummy, effect, hierarchical partial pooling, etc.) and justify why.
-- **Pooling strategy**: for variables with rare levels, recommend whether to pool rare levels into an "other" category, use a hierarchical prior, or drop them. State the threshold and rationale.
-- **Candidate interactions**: based on observed conditional patterns (e.g., an effect that varies across subgroups or time periods), list specific interactions worth testing in the model.
-- **Variables to exclude or transform**: flag any variables that are redundant, near-collinear, or need transformation before entering the model, with specific recommendations.
+- **Encoding choices.** For each categorical/indicator variable, recommend a specific encoding (dummy, effect, hierarchical partial pooling, etc.) and justify why.
+- **Pooling strategy.** For variables with rare levels, recommend whether to pool rare levels into an "other" category, use a hierarchical prior, or drop them. State the threshold and rationale.
+- **Candidate interactions.** Based on observed conditional patterns (e.g., an effect that varies across subgroups or time periods), list specific interactions worth testing in the model.
+- **Variables to exclude or transform.** Flag any variables that are redundant, near-collinear, or need transformation before entering the model, with specific recommendations.

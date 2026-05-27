@@ -25,8 +25,8 @@ Follow the `validation-protocol` skill.
 
 `mode` controls the kind of change:
 
-- **FIX** — repair computational or structural problems. Reparameterize (centered ↔ non-centered), adjust priors to regularize geometry, rescale data, change likelihood for distributional misfit (Normal → Student-t for outliers, Poisson → NegBin for overdispersion). Keep core structure; make it work.
-- **EXPLORE** — test extensions or simplifications. Simplify (hierarchical → pooled, spline → linear) to verify structure is needed; extend (varying slopes, interactions, heterogeneous variance, nonlinearity) when diagnostics motivate it; relax assumptions (heavier tails, more flexible distributions) only after structural options are exhausted.
+- **FIX.** Repair computational or structural problems. Reparameterize (centered ↔ non-centered), adjust priors to regularize geometry, rescale data, change likelihood for distributional misfit (Normal → Student-t for outliers, Poisson → NegBin for overdispersion). Keep core structure; make it work.
+- **EXPLORE.** Test extensions or simplifications. Simplify (hierarchical → pooled, spline → linear) to verify structure is needed; extend (varying slopes, interactions, heterogeneous variance, nonlinearity) when diagnostics motivate it; relax assumptions (heavier tails, more flexible distributions) only after structural options are exhausted.
 
 `suggestions` is free text — typically the priority concerns from a critique report or selector recommendation.
 

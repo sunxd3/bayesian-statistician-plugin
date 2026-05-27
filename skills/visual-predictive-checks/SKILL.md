@@ -17,38 +17,38 @@ Use this skill when running prior or posterior predictive checks to validate Bay
 ## Visual Checks by Data Type
 
 ### Continuous Data
-- **Distribution**: `plot_ppc_dist` with `kind="ecdf"` and `kind="kde"`
-- **PIT ECDF**: `plot_ppc_pit` - shows calibration with simultaneous bands
-- **Coverage**: `plot_ppc_pit(coverage=True)` - equal-tailed interval coverage
-- **Summary statistics**: `plot_ppc_tstat` for median, MAD, IQR combined with `combine_plots`
-- **LOO-PIT**: `plot_loo_pit` - avoids double-dipping by using leave-one-out
+- **Distribution.** `plot_ppc_dist` with `kind="ecdf"` and `kind="kde"`.
+- **PIT ECDF.** `plot_ppc_pit` — shows calibration with simultaneous bands.
+- **Coverage.** `plot_ppc_pit(coverage=True)` — equal-tailed interval coverage.
+- **Summary statistics.** `plot_ppc_tstat` for median, MAD, IQR combined with `combine_plots`.
+- **LOO-PIT.** `plot_loo_pit` — avoids double-dipping by using leave-one-out.
 
 ### Count Data
-- **Rootogram**: `plot_ppc_rootogram` - emphasizes discreteness and dispersion
-- **Histogram**: `plot_ppc_dist(kind="hist")`
-- **PIT ECDF** and **coverage**: Same as continuous
+- **Rootogram.** `plot_ppc_rootogram` — emphasizes discreteness and dispersion.
+- **Histogram.** `plot_ppc_dist(kind="hist")`.
+- **PIT ECDF and coverage.** Same as continuous.
 
 ### Binary/Categorical/Ordinal Data
-- **Calibration**: `plot_ppc_pava` - PAV-adjusted calibration curves
-- **Intervals**: `plot_ppc_interval` - posterior predictive intervals with observed overlay
-- **PIT ECDF** and **coverage**: Same as continuous
+- **Calibration.** `plot_ppc_pava` — PAV-adjusted calibration curves.
+- **Intervals.** `plot_ppc_interval` — posterior predictive intervals with observed overlay.
+- **PIT ECDF and coverage.** Same as continuous.
 
 ### Censored/Survival Data
-- **Survival curves**: `plot_ppc_censored` - Kaplan-Meier style PPC
-- **PIT ECDF** and **coverage**: Same as continuous
+- **Survival curves.** `plot_ppc_censored` — Kaplan-Meier style PPC.
+- **PIT ECDF and coverage.** Same as continuous.
 
 ## Conditional and Residual Checks
 
 Marginal PPCs (overall distribution checks) can pass while the model is seriously misspecified at the covariate level. Always supplement marginal checks with:
 
-**Conditional PPCs:** Stratify posterior predictive checks by key covariates identified in EDA.
-- Discrete covariates: compute posterior predictive mean/proportion within each level and compare to observed
-- Continuous covariates: bin into 5-10 intervals and check whether posterior predictive summaries in each bin cover the observed values
-- Grouped/hierarchical data: generate per-group PPCs in addition to overall — outlier groups or groups with poor coverage suggest inadequate population model
+**Conditional PPCs.** Stratify posterior predictive checks by key covariates identified in EDA.
+- **Discrete covariates.** Compute posterior predictive mean/proportion within each level and compare to observed.
+- **Continuous covariates.** Bin into 5-10 intervals and check whether posterior predictive summaries in each bin cover the observed values.
+- **Grouped/hierarchical data.** Generate per-group PPCs in addition to overall — outlier groups or groups with poor coverage suggest inadequate population model.
 
-**Residual panels:** For every posterior retrodictive comparison, generate BOTH the overlay plot (predictive intervals over data) AND a residual plot (`y_rep - y_obs`). Residual plots magnify systematic deviations that are invisible in overlays. Bin residuals by time, group, or predictor to reveal structure.
+**Residual panels.** For every posterior retrodictive comparison, generate BOTH the overlay plot (predictive intervals over data) AND a residual plot (`y_rep - y_obs`). Residual plots magnify systematic deviations that are invisible in overlays. Bin residuals by time, group, or predictor to reveal structure.
 
-**Location-function retrodiction:** For regression-type models, plot the posterior distribution of the fitted function f(x; θ) (spaghetti lines or quantile ribbons) overlaid on observed data, WITHOUT observation noise. This isolates systematic misfit from noise absorption. If the full PPC passes but the location-function check shows systematic bias, the model's σ is absorbing structural error — the model retrodicts for the wrong reasons.
+**Location-function retrodiction.** For regression-type models, plot the posterior distribution of the fitted function f(x; θ) (spaghetti lines or quantile ribbons) overlaid on observed data, WITHOUT observation noise. This isolates systematic misfit from noise absorption. If the full PPC passes but the location-function check shows systematic bias, the model's σ is absorbing structural error — the model retrodicts for the wrong reasons.
 
 ## Purpose-Conditional Emphasis
 
@@ -72,5 +72,5 @@ Name plots descriptively: `prior_predictive_ecdf.png`, `loo_pit_calibration.png`
 
 ## Pitfalls
 
-- **Naming**: variable naming errors across files cause cascading KeyErrors — stick to `y_obs` / `y_rep`. See `inferencedata-handling > Common failures`.
-- **NumPy 2.x removed `np.trapz`**: use `scipy.integrate.trapezoid` for any PPD (posterior predictive density) integration. Same signature: `trapezoid(y, x)`.
+- **Naming.** Variable naming errors across files cause cascading KeyErrors — stick to `y_obs` / `y_rep`. See `inferencedata-handling > Common failures`.
+- **NumPy 2.x removed `np.trapz`.** Use `scipy.integrate.trapezoid` for any PPD (posterior predictive density) integration. Same signature: `trapezoid(y, x)`.

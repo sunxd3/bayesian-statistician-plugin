@@ -42,20 +42,20 @@ from statsmodels.stats.stattools import jarque_bera, omni_normtest
 
 ## QQ Plot Patterns
 
-- Straight line: proposed distribution is plausible at the plotted scale.
-- Reverse S-shape: heavier tails than the reference distribution.
-- S-shape: lighter tails than the reference distribution.
-- Curving upward: right skew or positive-support process.
-- Curving downward: left skew or ceiling effects.
-- Flat segments or piles: rounding, censoring, or boundary mass.
+- **Straight line.** Proposed distribution is plausible at the plotted scale.
+- **Reverse S-shape.** Heavier tails than the reference distribution.
+- **S-shape.** Lighter tails than the reference distribution.
+- **Curving upward.** Right skew or positive-support process.
+- **Curving downward.** Left skew or ceiling effects.
+- **Flat segments or piles.** Rounding, censoring, or boundary mass.
 
 ## Bayesian Modeling Implications
 
-- Heavy tails: compare Normal vs Student-t or robust observation models.
-- Skewed positive data: consider Lognormal, Gamma, Weibull, or transformed outcome models.
-- Boundary mass: consider hurdle, zero/one-inflated, censored, or truncated likelihoods.
-- Multimodality: look for latent groups, mixture structure, or missing covariates before choosing a single global likelihood.
-- Residual non-normality after strong structural controls is more actionable than marginal non-normality of the raw target.
+- **Heavy tails.** Compare Normal vs Student-t or robust observation models.
+- **Skewed positive data.** Consider Lognormal, Gamma, Weibull, or transformed outcome models.
+- **Boundary mass.** Consider hurdle, zero/one-inflated, censored, or truncated likelihoods.
+- **Multimodality.** Look for latent groups, mixture structure, or missing covariates before choosing a single global likelihood.
+- **Residual non-normality after strong structural controls.** More actionable than marginal non-normality of the raw target.
 
 ## Report
 

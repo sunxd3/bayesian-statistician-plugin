@@ -33,9 +33,9 @@ from scipy.spatial.distance import mahalanobis
 
 ## Heteroscedasticity
 
-- **Breusch-Pagan / Koenker-Bassett**: Tests whether residual variance is related to covariates. In statsmodels, `het_breuschpagan(..., robust=True)` is the default Koenker version.
-- **White's test**: Uses regressors, squares, and cross-products to detect more general variance patterns. It does not require manually adding cubic terms.
-- **Goldfeld-Quandt**: Compares residual variance across ordered subsamples. It is only meaningful when the ordering variable is scientifically plausible.
+- **Breusch-Pagan / Koenker-Bassett.** Tests whether residual variance is related to covariates. In statsmodels, `het_breuschpagan(..., robust=True)` is the default Koenker version.
+- **White's test.** Uses regressors, squares, and cross-products to detect more general variance patterns. It does not require manually adding cubic terms.
+- **Goldfeld-Quandt.** Compares residual variance across ordered subsamples. It is only meaningful when the ordering variable is scientifically plausible.
 
 Correctness notes:
 
@@ -45,8 +45,8 @@ Correctness notes:
 
 ## Multicollinearity
 
-- **VIF**: `variance_inflation_factor(exog, j)` measures how predictable predictor `j` is from the others. Values above 5 are worth inspecting; values above 10 often indicate unstable separate coefficient estimates.
-- **Condition number**: Large values indicate near-linear dependence or severe scaling differences. Standardize before interpreting.
+- **VIF.** `variance_inflation_factor(exog, j)` measures how predictable predictor `j` is from the others. Values above 5 are worth inspecting; values above 10 often indicate unstable separate coefficient estimates.
+- **Condition number.** Large values indicate near-linear dependence or severe scaling differences. Standardize before interpreting.
 
 Correctness notes:
 
@@ -56,7 +56,7 @@ Correctness notes:
 
 ## Specification
 
-- **Ramsey RESET**: Adds powers of fitted values or regressors to detect neglected nonlinear conditional mean structure.
+- **Ramsey RESET.** Adds powers of fitted values or regressors to detect neglected nonlinear conditional mean structure.
 
 Correctness notes:
 
@@ -68,11 +68,11 @@ Correctness notes:
 
 Use `OLSInfluence(res)` for:
 
-- **Leverage (`hat_matrix_diag`)**: Unusual covariate location. Rule of thumb: `h_ii > 2(p + 1) / n`.
-- **Cook's D (`cooks_distance`)**: Overall effect on fitted values. Rules of thumb: `D > 1` or `D > 4 / n`.
-- **DFBETAS (`dfbetas`)**: Effect on individual coefficients. Rule of thumb: `abs(DFBETAS) > 2 / sqrt(n)`.
-- **Studentized residuals**: Outcome outliers conditional on the model. Rule of thumb: absolute value above 3.
-- **Mahalanobis distance**: Multivariate covariate outlier. Compare squared distance to a chi-square reference only when covariance assumptions are plausible.
+- **Leverage (`hat_matrix_diag`).** Unusual covariate location. Rule of thumb: `h_ii > 2(p + 1) / n`.
+- **Cook's D (`cooks_distance`).** Overall effect on fitted values. Rules of thumb: `D > 1` or `D > 4 / n`.
+- **DFBETAS (`dfbetas`).** Effect on individual coefficients. Rule of thumb: `abs(DFBETAS) > 2 / sqrt(n)`.
+- **Studentized residuals.** Outcome outliers conditional on the model. Rule of thumb: absolute value above 3.
+- **Mahalanobis distance.** Multivariate covariate outlier. Compare squared distance to a chi-square reference only when covariance assumptions are plausible.
 
 Correctness notes:
 

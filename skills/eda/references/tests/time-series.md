@@ -24,8 +24,8 @@ durbin_watson(resid)
 
 ## Stationarity
 
-- **ADF**: Null hypothesis is a unit root. Rejection is evidence against a unit root under the chosen deterministic terms and lag selection.
-- **KPSS**: Null hypothesis is level or trend stationarity. Rejection is evidence against that stationarity specification.
+- **ADF.** Null hypothesis is a unit root. Rejection is evidence against a unit root under the chosen deterministic terms and lag selection.
+- **KPSS.** Null hypothesis is level or trend stationarity. Rejection is evidence against that stationarity specification.
 
 Correctness notes:
 
@@ -36,15 +36,15 @@ Correctness notes:
 
 Bayesian implications:
 
-- Non-stationary level: consider random walk, local linear trend, state-space, Gaussian process, or explicit trend terms.
-- Trend-stationary behavior: include deterministic trend or smooth temporal effect.
-- Seasonal structure: include seasonal fixed effects, seasonal AR terms, periodic kernels, or hierarchical seasonal effects.
+- **Non-stationary level.** Consider random walk, local linear trend, state-space, Gaussian process, or explicit trend terms.
+- **Trend-stationary behavior.** Include deterministic trend or smooth temporal effect.
+- **Seasonal structure.** Include seasonal fixed effects, seasonal AR terms, periodic kernels, or hierarchical seasonal effects.
 
 ## Autocorrelation
 
-- **Durbin-Watson**: Quick residual screen for first-order autocorrelation. Values near 2 indicate weak AR(1)-style residual autocorrelation; values near 0 or 4 indicate positive or negative autocorrelation.
-- **Ljung-Box**: Joint test of autocorrelation up to selected lags. Use on residuals from a provisional model and account for fitted ARMA parameters with `model_df`.
-- **ACF/PACF**: Visual diagnostics for lag structure.
+- **Durbin-Watson.** Quick residual screen for first-order autocorrelation. Values near 2 indicate weak AR(1)-style residual autocorrelation; values near 0 or 4 indicate positive or negative autocorrelation.
+- **Ljung-Box.** Joint test of autocorrelation up to selected lags. Use on residuals from a provisional model and account for fitted ARMA parameters with `model_df`.
+- **ACF/PACF.** Visual diagnostics for lag structure.
 
 Correctness notes:
 
@@ -54,15 +54,15 @@ Correctness notes:
 
 ACF/PACF heuristics:
 
-- ACF gradual decay and PACF cutoff near lag `p`: AR(`p`) candidate.
-- ACF cutoff near lag `q` and PACF gradual decay: MA(`q`) candidate.
-- Both decay: ARMA candidate.
-- Slow ACF decay and very high lag-1 PACF: unit-root or strong persistent-state candidate.
-- Spikes at seasonal lags: seasonal or calendar structure.
+- **ACF gradual decay and PACF cutoff near lag `p`.** AR(`p`) candidate.
+- **ACF cutoff near lag `q` and PACF gradual decay.** MA(`q`) candidate.
+- **Both decay.** ARMA candidate.
+- **Slow ACF decay and very high lag-1 PACF.** Unit-root or strong persistent-state candidate.
+- **Spikes at seasonal lags.** Seasonal or calendar structure.
 
 ## ARCH Effects
 
-- **ARCH LM (`het_arch`)**: Tests whether squared residuals are autocorrelated, indicating volatility clustering or time-varying residual scale.
+- **ARCH LM (`het_arch`).** Tests whether squared residuals are autocorrelated, indicating volatility clustering or time-varying residual scale.
 
 Correctness notes:
 

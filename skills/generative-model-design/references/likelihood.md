@@ -8,9 +8,9 @@ Justify these three choices:
 
 ## Specialized zero/boundary processes
 
-- **Hurdle** when zeros come from a single binary decision (one process).
-- **Zero-Inflated** when zeros mix structural absence and sampling zeros (two processes).
-- **Censored** (`censored_*` in Stan) when out-of-bounds values are recorded at the threshold (fixed N).
-- **Truncated** (`T[,]` in Stan) when they are simply unobserved (variable N).
+- **Hurdle.** Use when zeros come from a single binary decision (one process).
+- **Zero-Inflated.** Use when zeros mix structural absence and sampling zeros (two processes).
+- **Censored** (`censored_*` in Stan). Use when out-of-bounds values are recorded at the threshold (fixed N).
+- **Truncated** (`T[,]` in Stan). Use when out-of-bounds values are simply unobserved (variable N).
 
 Getting this wrong passes recovery checks (same wrong model generates and fits) and only fails at PPC on real data — wasting both a recovery run and a full fit.

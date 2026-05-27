@@ -90,32 +90,32 @@ For multiple subjects with subject-specific ODE parameters:
 
 ## Solver Selection
 
-**Default**: `ode_rk45` with `rel_tol ≈ 1e-6`, `abs_tol ≈ (typical state scale) × 1e-6`, `max_num_steps ≈ 1e4-1e5`
+**Default.** `ode_rk45` with `rel_tol ≈ 1e-6`, `abs_tol ≈ (typical state scale) × 1e-6`, `max_num_steps ≈ 1e4-1e5`.
 
-**Switch to `ode_bdf` if**:
-- "max_num_steps exceeded" warnings
-- Fast/slow components (multi-compartment PK, stiff reactions)
-- Rapid changes in some states while others change slowly
+**Switch to `ode_bdf` if:**
+- "max_num_steps exceeded" warnings.
+- Fast/slow components (multi-compartment PK, stiff reactions).
+- Rapid changes in some states while others change slowly.
 
-**Use `ode_adams` if**: Smooth, non-stiff systems over long time horizons
+**Use `ode_adams` if.** Smooth, non-stiff systems over long time horizons.
 
-**Use `ode_adjoint_*` if**: Many parameters relative to state dimension (hierarchical models with per-subject parameters)
+**Use `ode_adjoint_*` if.** Many parameters relative to state dimension (hierarchical models with per-subject parameters).
 
-**Tolerances**: ODE error should be much smaller than observation noise. Rarely need `rel_tol < 1e-8`. Can relax slightly (1e-6 → 1e-5) if HMC is slow but stable.
+**Tolerances.** ODE error should be much smaller than observation noise. Rarely need `rel_tol < 1e-8`. Can relax slightly (1e-6 → 1e-5) if HMC is slow but stable.
 
 ## Debugging Common Issues
 
-**Max steps exceeded**:
-- Rescale time and states to O(1)
-- Switch to `ode_bdf` if stiff
-- Increase `max_num_steps` as last resort
+**Max steps exceeded.**
+- Rescale time and states to O(1).
+- Switch to `ode_bdf` if stiff.
+- Increase `max_num_steps` as last resort.
 
-**Divergences**:
-- Use log-transforms for positive parameters
-- Use convergence-diagnostics skill for HMC-specific issues
-- Strengthen priors to avoid extreme parameter values
+**Divergences.**
+- Use log-transforms for positive parameters.
+- Use convergence-diagnostics skill for HMC-specific issues.
+- Strengthen priors to avoid extreme parameter values.
 
-**Performance**:
+**Performance.**
 - Use observation times only, not fine grids
 - Consider `reduce_sum` parallelization for multi-subject models
 - Ensure proper scaling (time and states near 1)

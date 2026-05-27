@@ -95,17 +95,17 @@ model {
 
 ## Hyperparameter Selection
 
-**`scale_global` (expected number of non-zero effects):**
-- Prior belief about sparsity
-- Rule of thumb: `scale_global = expected_p0 / sqrt(N)`
-- Example: expect 5 of 100 predictors non-zero with N=200 → `scale_global = 5/sqrt(200) ≈ 0.35`
-- Sensitivity: results often robust to values between `p0/(2*sqrt(N))` and `p0*2/sqrt(N)`
+**`scale_global` (expected number of non-zero effects).**
+- **Meaning.** Prior belief about sparsity.
+- **Rule of thumb.** `scale_global = expected_p0 / sqrt(N)`.
+- **Example.** Expect 5 of 100 predictors non-zero with N=200 → `scale_global = 5/sqrt(200) ≈ 0.35`.
+- **Sensitivity.** Results often robust to values between `p0/(2*sqrt(N))` and `p0*2/sqrt(N)`.
 
-**Student-t degrees of freedom (nu):**
-- `nu=1` (Cauchy): maximum heavy tails, most aggressive selection, can cause NaN
-- `nu=3`: good balance of heavy tails and stability (recommended)
-- `nu=7`: lighter tails, more regularization
-- Higher nu → closer to normal prior → less sparsity
+**Student-t degrees of freedom (nu).**
+- **`nu=1` (Cauchy).** Maximum heavy tails, most aggressive selection, can cause NaN.
+- **`nu=3`.** Good balance of heavy tails and stability (recommended).
+- **`nu=7`.** Lighter tails, more regularization.
+- **Higher nu.** Closer to normal prior → less sparsity.
 
 ## Convergence and Diagnostics
 
@@ -123,11 +123,11 @@ fit = model.sample(
 )
 ```
 
-**Check for issues:**
-- Divergent transitions: increase `adapt_delta` to 0.98 or use bounded parameterization
-- NaN in `lambda` or `tau`: switch to bounded or Student-t parameterization
-- Poor ESS for `lambda`: non-centered parameterization helps (use `z ~ normal(0,1)`)
-- Rhat > 1.01: run longer chains or increase warmup
+**Check for issues.**
+- **Divergent transitions.** Increase `adapt_delta` to 0.98 or use bounded parameterization.
+- **NaN in `lambda` or `tau`.** Switch to bounded or Student-t parameterization.
+- **Poor ESS for `lambda`.** Non-centered parameterization helps (use `z ~ normal(0,1)`).
+- **Rhat > 1.01.** Run longer chains or increase warmup.
 
 ## Post-Processing: Credible Intervals for Selection
 
@@ -146,19 +146,19 @@ selected = summary[mask].index.tolist()
 
 ## Common Failure Modes
 
-1. **NaN in lambda_tilde or tau**: Cauchy tails caused overflow
-   - Fix: Use bounded parameterization or Student-t(3)
+1. **NaN in `lambda_tilde` or `tau`.** Cauchy tails caused overflow.
+   - **Fix.** Use bounded parameterization or Student-t(3).
 
-2. **Divergent transitions**: Posterior has sharp boundaries
-   - Fix: Increase `adapt_delta` to 0.95 or 0.98
-   - Fix: Use non-centered parameterization
+2. **Divergent transitions.** Posterior has sharp boundaries.
+   - **Fix.** Increase `adapt_delta` to 0.95 or 0.98.
+   - **Fix.** Use non-centered parameterization.
 
-3. **All coefficients shrunk to zero**: Prior too strong
-   - Fix: Increase `scale_global`
-   - Fix: Reduce tau prior strength
+3. **All coefficients shrunk to zero.** Prior too strong.
+   - **Fix.** Increase `scale_global`.
+   - **Fix.** Reduce tau prior strength.
 
-4. **Insufficient ESS**: Non-centered parameterization not used
-   - Fix: Use `beta = z .* lambda * tau` with `z ~ std_normal()`
+4. **Insufficient ESS.** Non-centered parameterization not used.
+   - **Fix.** Use `beta = z .* lambda * tau` with `z ~ std_normal()`.
 
 ## References
 

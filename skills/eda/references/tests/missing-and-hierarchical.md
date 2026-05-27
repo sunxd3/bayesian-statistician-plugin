@@ -32,9 +32,9 @@ icc = var_between / (var_between + var_within)
 
 ## Missing Data Mechanisms
 
-- **MCAR**: Missingness is unrelated to observed and unobserved values. Complete-case analysis is less likely to bias estimates, but can still waste information.
-- **MAR**: Missingness depends on observed variables. This is usable only if the model or imputation conditions on the variables that explain missingness.
-- **MNAR**: Missingness depends on unobserved or missing values. This cannot be confirmed or ruled out from the observed data alone.
+- **MCAR.** Missingness is unrelated to observed and unobserved values. Complete-case analysis is less likely to bias estimates, but can still waste information.
+- **MAR.** Missingness depends on observed variables. This is usable only if the model or imputation conditions on the variables that explain missingness.
+- **MNAR.** Missingness depends on unobserved or missing values. This cannot be confirmed or ruled out from the observed data alone.
 
 Correctness notes:
 
@@ -46,14 +46,14 @@ Correctness notes:
 
 Bayesian implications:
 
-- MCAR plausible and low missingness: complete-case or simple imputation may be acceptable, with sample-size loss reported.
-- MAR plausible: model missing values jointly or impute using the variables and hierarchy that predict missingness.
-- MNAR plausible: require sensitivity analysis, selection models, pattern-mixture models, or explicit measurement process assumptions.
+- **MCAR plausible and low missingness.** Complete-case or simple imputation may be acceptable, with sample-size loss reported.
+- **MAR plausible.** Model missing values jointly or impute using the variables and hierarchy that predict missingness.
+- **MNAR plausible.** Require sensitivity analysis, selection models, pattern-mixture models, or explicit measurement process assumptions.
 
 ## Hierarchical Data
 
-- **ICC**: Fraction of outcome variance attributable to between-group variation in a one-way random-intercept approximation.
-- **Design effect**: `1 + (mean_cluster_size - 1) * ICC`, a rough warning about loss of independent information under clustered sampling.
+- **ICC.** Fraction of outcome variance attributable to between-group variation in a one-way random-intercept approximation.
+- **Design effect.** `1 + (mean_cluster_size - 1) * ICC`, a rough warning about loss of independent information under clustered sampling.
 
 Correctness notes:
 
@@ -65,10 +65,10 @@ Correctness notes:
 
 Bayesian implications:
 
-- Meaningful between-group variance: use hierarchical intercepts and group-aware validation.
-- Effects that vary by group: consider random slopes or hierarchical interactions.
-- Sparse groups or rare categories: prefer partial pooling over dropping or one-hot fixed effects.
-- Grouped observations invalidate ordinary observation-level LOO when the target task is prediction for new groups.
+- **Meaningful between-group variance.** Use hierarchical intercepts and group-aware validation.
+- **Effects that vary by group.** Consider random slopes or hierarchical interactions.
+- **Sparse groups or rare categories.** Prefer partial pooling over dropping or one-hot fixed effects.
+- **Grouped observations.** Invalidate ordinary observation-level LOO when the target task is prediction for new groups.
 
 ## Report
 

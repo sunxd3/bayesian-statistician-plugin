@@ -20,8 +20,8 @@ If the analysis purpose is inferential (see `analysis-design > Analysis purpose`
 
 Each experiment in the sequence must specify:
 
-- **Generative story** — full model specification (see the spec references in this skill — setup, likelihood, pooling-hierarchy, priors).
-- **What it tests** — which specific aspect of the structural question this experiment addresses.
-- **Resolution and falsification** — what outcome would answer the question in each direction, and what would invalidate the model (see `references/falsification`).
-- **Computational risks** — expected sampling difficulties and parameterization preferences (see `references/identifiability`).
-- **Key quantities of interest** — when the experiment plan defines target estimands, specify which model parameters or derived quantities correspond to them. Ensure these are identifiable and not absorbed by nuisance structure.
+- **Generative story.** Full model specification (see the spec references in this skill — setup, likelihood, pooling-hierarchy, priors).
+- **What it tests.** Which specific aspect of the structural question this experiment addresses.
+- **Resolution and falsification.** What outcome would answer the question in each direction, and what would invalidate the model (see `references/falsification`).
+- **Computational risks.** Expected sampling difficulties and parameterization preferences (see `references/identifiability`).
+- **Key quantities of interest.** When the experiment plan defines target estimands, specify which model parameters or derived quantities correspond to them. Ensure these are identifiable and not absorbed by nuisance structure.

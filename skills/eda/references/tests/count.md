@@ -33,8 +33,8 @@ For GLM fits, compute Pearson dispersion from `resid_pearson` and `df_resid`. Us
 ## Overdispersion
 
 - Marginal `variance > mean` is only a first hint. The relevant question is whether counts are overdispersed conditional on exposure and predictors.
-- **Pearson dispersion**: `sum(Pearson residual^2) / df_resid`. Values well above 1 indicate extra-Poisson variation; values above 2 are a strong warning.
-- **Cameron-Trivedi / related tests**: statsmodels `PoissonResults.get_diagnostic().test_dispersion()` includes CT-style alternatives for Poisson post-estimation diagnostics.
+- **Pearson dispersion.** `sum(Pearson residual^2) / df_resid`. Values well above 1 indicate extra-Poisson variation; values above 2 are a strong warning.
+- **Cameron-Trivedi / related tests.** Statsmodels `PoissonResults.get_diagnostic().test_dispersion()` includes CT-style alternatives for Poisson post-estimation diagnostics.
 
 Correctness notes:
 
@@ -60,11 +60,11 @@ Correctness notes:
 
 ## Bayesian Modeling Implications
 
-- Exposure or population-at-risk present: include an offset or exposure term.
-- Conditional overdispersion: compare Poisson, Negative Binomial, Poisson-lognormal, or hierarchical Poisson.
-- Excess zeros after overdispersion is addressed: compare zero-inflated or hurdle structure.
-- Upper-bounded counts: consider Binomial/Beta-Binomial rather than Poisson/NB.
-- Underdispersion: consider Generalized Poisson, Conway-Maxwell-Poisson, Binomial, or missing bounded-support structure.
+- **Exposure or population-at-risk present.** Include an offset or exposure term.
+- **Conditional overdispersion.** Compare Poisson, Negative Binomial, Poisson-lognormal, or hierarchical Poisson.
+- **Excess zeros after overdispersion is addressed.** Compare zero-inflated or hurdle structure.
+- **Upper-bounded counts.** Consider Binomial/Beta-Binomial rather than Poisson/NB.
+- **Underdispersion.** Consider Generalized Poisson, Conway-Maxwell-Poisson, Binomial, or missing bounded-support structure.
 
 ## Report
 

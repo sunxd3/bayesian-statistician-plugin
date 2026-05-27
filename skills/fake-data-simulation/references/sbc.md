@@ -36,9 +36,9 @@ Deviations from uniform indicate miscalibration:
 
 ## Stan ecosystem support
 
-- **`SBC` R package** (Hyunji Moon, Martin Modrák, et al.) — full SBC pipeline with rank histograms and ECDF plots.
-- **Stan User's Guide**: see [Simulation-Based Calibration](https://mc-stan.org/docs/stan-users-guide/simulation-based-calibration.html).
-- **CmdStanPy**: no first-class SBC harness; implement by looping `fit_model` over replicates and accumulating ranks.
+- **`SBC` R package** (Hyunji Moon, Martin Modrák, et al.). Full SBC pipeline with rank histograms and ECDF plots.
+- **Stan User's Guide.** See [Simulation-Based Calibration](https://mc-stan.org/docs/stan-users-guide/simulation-based-calibration.html).
+- **CmdStanPy.** No first-class SBC harness; implement by looping `fit_model` over replicates and accumulating ranks.
 
 ## Cost note
 

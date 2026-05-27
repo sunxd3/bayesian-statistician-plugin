@@ -28,8 +28,8 @@ ambiguous, return ONLY:
 Use `ls` (via the Bash tool) to verify the paths listed in your
 `**Filesystem (...):**` line(s). Choose the exception type by source:
 
-- **Direct input path missing** → `[EXCEPTION] PreconditionFailed: '<path>' does not exist.`
-- **Upstream artifact missing** (a file produced by a prior phase/subagent) → `[EXCEPTION] DependencyMissing: '<path>' — <reason>.`
+- **Direct input path missing.** Return `[EXCEPTION] PreconditionFailed: '<path>' does not exist.`
+- **Upstream artifact missing** (a file produced by a prior phase/subagent). Return `[EXCEPTION] DependencyMissing: '<path>' — <reason>.`
 
 ## Stop rule
 

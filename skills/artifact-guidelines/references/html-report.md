@@ -77,12 +77,12 @@ Use color sparingly. Body text is `--ink`; links and key statistical results are
 
 ## Visual conventions
 
-- **Section rules**: each `<h2>` preceded by a hairline rule (`border-top: 1px solid var(--rule)`) and generous top padding. No icons, no badges.
-- **First letter of headline summary**: optionally a drop cap in Fraunces 800.
-- **Figures**: `<figure>` with `<img>`, `<figcaption>` in italic Source Sans, `--ink-muted`. Reference plots by their filename in the caption too, so readers can find them on disk.
-- **Tables**: thin borders only between rows, no vertical lines. Header row in `--bg-soft`. Numeric columns right-aligned, tabular figures via JetBrains Mono. Variable names in monospace.
-- **Inline statistics**: render `r = +0.40` or `ICC = 0.43` in JetBrains Mono with `color: var(--accent)`.
-- **Hypothesis blocks**: use `<aside>` or `<div class="hypothesis">` with `background: var(--bg-soft)` and a left border in `--accent`. One per story.
+- **Section rules.** Each `<h2>` preceded by a hairline rule (`border-top: 1px solid var(--rule)`) and generous top padding. No icons, no badges.
+- **First letter of headline summary.** Optionally a drop cap in Fraunces 800.
+- **Figures.** `<figure>` with `<img>`, `<figcaption>` in italic Source Sans, `--ink-muted`. Reference plots by their filename in the caption too, so readers can find them on disk.
+- **Tables.** Thin borders only between rows, no vertical lines. Header row in `--bg-soft`. Numeric columns right-aligned, tabular figures via JetBrains Mono. Variable names in monospace.
+- **Inline statistics.** Render `r = +0.40` or `ICC = 0.43` in JetBrains Mono with `color: var(--accent)`.
+- **Hypothesis blocks.** Use `<aside>` or `<div class="hypothesis">` with `background: var(--bg-soft)` and a left border in `--accent`. One per story.
 
 ## Embedding plots
 

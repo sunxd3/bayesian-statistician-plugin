@@ -31,12 +31,12 @@ structural question, see `generative-model-design`.
 
 Determine the goal type from the user's prompt and the data's nature:
 
-- **Descriptive** (default for minimal prompts): characterize the
+- **Descriptive** (default for minimal prompts). Characterize the
   data-generating process with honest uncertainty.
-- **Inferential**: estimate a specific causal or conditional effect. Prioritize
+- **Inferential.** Estimate a specific causal or conditional effect. Prioritize
   unconfounded estimation of target parameters; do not add flexible structures
   that absorb the estimand's signal.
-- **Predictive**: maximize out-of-sample performance; parameter
+- **Predictive.** Maximize out-of-sample performance; parameter
   interpretability is secondary.
 
 Define 1-3 **key quantities of interest** and state what **adequate** means —

@@ -12,15 +12,15 @@ For *which folder*, see `orchestration > Canonical Structure`.
 
 ## Format choice
 
-- **Final reports** (any phase deliverable — EDA, critique, posterior predictive,
-  population assessment, final synthesis) → HTML. See `references/html-report.md`.
-- **Logs and intermediate notes** (`log.md`, README notes, working scratch) →
+- **Final reports.** Any phase deliverable — EDA, critique, posterior predictive,
+  population assessment, final synthesis — uses HTML. See `references/html-report.md`.
+- **Logs and intermediate notes.** `log.md`, README notes, working scratch — use
   Markdown. See `references/markdown-report.md`.
 - Never use plain `.txt`.
 
 ## Figure conventions
 
-- Descriptive filenames: `group_washout_curves.png`, not `fig1.png`.
+- Use descriptive filenames (`group_washout_curves.png`, not `fig1.png`).
 - One concept per figure; multi-panel only when the comparison demands it (max 2×2).
 - Save next to the report that cites them; reference via relative path in `<img src>`.
 - 300 DPI for report figures, 150 DPI for exploratory plots.
@@ -30,9 +30,9 @@ For *which folder*, see `orchestration > Canonical Structure`.
 Generate fewer, better files:
 
 - One Stan model per `.stan` file.
-- Python scripts: one logical step per file (compile, fit, diagnose, plot),
-  not one monolithic analysis. See `python-environment > Script Structure`.
-- Descriptive names: `fit_hierarchical_model.py`, not `model.py`.
+- One logical step per Python script (compile, fit, diagnose, plot), not one
+  monolithic analysis. See `python-environment > Script Structure`.
+- Use descriptive script names (`fit_hierarchical_model.py`, not `model.py`).
 - One consolidated report per phase, not ten partial analyses.
 - Combine related visualisations into multi-panel figures when comparison is
   the point.

@@ -7,7 +7,7 @@ description: Best practices for writing efficient, clean Stan programs. Covers s
 
 Use this skill when writing or modifying Stan programs to ensure clean, efficient code.
 
-**Specialized patterns** — read the reference on demand:
+**Specialized patterns.** Read the reference on demand:
 - `references/ode.md` — ODE-based dynamics (SIR/SEIR, PK/PD, population, biochemical, growth models) using Stan 2.24+ modern interfaces (`ode_rk45`, `ode_bdf`, `ode_adams`, adjoint).
 - `references/horseshoe.md` — horseshoe priors for sparse regression (automatic variable selection, regularized horseshoe).
 
@@ -16,36 +16,36 @@ Use this skill when writing or modifying Stan programs to ensure clean, efficien
 Use canonical block order: `functions`, `data`, `transformed data`, `parameters`, `transformed parameters`, `model`, `generated quantities`.
 
 Follow Stan style:
-- Two-space indents, no tabs, ≤80 character lines
-- Opening braces at end of line: `for (n in 1:N) {`
-- Spaces around operators and after commas
-- Variable names: lowercase with underscores (`sigma_y`, `mu_group`)
-- Dimension constants: single uppercase letters (`N`, `K`, `J`)
-- Declare locals close to use; scalars inside loops, reused containers outside
+- **Indentation.** Two-space, no tabs, ≤80 character lines.
+- **Braces.** Opening brace at end of line: `for (n in 1:N) {`.
+- **Spacing.** Spaces around operators and after commas.
+- **Variable names.** Lowercase with underscores (`sigma_y`, `mu_group`).
+- **Dimension constants.** Single uppercase letters (`N`, `K`, `J`).
+- **Local declarations.** Close to use; scalars inside loops, reused containers outside.
 
 ## Types and Containers
 
 Use appropriate types:
-- Linear algebra: `matrix`, `vector`, `row_vector` with matrix operations (`x * beta`)
-- Indexing/containers: `array[N] real y` (not legacy `real y[N]`)
-- Repeated row access: `array[M] row_vector[N] x` over `matrix[M, N]`
-- Heterogeneous returns: `tuple(...)` for multiple values
-- Sum-to-zero: `sum_to_zero_vector`, `sum_to_zero_matrix` instead of manual constraints
-- Stochastic matrices: `row_stochastic_matrix[M, N]` (each row is a simplex), `column_stochastic_matrix[M, N]` (each column is a simplex) — use for HMM transition/emission matrices
-- Mixtures: declare component location parameters as `ordered[K]` to break label-switching symmetry. Without this, the posterior has K! equivalent modes and NUTS wastes hours producing unusable samples. Even with ordering, components with the same functional form can still exhibit continuous degeneracies (component collapse) — each component should correspond to a distinct physical process. Label-switching causes catastrophic R-hat (>10) without divergences; the fix is ordering constraints, not longer chains
+- **Linear algebra.** `matrix`, `vector`, `row_vector` with matrix operations (`x * beta`).
+- **Indexing/containers.** `array[N] real y` (not legacy `real y[N]`).
+- **Repeated row access.** `array[M] row_vector[N] x` over `matrix[M, N]`.
+- **Heterogeneous returns.** `tuple(...)` for multiple values.
+- **Sum-to-zero.** `sum_to_zero_vector`, `sum_to_zero_matrix` instead of manual constraints.
+- **Stochastic matrices.** `row_stochastic_matrix[M, N]` (each row is a simplex), `column_stochastic_matrix[M, N]` (each column is a simplex) — use for HMM transition/emission matrices.
+- **Mixtures.** Declare component location parameters as `ordered[K]` to break label-switching symmetry. Without this, the posterior has K! equivalent modes and NUTS wastes hours producing unusable samples. Even with ordering, components with the same functional form can still exhibit continuous degeneracies (component collapse) — each component should correspond to a distinct physical process. Label-switching causes catastrophic R-hat (>10) without divergences; the fix is ordering constraints, not longer chains.
 
 Memory layout: matrices are column-major, arrays are row-major.
 
 ## Distributions and Vectorization
 
 Always use log form:
-- Write `y ~ normal(mu, sigma)` or `target += normal_lpdf(y | mu, sigma)`
-- Vectorize: `y ~ normal(mu, sigma)` for arrays, not loops
-- Use GLM functions: `bernoulli_logit_glm`, `poisson_log_glm`, `normal_id_glm`
-- Precompute shared expressions: compute `mu = X * beta` once, reuse
-- Finite mixtures: use `log_sum_exp` on log scale
+- **Density notation.** Write `y ~ normal(mu, sigma)` or `target += normal_lpdf(y | mu, sigma)`.
+- **Vectorization.** `y ~ normal(mu, sigma)` for arrays, not loops.
+- **GLM functions.** Use `bernoulli_logit_glm`, `poisson_log_glm`, `normal_id_glm`.
+- **Precomputation.** Compute shared expressions once (e.g., `mu = X * beta`) and reuse.
+- **Finite mixtures.** Use `log_sum_exp` on log scale.
 
-**Boolean aggregation in generated quantities:**
+**Boolean aggregation in generated quantities.**
 Stan does NOT support vectorized boolean comparisons. Use loops:
 ```stan
 // ❌ WRONG - causes semantic error
@@ -61,11 +61,11 @@ for (n in 1:N) {
 ## Parameterization
 
 Use constrained types over manual checks:
-- `<lower=0>`, `<upper=...>`, `ordered`, `positive_ordered`, `simplex`, `unit_vector`
-- Covariance (K≥3): `cholesky_factor_corr[K] L_Omega` with `multi_normal_cholesky`
-- Sum-to-zero: use built-in types, not "last element = minus sum"
+- **Common constraints.** `<lower=0>`, `<upper=...>`, `ordered`, `positive_ordered`, `simplex`, `unit_vector`.
+- **Covariance (K≥3).** `cholesky_factor_corr[K] L_Omega` with `multi_normal_cholesky`.
+- **Sum-to-zero.** Use built-in types, not "last element = minus sum".
 
-**Non-centered via offset/multiplier:**
+**Non-centered via offset/multiplier.**
 ```stan
 // Instead of manual non-centered:
 //   vector[J] z; ... theta = mu + sigma * z;
@@ -103,9 +103,9 @@ model {
 Heuristic: histogram observation counts per group. Groups with >25 observations → centered; sparse groups → non-centered. Split at natural gaps in the count distribution.
 
 **Tau prior and parameterization are coupled decisions:**
-- Non-centered + infinity-suppressing tau prior (`half_normal`, `exponential`): most robust default when testing whether heterogeneity exists (expanding from homogeneous model).
-- Centered + zero-suppressing tau prior: appropriate when testing whether groups share information (expanding from unpooled model).
-- Never choose parameterization and tau prior independently — they are complementary.
+- **Non-centered + infinity-suppressing tau prior** (`half_normal`, `exponential`). Most robust default when testing whether heterogeneity exists (expanding from homogeneous model).
+- **Centered + zero-suppressing tau prior.** Appropriate when testing whether groups share information (expanding from unpooled model).
+- **Coupling discipline.** Never choose parameterization and tau prior independently — they are complementary.
 
 **QR reparameterization for correlated predictors:**
 When predictors are correlated, coefficient posteriors have difficult geometry. Decorrelate via QR:
@@ -145,9 +145,9 @@ For large-N models with independent terms, use `reduce_sum`:
 ## Functions
 
 Modularize complex logic in `functions` block:
-- Reused operations, complex math, custom likelihoods
-- Signature: data arguments first, then parameters, then tuning constants
-- Use `tuple` returns for multiple heterogeneous outputs
+- **Use cases.** Reused operations, complex math, custom likelihoods.
+- **Argument order.** Data first, then parameters, then tuning constants.
+- **Multiple returns.** Use `tuple` for heterogeneous outputs.
 
 **Common function name errors:**
 - Use `abs()` NOT `fabs()` - Stan renamed it from C conventions
@@ -210,8 +210,8 @@ For InferenceData group structure and naming conventions, see `inferencedata-han
 
 GQ-only programs are Stan programs without `parameters` or `model` blocks. They run via `fixed_param=True` (with `iter_warmup=0, adapt_engaged=False`) and produce synthetic data via `_rng` calls. Two patterns:
 
-- **Prior simulation** — sample parameters from priors, generate `y_rep` (Pattern 1).
-- **Data simulator** — take known parameter values as `data{}` input, generate `y_rep` (Pattern 2).
+- **Prior simulation.** Sample parameters from priors, generate `y_rep` (Pattern 1).
+- **Data simulator.** Take known parameter values as `data{}` input, generate `y_rep` (Pattern 2).
 
 For the methodology (why Stan must own data generation, what the line-by-line mirror invariant means), see `fake-data-simulation > Key Practice — Stan is the single source of truth`. For the Python workflow (compile, run with `fixed_param`, convert, save), see `python-environment > Common workflows`.
 
@@ -280,18 +280,18 @@ generated quantities {
 - For `simplex` vectors: `dirichlet_rng(alpha)`
 - For `cholesky_factor_corr`: `lkj_corr_cholesky_rng(K, eta)` (Stan ≥ 2.32)
 - For multivariate normals: `multi_normal_rng(mu, Sigma)` or `multi_normal_cholesky_rng(mu, L)`
-- **Subsampling for large N**: When N > 2000, subsample the data dict in Python before passing to Stan (fewer rows, adjusted N). The Stan program is unchanged.
+- **Subsampling for large N.** When N > 2000, subsample the data dict in Python before passing to Stan (fewer rows, adjusted N). The Stan program is unchanged.
 
 **Do NOT** run `fit_model(fixed_param=True)` on the main inference model for prior simulation — `fixed_param=True` does not sample from priors in the `parameters{}` block; it holds them at their initial values. Always use a GQ-only `prior_model.stan`.
 
 ## Known Issues
 
-- **CmdStanPy `diagnose()` OOMs** on large data (N > 10K). Use `check_convergence()` from `shared_utils` instead.
-- **ArviZ column names** are lowercase (`r_hat`, `ess_bulk`). CmdStanPy uses uppercase (`R_hat`, `ESS_bulk`).
-- **CmdStanPy summary columns renamed**: `N_Eff` → `ESS_bulk`, `N_eff` → `ESS_tail`. Use the ESS_* names.
-- **Stan CSV columns** use dots: `beta.1` not `beta[1]`.
-- **ArviZ expects specific group names**: ensure `y` in `observed_data` and `y_rep` in `posterior_predictive` exist.
-- **NumPy 2.x removed `np.trapz`**: use `scipy.integrate.trapezoid` instead.
+- **CmdStanPy `diagnose()` OOMs.** Fails on large data (N > 10K). Use `check_convergence()` from `shared_utils` instead.
+- **ArviZ column names.** Lowercase (`r_hat`, `ess_bulk`). CmdStanPy uses uppercase (`R_hat`, `ESS_bulk`).
+- **CmdStanPy summary columns renamed.** `N_Eff` → `ESS_bulk`, `N_eff` → `ESS_tail`. Use the ESS_* names.
+- **Stan CSV columns.** Use dots: `beta.1` not `beta[1]`.
+- **ArviZ expects specific group names.** Ensure `y` in `observed_data` and `y_rep` in `posterior_predictive` exist.
+- **NumPy 2.x removed `np.trapz`.** Use `scipy.integrate.trapezoid` instead.
 
 ## Numerical Stability
 

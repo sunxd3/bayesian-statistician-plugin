@@ -34,11 +34,11 @@ See `inferencedata-handling` for converting `fit` → InferenceData.
 ## Thresholds
 
 Must achieve:
-- **R̂ < 1.01** (all parameters) — measures chain agreement
-- **ESS bulk and tail ≥ 400** per parameter — enough effective draws
-- **BFMI ≥ 0.3** per chain — adequate energy exploration
-- **MCSE << posterior SD** — Monte Carlo error small relative to uncertainty
-- **No divergent transitions** after warmup
+- **R̂ < 1.01** (all parameters). Measures chain agreement.
+- **ESS bulk and tail ≥ 400** per parameter. Enough effective draws.
+- **BFMI ≥ 0.3** per chain. Adequate energy exploration.
+- **MCSE << posterior SD.** Monte Carlo error small relative to uncertainty.
+- **No divergent transitions** after warmup.
 
 ## Visual Diagnostics
 
@@ -80,7 +80,7 @@ Signs of non-identifiability despite clean convergence:
 - Pairs plots show ridge, surface, or circular structures (parameters trade off against each other)
 - Posterior SDs do not shrink proportional to 1/√N when data size increases
 - Parameter pairs with |correlation| > 0.95
-- Mixture models: R-hat > 10 for component parameters without any divergences (label-switching). Fix with ordering constraints, not longer chains.
+- Mixture-model components show R-hat > 10 without divergences (label-switching); fix with ordering constraints, not longer chains.
 
 If suspected: classify the degeneracy (additive redundancy `a+b=const`,
 multiplicative `a×b=const`, label symmetry) and reparameterize to identified

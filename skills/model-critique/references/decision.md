@@ -2,21 +2,21 @@
 
 ## Verdict categories
 
-**VIABLE** — the model passes statistical validation, its scientific structure is appropriate for the domain, and the framework is defensible given the available data. Even viable models should be improved. Identify:
+**VIABLE.** The model passes statistical validation, its scientific structure is appropriate for the domain, and the framework is defensible given the available data. Even viable models should be improved. Identify:
 
-- **Weaknesses** — specific patterns in residuals, calibration issues, missing structure.
-- **Simplifications** — could a simpler version work?
-- **Extensions** — what structure might improve fit?
-- **Domain suggestions** — domain-motivated improvements (prioritized).
-- **New questions** — if the critique reveals something genuinely surprising (unexpected residual structure, a parameter collapsing to zero, a domain mechanism not anticipated by the original structural questions), flag it as a potential new structural question for the orchestrator to explore.
+- **Weaknesses.** Specific patterns in residuals, calibration issues, missing structure.
+- **Simplifications.** Could a simpler version work?
+- **Extensions.** What structure might improve fit?
+- **Domain suggestions.** Domain-motivated improvements (prioritized).
+- **New questions.** If the critique reveals something genuinely surprising (unexpected residual structure, a parameter collapsing to zero, a domain mechanism not anticipated by the original structural questions), flag it as a potential new structural question for the orchestrator to explore.
 
 Base suggestions on diagnostic evidence, not arbitrary elaboration. When identifying weaknesses, cite the specific summary statistic or data feature. Each suggested extension should nest the current model.
 
 For inferential or descriptive goals (see `analysis-design > Analysis purpose`), a model with slightly worse PPC calibration may still be preferred if it yields more precise and interpretable estimates of the target estimand. Do not reject a model solely for marginal PPC issues if the core generative structure is sound and the estimand is well-identified.
 
-**CONCERNS** — the model is statistically viable but has domain or framework issues that weaken its scientific validity. List concerns in priority order using the template below.
+**CONCERNS.** The model is statistically viable but has domain or framework issues that weaken its scientific validity. List concerns in priority order using the template below.
 
-**BROKEN** — at least one of:
+**BROKEN.** At least one of:
 
 - Persistent computational failures (divergences, non-convergence).
 - Fundamental misspecification (cannot reproduce basic data features).

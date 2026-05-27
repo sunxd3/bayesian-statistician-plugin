@@ -39,5 +39,5 @@ Before writing the report, compute practical implications of the findings:
 
 - **Quantify uncertainty.** Never report point estimates without intervals or posterior summaries.
 - **Connect to the analysis purpose.** State what decision each finding informs, and what was learned about the target quantities defined in the experiment plan.
-- **Define domain terms on first use** so non-specialist readers can follow.
+- **Define domain terms on first use.** Non-specialist readers should be able to follow.
 - **Report negative results.** A structure that the data did not support is an answer.

@@ -15,7 +15,7 @@ code can rely on them, and (b) the manual conversion pattern when you need it.
 
 ## Conversion pattern
 
-**Never use bare `az.from_cmdstanpy(fit)`** — it dumps everything into the
+**Never use bare `az.from_cmdstanpy(fit)`.** It dumps everything into the
 `posterior` group, breaking downstream PPC, LOO, and prior workflows.
 
 ```python

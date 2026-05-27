@@ -18,7 +18,7 @@ Core principles:
 - Specify priors explicitly and validate via prior predictive checks
 - Use full posterior inference (not MLE/MAP)
 - Validate models with posterior predictive checks and parameter recovery checks
-- Check diagnostics: R-hat, ESS, divergences, trace plots
+- Check diagnostics (R-hat, ESS, divergences, trace plots)
 - Compare models via predictive performance (LOO, WAIC)
 - Consider hierarchical structures when data has grouping/repeated measures
 - Flag computational issues (identifiability, convergence, misspecification) when relevant
@@ -47,28 +47,28 @@ report content in their reply — read the report file when you need detail.
 
 Use TaskCreate/TaskUpdate for real-time task tracking (ephemeral, current session). Separately, maintain `log.md` as a lab notebook — a chronological, honest record of what happened, what surprised you, and what you learned. Write entries as you go, not as a polished retrospective.
 
-**Append-only**: never rewrite or delete past entries to make the process look cleaner. Mistakes and dead ends are part of the record.
+**Append-only.** Never rewrite or delete past entries to make the process look cleaner. Mistakes and dead ends are part of the record.
 
 ### What to record
 
-**Failures and dead ends** — with enough detail to learn from. Record the actual error or symptom, what you tried, and the outcome. Summarize tracebacks; do not paste raw error dumps.
-- Bad: "Exp 3 recovery check failed, moved to Exp 4"
-- Good: "Exp 3 recovery: KeyError on '5%' column (CmdStanPy quantile labels). Fixed, but beta_temp bias 0.4σ. Skipped; Exp 4 recovered clean."
+**Failures and dead ends.** Record with enough detail to learn from — the actual error or symptom, what you tried, and the outcome. Summarize tracebacks; do not paste raw error dumps.
+- **Bad.** "Exp 3 recovery check failed, moved to Exp 4."
+- **Good.** "Exp 3 recovery: KeyError on '5%' column (CmdStanPy quantile labels). Fixed, but beta_temp bias 0.4σ. Skipped; Exp 4 recovered clean."
 
-**Quantitative observations** — not just PASS/FAIL. After fits: wall time, divergences, treedepth, ESS minimums. After PPCs: coverage, LOO-PIT summary, residual patterns.
-- Bad: "Prior predictive check passed"
-- Good: "Prior PPC: 4% negative draws, prior 95% CI for mu [12, 340] vs observed [45, 280]. Reasonable."
+**Quantitative observations.** Not just PASS/FAIL. After fits: wall time, divergences, treedepth, ESS minimums. After PPCs: coverage, LOO-PIT summary, residual patterns.
+- **Bad.** "Prior predictive check passed."
+- **Good.** "Prior PPC: 4% negative draws, prior 95% CI for mu [12, 340] vs observed [45, 280]. Reasonable."
 
-**Surprises and intermediate observations** — things you didn't expect. These are often more valuable than conclusions.
+**Surprises and intermediate observations.** Things you didn't expect. These are often more valuable than conclusions.
 - "sigma_group piling up near zero — day RE may not be needed"
 - "EDA suggested AR(1) but day-level RE absorbed most autocorrelation — didn't expect that"
 
-**Cross-references** — link to files so the trail is followable.
+**Cross-references.** Link to files so the trail is followable.
 - "See `experiments/exp2/critique/critique_report.html` for full diagnostics"
 
-**Phase transitions and key decisions** — why you chose paths, skipped models, or revised approaches.
+**Phase transitions and key decisions.** Why you chose paths, skipped models, or revised approaches.
 
-**Question status** — track what you're learning about each structural question. When evidence accumulates (a model passes or fails, a critique reveals something), note what it means for the question. When a question is resolved — either answered or shown to be unresolvable with the available data — record the answer and the evidence that settled it.
+**Question status.** Track what you're learning about each structural question. When evidence accumulates (a model passes or fails, a critique reveals something), note what it means for the question. When a question is resolved — either answered or shown to be unresolvable with the available data — record the answer and the evidence that settled it.
 - "Q1 (day-level RE): exp_1 baseline vs exp_2 with day RE — ELPD +42±8, day RE clearly needed. Resolved: yes, day-level variation matters."
 - "Q2 (weather effects): exp_3 added weather → ELPD +3±5, not distinguishable. Critique found residual seasonal pattern — new question: is it annual cycle, not weather?"
 
@@ -125,11 +125,11 @@ Pool at any moment:
 └─ "prior-predictive-checker exp_B1_fix1" (re-entering after refine)
 ```
 
-**Task tracking**: Use `TaskCreate`/`TaskUpdate`/`TaskList` to track subagent dispatch. Two states only:
+**Task tracking.** Use `TaskCreate`/`TaskUpdate`/`TaskList` to track subagent dispatch. Two states only:
 - Task exists, not completed → needs to be launched
 - Task completed → done, never re-launch
 
-**Main loop**:
+**Main loop.**
 1. Initialize: `TaskCreate("prior-predictive-checker {exp_id}")` for each experiment from experiment_plan
 2. While any task not completed:
    a. `TaskList` to find incomplete tasks — **always check before dispatching**
@@ -142,9 +142,9 @@ Pool at any moment:
       - **Critique BROKEN** → invoke `model-refiner` (FIX), `TaskCreate("prior-predictive-checker {variant}")` or skip
 3. All tasks completed → invoke `model-selector`
 
-**Compaction safety**: After context compression, `TaskList` is the ground truth. Always check it before dispatching. If a completed task's outcome is unclear, read its report file in the canonical location to determine the next step. Never re-launch a completed task.
+**Compaction safety.** After context compression, `TaskList` is the ground truth. Always check it before dispatching. If a completed task's outcome is unclear, read its report file in the canonical location to determine the next step. Never re-launch a completed task.
 
-**Task granularity**: One task per experiment per pipeline stage — NOT coarse phase-level tasks.
+**Task granularity.** One task per experiment per pipeline stage — NOT coarse phase-level tasks.
 
 ```
 Correct (per-experiment, per-stage):
@@ -158,14 +158,14 @@ Wrong (phase-level):
 TaskCreate("Phase 3: Model Development")  ← too coarse, no pipeline enforcement
 ```
 
-**Sync points**: Only sync after all experiments reach terminal state (all tasks completed or experiments skipped). Fast experiments finish while slow ones are still being refined.
+**Sync points.** Only sync after all experiments reach terminal state (all tasks completed or experiments skipped). Fast experiments finish while slow ones are still being refined.
 
 ## Technical Stack
 
-- Bayesian inference: Stan via CmdStanPy, ArviZ for diagnostics
-- Package management: `uv` exclusively (never bare `python` or `pip`)
-- First run: set up the Python environment (dependencies + bundled `shared_utils`) by running the `/bayesian-workflow:setup` command. Check for `./pyproject.toml` and `./shared_utils/` first — the user may have already run it.
-- Scripts should be self-contained and run with `uv run`
+- **Bayesian inference.** Stan via CmdStanPy, ArviZ for diagnostics.
+- **Package management.** `uv` exclusively (never bare `python` or `pip`).
+- **First run.** Set up the Python environment (dependencies + bundled `shared_utils`) by running the `/bayesian-workflow:setup` command. Check for `./pyproject.toml` and `./shared_utils/` first — the user may have already run it.
+- **Scripts.** Self-contained and run with `uv run`.
 
 Every accepted Bayesian model must use Stan via CmdStanPy for posterior inference with NUTS. Do not substitute MLE/MAP for full Bayesian inference, use non-PPL implementations as final models, or label bootstrap-based checks as posterior predictive checks.
 
@@ -251,13 +251,13 @@ Use the task pool (see "Task Pool for Pipeline Flow") to validate all experiment
 
 The `critique` agent performs statistical assessment, domain assessment, and framework questioning in a single pass.
 
-**Failure handling**:
+**Failure handling.**
 - Any stage fails → invoke `model-refiner` once, re-enter at failed stage
 - Refine fails → skip experiment
-- Special case: If a structural question's baseline variant fails pre-fit (prior or recovery), skip all experiments for that question after one refine attempt
-- **Global budget**: Each experiment has a maximum of TWO `model-refiner` invocations across its entire lifecycle (all stages combined). If it fails a third time at any stage, mark it skipped.
+- **Special case.** If a structural question's baseline variant fails pre-fit (prior or recovery), skip all experiments for that question after one refine attempt.
+- **Global budget.** Each experiment has a maximum of TWO `model-refiner` invocations across its entire lifecycle (all stages combined). If it fails a third time at any stage, mark it skipped.
 
-**Critique-driven iteration (REQUIRED)**:
+**Critique-driven iteration (REQUIRED).**
 When `critique` returns VIABLE or CONCERNS with improvement suggestions, you MUST:
 1. Invoke `model-refiner` in EXPLORE mode with the specific suggestions (prioritize PRIORITY 1 concerns — especially framework concerns)
 2. Create a modified variant (e.g., `exp_1_v2`, `exp_1_robust`)
@@ -270,7 +270,7 @@ The goal is to **iterate until reasonable modifications stop helping**, not just
 
 Do NOT skip directly to model selection after initial experiments. Do NOT stop after one iteration if the modification helped and critique suggests further improvements.
 
-**Discovery-driven questions**:
+**Discovery-driven questions.**
 Critique and selection are not just quality gates — they are sources of new hypotheses. When critique reveals something genuinely surprising (unexpected residual structure, a parameter collapsing to zero, a domain mechanism that the original questions didn't anticipate, or unused data that could support a better framework), this may warrant a **new structural question** rather than a tactical refinement of the existing model.
 
 Distinguish between:
@@ -286,13 +286,13 @@ This is the scientific process: hypothesize → test → observe → generate ne
 
 **When all experiments terminal** → invoke `model-selector` with experiments that completed critique with VIABLE or CONCERNS verdict (exclude BROKEN — they were sent to refinement or skipped):
 - Compares validated experiments using the comparison method appropriate to the data structure
-- **CONTINUE_QUESTION**: `model-refiner` generates new variants → add to task pool
-- **SWITCH_QUESTION**: This question is resolved; move focus to next question
-- **ADEQUATE/EXHAUSTED**: The selector's assessment includes a **Coverage Audit** section
+- **CONTINUE_QUESTION.** `model-refiner` generates new variants → add to task pool.
+- **SWITCH_QUESTION.** This question is resolved; move focus to next question.
+- **ADEQUATE / EXHAUSTED.** The selector's assessment includes a **Coverage Audit** section.
 
 The selector may also report **new structural questions** discovered from model comparison (unexpected patterns, discriminating features) alongside any of the above decisions. If present, invoke `model-designer` with each new question, using the current best model as `baseline_spec`.
 
-**Coverage audit**: When the `model-selector` subagent returns ADEQUATE or EXHAUSTED, read its `COVERAGE:` section from `experiments/population_assessment.html`. If `COVERAGE: GAPS`, invoke `model-designer` for each gap (using the current best model as `baseline_spec`) and add the resulting experiments to the task pool. If `COVERAGE: COMPLETE`, proceed to reporting.
+**Coverage audit.** When the `model-selector` subagent returns ADEQUATE or EXHAUSTED, read its `COVERAGE:` section from `experiments/population_assessment.html`. If `COVERAGE: GAPS`, invoke `model-designer` for each gap (using the current best model as `baseline_spec`) and add the resulting experiments to the task pool. If `COVERAGE: COMPLETE`, proceed to reporting.
 
 ### Phase 4: Reporting → `final_report.html`
 Invoke `report-writer` with the selected model's experiment directory (`selected_model_dir`). The `report-writer` subagent will compute practical contrasts and write the final report.

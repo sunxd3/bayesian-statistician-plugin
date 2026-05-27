@@ -49,16 +49,16 @@ canonical script.
 
 Compare the fitted posterior to the truth:
 
-- **Recovery**: posterior means/medians within a few standard errors of the true values
-- **Coverage**: posterior credible intervals contain the true values
-- **Convergence**: MCMC converges on the synthetic data without major issues (R-hat, ESS, divergences)
-- **Identifiability**: no wild parameter uncertainty or correlations that prevent recovery
-- **Computational stability**: fits complete without errors
+- **Recovery.** Posterior means/medians within a few standard errors of the true values.
+- **Coverage.** Posterior credible intervals contain the true values.
+- **Convergence.** MCMC converges on the synthetic data without major issues (R-hat, ESS, divergences).
+- **Identifiability.** No wild parameter uncertainty or correlations that prevent recovery.
+- **Computational stability.** Fits complete without errors.
 
 ## Visualization
 
-- **Scatter**: posterior mean (y) vs true value (x), one point per parameter. Should track near the identity line with mild shrinkage.
-- **Interval plot**: for each parameter, plot the posterior credible interval with the true value overlaid as a point or vertical line.
+- **Scatter.** Posterior mean (y) vs true value (x), one point per parameter. Should track near the identity line with mild shrinkage.
+- **Interval plot.** For each parameter, plot the posterior credible interval with the true value overlaid as a point or vertical line.
 
 Look for:
 - Catastrophic failures (flat line, no learning of the truth)

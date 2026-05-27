@@ -4,9 +4,9 @@ Use Markdown (GitHub-flavored CommonMark) for artifacts that are **append-only, 
 
 ## When to use Markdown
 
-- **`log.md`** — append-only running notebook, one entry per major workflow step. Append entries live as work proceeds; do not batch.
-- **README-style notes** alongside data or experiments (`experiments/exp_X/README.md`) — short context for a future reader.
-- **Inline working notes** — short documents that document a decision or trade-off where rendering in a browser would be overkill.
+- **`log.md`.** Append-only running notebook, one entry per major workflow step. Append entries live as work proceeds; do not batch.
+- **README-style notes.** Alongside data or experiments (`experiments/exp_X/README.md`). Short context for a future reader.
+- **Inline working notes.** Short documents that document a decision or trade-off where rendering in a browser would be overkill.
 
 Do not use Markdown for the final report of any phase. Reports use HTML (see `html-report.md`).
 
