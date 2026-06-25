@@ -1,7 +1,7 @@
 ---
 description: Run exploratory data analysis on a dataset for Bayesian modeling. Standalone — can be used independently of the full /bayesian-workflow:run pipeline.
 argument-hint: "<data_path> [output_dir] [--focus=<area>]"
-allowed-tools: Task, Bash, Read
+allowed-tools: Agent, Bash, Read
 ---
 
 Run the `eda-analyst` subagent on `$ARGUMENTS`. The agent profiles the dataset, completes the data semantics audit, applies standardization, investigates competing data-generating stories, and produces a modeling handoff report.
@@ -21,7 +21,7 @@ Use Bash to check that `./pyproject.toml` and `./shared_utils/` both exist in th
 
 ## Invoke eda-analyst
 
-Use the `Task` tool with `subagent_type: eda-analyst`. The prompt should convey the parsed args clearly so the subagent's input validation passes — for example:
+Use the `Agent` tool with `subagent_type: eda-analyst`. The prompt should convey the parsed args clearly so the subagent's input validation passes — for example:
 
 > Run EDA on the dataset at `<data_path>`. Write outputs to `<output_dir>`. Focus area: `<focus_area>` (or "none").
 
